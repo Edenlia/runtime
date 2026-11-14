@@ -1,0 +1,45 @@
+{
+  "format_version": 1,
+  "date": "2026-11-16",
+  "base_sha": "49331864275b0745afd400109a9a9b207b93f465",
+  "adopted_source_sha": "32897fcda86e6dce91d2812c0686cd3adc2bfcdd",
+  "adopted_subject": "Use pointer-width slots in the CoreCLR browser host",
+  "product_adaptation": "Six production files adopted unchanged; current evidence and documentation added with the owning commit.",
+  "artifact_root": "UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Runtime",
+  "node_version": "24.16.0",
+  "typescript_version": "5.9.2",
+  "commands": [
+    "cd src/native && npm ci --ignore-scripts",
+    "node <artifact_root>/verify-browser-host.cjs <worktree> --baseline",
+    "node <artifact_root>/verify-browser-host.cjs <worktree>",
+    "cd src/native && node_modules/.bin/eslint --no-color --max-warnings=0 libs/Common/JavaScript/host/host.ts libs/Common/JavaScript/host/assets.ts libs/Common/JavaScript/host/pointer-memory.ts libs/Common/JavaScript/per-module/index.ts rollup.config.defines.js",
+    "cd src/native && Configuration=Release ProductVersion=12.0 ContinuousIntegrationBuild=false RuntimeFlavor=CoreCLR WasmPointerSize=8 StaticLibDestination=<artifact_root>/Rollup-wasm64 npm run rollup:cmake -- ''",
+    "cd src/native && Configuration=Release ProductVersion=12.0 ContinuousIntegrationBuild=false RuntimeFlavor=CoreCLR WasmPointerSize=4 StaticLibDestination=<artifact_root>/Rollup-wasm32 npm run rollup:cmake -- ''",
+    "git diff --cached --check"
+  ],
+  "results": {
+    "baseline_host": "EXPECTED FAIL: native eight-byte property pointer slots cannot reconstruct RUNTIME_IDENTIFIER after pointer truncation",
+    "candidate_host": "PASS: 49 counted cases, zero failures",
+    "lanes": ["wasm32 Number", "wasm64 Number", "wasm64 BigInt"],
+    "release_rollup_wasm32": "PASS: eight JS/type outputs, exit 0",
+    "release_rollup_wasm64": "PASS: eight JS/type outputs, exit 0",
+    "eslint_changed_files": "PASS",
+    "diff_check": "PASS"
+  },
+  "output_sha256": {
+    "Rollup-wasm64/libBrowserHost.js": "d58984bf9543c1ea2397e44a35bc81b59142b6348e9124ff685855c3291ac30a",
+    "Rollup-wasm32/libBrowserHost.js": "a4631db5afd81210f7ef292f3ca3e8b89ae20eaffa304d0bb497f6c3ff1e5af3"
+  },
+  "logs": ["npm-ci.log", "browser-host-before.log", "browser-host-after.log", "rollup-wasm64.log", "rollup-wasm32.log"],
+  "guest_executed": false,
+  "native_calls_executed": false,
+  "browser_executed": false,
+  "high_address_observed": null,
+  "high_pointer_value_tested": true,
+  "limits": [
+    "JavaScript native-host model only; not an end-to-end CLR or UnrealSharp acceptance run.",
+    "A pointer value above 4 GiB is stored in a low-address native slot; no high heap address is accessed.",
+    "Full runtime native build, WebCIL memory/table protocol, corerun, JS interop, runner and SDK remain incomplete.",
+    "UE 5.9 MEMORY64=2 lowering and Emscripten 6.0.10 compatibility require separate native verification."
+  ]
+}

@@ -6,7 +6,32 @@ A/B/C/D 原先已执行验证，随后按用户要求删除新增非矩阵测试
 生产代码 blobs 保持不变，但提交 SHA 改变。历史 receipts 保留原始 SHA，不改成“新 SHA 已重跑”。
 `evidence/history-rewrite.json` 和 `evidence/independent-final-audit.json` 记录该对应关系。
 B 删除专项测试后实际重编译并运行既有 128 项，全部通过，0 skip。
-本次 eden-main 只增加文档/JSON，不改变产品树，也没有重新构建或执行 guest。
+初始 eden-main checkpoint 只增加文档/JSON，没有重新构建或执行 guest。
+
+## 后续 browser host 指针槽修复
+
+2026-11-16 在 `49331864275` 上采用历史提交
+`32897fcda86e6dce91d2812c0686cd3adc2bfcdd` 的六个生产文件。
+当前 CoreCLR 路径是 `src/native/rollup.config.js` 生成的 `libBrowserHost.js`，
+由 `BrowserWasmApp.CoreCLR.targets` 与 `libBrowserHost.a` 一起链接；其入口是
+`src/native/libs/Common/JavaScript/host/index.ts`，并非据旧 Mono startup 文件推定。
+
+- 原始 checkpoint 在 8-byte property 指针槽检查中失败，截断后无法恢复属性。
+- 修复后本地 JavaScript host 检查 49 项通过：wasm32 Number、wasm64 Number、
+  wasm64 BigInt；包含 property/argv、普通 DLL/PDB/ICU slots、probe 清零、
+  memory view 替换、无效数值拒绝及大于 4 GiB 的指针**值**。
+- 正常 Release Rollup 在 `WasmPointerSize=4` 和 `8` 下各完成八份 JS/type 输出，
+  修改文件的 ESLint 和 `git diff --check` 通过。
+- 检查使用模拟 native host；没有执行 CLR guest、真实 native callback、浏览器，
+  也没有访问大于 4 GiB 的 heap 地址。没有因此改变下列执行 gate 的 NOT RUN。
+- `MEMORY64=2` 是 UE 5.9 默认链接的独立兼容性需求；本修复按 C/C++ ABI 的
+  8-byte slots 处理 Number/BigInt 输入，但没有建立 runtime 与 UE 链接兼容性。
+  WebCIL memory/table globals、corerun、完整 JS interop 与 SDK/runner 接线仍待完成。
+
+命令、输入、输出哈希及 artifact 路径见
+[机器可读记录](evidence/2026-11-16-browser-host-pointer-slots.json)。
+
+## A/B/C/D 历史构建记录
 
 | Lane | 实际被测提交 | 实际结果 | 当前解释 |
 | --- | --- | --- | --- |

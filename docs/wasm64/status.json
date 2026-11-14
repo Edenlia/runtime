@@ -51,6 +51,16 @@
     }
   },
   "overall_status": "PARTIAL",
+  "followup_checkpoints": [
+    {
+      "scope": "CoreCLR browser host pointer slots",
+      "adopted_source_sha": "32897fcda86e6dce91d2812c0686cd3adc2bfcdd",
+      "code_status": "IMPLEMENTED",
+      "javascript_host_and_rollup": "PASS",
+      "guest_execution": "NOT RUN",
+      "evidence": "evidence/2026-11-16-browser-host-pointer-slots.json"
+    }
+  ],
   "milestones": {
     "foundation_build": "PARTIAL",
     "native_abi_execution": "NOT RUN",

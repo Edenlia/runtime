@@ -47,7 +47,13 @@ try {
     gitHash = "unknown";
 }
 
+export const pointerSize = Number(process.env.WasmPointerSize || "4");
+if (pointerSize !== 4 && pointerSize !== 8) {
+    throw new Error("WasmPointerSize must be 4 or 8");
+}
+
 export const envConstants = {
+    pointerSize,
     productVersion,
     configuration,
     runtimeFlavor,

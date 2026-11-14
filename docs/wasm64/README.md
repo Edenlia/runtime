@@ -1,9 +1,15 @@
 # CoreCLR wasm64 整体进度入口
 
 本目录随 `wasm64/eden-main` 维护完整实施计划、决策、分支关系、验证记录与下一步任务。
-记录日期：2026-11-16。当前代码 checkpoint：`259251bb79268a221f0019edd1ad9d384fa1a3c3`。
+记录日期：2026-11-16。原生构建 checkpoint：`259251bb79268a221f0019edd1ad9d384fa1a3c3`。
 本分支直接继承 D，因此已包含 type-system 与 A/B/C/D 的全部当前实现。
 当前成果是 target/layout/native build checkpoint，整个 wasm64 port 尚未完成。
+
+后续最小修复已恢复 CoreCLR browser host 的指针宽度传递、property/argv 与普通
+DLL/PDB/ICU 指针槽。它来自历史提交 `32897fcda86e6dce91d2812c0686cd3adc2bfcdd`，
+已重新执行 wasm32/wasm64 JavaScript host 检查与两个宽度的 Release Rollup；
+这不表示已经执行 CoreCLR guest、高地址内存或完整 browser loader。
+具体证据见 [browser host pointer slots](evidence/2026-11-16-browser-host-pointer-slots.json)。
 
 ## 阅读顺序
 

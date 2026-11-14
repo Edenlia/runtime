@@ -5,6 +5,7 @@ import type { CharPtr, VfsAsset, VoidPtr, VoidPtrPtr } from "../types";
 import { _ems_ } from "../ems-ambient";
 
 import { browserVirtualAppBase, sizeOfPtr } from "../per-module";
+import { pointerToNumber, readPointer, writePointer } from "./pointer-memory";
 
 const hasInstantiateStreaming = typeof WebAssembly !== "undefined" && typeof WebAssembly.instantiateStreaming === "function";
 const loadedAssemblies: Map<string, { ptr: number, length: number }> = new Map();
@@ -19,8 +20,8 @@ export function registerPdbBytes(bytes: Uint8Array, virtualPath: string, shortNa
             throw new Error("posix_memalign failed for PDB");
         }
 
-        const ptr = _ems_.HEAPU32[ptrPtr as any >>> 2];
-        _ems_.HEAPU8.set(bytes, ptr >>> 0);
+        const ptr = readPointer(ptrPtr);
+        _ems_.HEAPU8.set(bytes, ptr);
 
         _ems_.dotnetLogger.debug(`Registered PDB '${virtualPath}' (shortName: '${shortName}') at ${ptr.toString(16)} length ${bytes.length}`);
         loadedAssemblies.set(virtualPath, { ptr, length: bytes.length });
@@ -38,8 +39,8 @@ export function registerDllBytes(bytes: Uint8Array, virtualPath: string, shortNa
             throw new Error("posix_memalign failed");
         }
 
-        const ptr = _ems_.HEAPU32[ptrPtr as any >>> 2];
-        _ems_.HEAPU8.set(bytes, ptr >>> 0);
+        const ptr = readPointer(ptrPtr);
+        _ems_.HEAPU8.set(bytes, ptr);
 
         _ems_.dotnetLogger.debug(`Registered assembly '${virtualPath}' (shortName: '${shortName}') at ${ptr.toString(16)} length ${bytes.length}`);
         loadedAssemblies.set(virtualPath, { ptr, length: bytes.length });
@@ -99,7 +100,7 @@ function allocWebcilPayload(payloadSize: number): number {
         if (_ems_._posix_memalign(ptrPtr as any, 16, payloadSize)) {
             throw new Error("posix_memalign failed for Webcil payload");
         }
-        return _ems_.HEAPU32[ptrPtr as any >>> 2];
+        return readPointer(ptrPtr);
     } finally {
         _ems_.stackRestore(sp);
     }
@@ -179,16 +180,16 @@ export function BrowserHost_ExternalAssemblyProbe(pathPtr: CharPtr, outDataStart
         }
     }
     if (assembly) {
-        _ems_.HEAPU32[outDataStartPtr as any >>> 2] = assembly.ptr;
+        writePointer(outDataStartPtr, assembly.ptr);
         // int64_t target
-        _ems_.HEAPU32[outSize as any >>> 2] = assembly.length;
-        _ems_.HEAPU32[((outSize as any) + 4) >>> 2] = 0;
+        _ems_.HEAPU32[pointerToNumber(outSize) / 4] = assembly.length;
+        _ems_.HEAPU32[(pointerToNumber(outSize) + 4) / 4] = 0;
         return true;
     }
     _ems_.dotnetLogger.debug(`Assembly not found: '${path}'`);
-    _ems_.HEAPU32[outDataStartPtr as any >>> 2] = 0;
-    _ems_.HEAPU32[outSize as any >>> 2] = 0;
-    _ems_.HEAPU32[((outSize as any) + 4) >>> 2] = 0;
+    writePointer(outDataStartPtr, 0);
+    _ems_.HEAPU32[pointerToNumber(outSize) / 4] = 0;
+    _ems_.HEAPU32[(pointerToNumber(outSize) + 4) / 4] = 0;
     return false;
 }
 
@@ -200,8 +201,8 @@ export function loadIcuData(bytes: Uint8Array) {
             throw new Error("posix_memalign failed for ICU data");
         }
 
-        const ptr = _ems_.HEAPU32[ptrPtr as any >>> 2];
-        _ems_.HEAPU8.set(bytes, ptr >>> 0);
+        const ptr = readPointer(ptrPtr);
+        _ems_.HEAPU8.set(bytes, ptr);
 
         const result = _ems_._wasm_load_icu_data(ptr as unknown as VoidPtr);
         if (!result) {

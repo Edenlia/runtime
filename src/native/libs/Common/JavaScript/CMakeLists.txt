@@ -26,6 +26,7 @@ set(ROLLUP_TS_SOURCES
     "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/assets.ts"
     "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/cross-module.ts"
     "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/host.ts"
+    "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/pointer-memory.ts"
     "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/index.ts"
     "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/per-module.ts"
     "${CLR_SRC_NATIVE_DIR}/libs/Common/JavaScript/host/types.ts"
@@ -150,7 +151,7 @@ endif()
 
 add_custom_command(
     OUTPUT ${ROLLUP_OUTPUTS}
-    COMMAND npm run rollup:cmake -- "Configuration:${CMAKE_BUILD_TYPE},ProductVersion:${CMAKE_PRODUCT_VERSION},ContinuousIntegrationBuild:${CMAKE_CONTINUOUS_INTEGRATION_BUILD},RuntimeFlavor:${CMAKE_BUILD_RUNTIME_FLAVOR},StaticLibDestination:${STATIC_LIB_DESTINATION}"
+    COMMAND npm run rollup:cmake -- "Configuration:${CMAKE_BUILD_TYPE},ProductVersion:${CMAKE_PRODUCT_VERSION},ContinuousIntegrationBuild:${CMAKE_CONTINUOUS_INTEGRATION_BUILD},RuntimeFlavor:${CMAKE_BUILD_RUNTIME_FLAVOR},StaticLibDestination:${STATIC_LIB_DESTINATION},WasmPointerSize:${CMAKE_SIZEOF_VOID_P}"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../.."
     COMMENT "Running 'npm run rollup' to generate JavaScript bundles"
     DEPENDS ${ROLLUP_TS_SOURCES}

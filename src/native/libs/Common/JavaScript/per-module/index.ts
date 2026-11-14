@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+import PointerSize from "consts:pointerSize";
+
 import type { VoidPtr, CharPtr, NativePointer } from "../types";
 
 export const globalThisAny = globalThis as any;
@@ -14,4 +16,4 @@ export const VoidPtrNull: VoidPtr = <VoidPtr><any>0;
 export const CharPtrNull: CharPtr = <CharPtr><any>0;
 export const NativePointerNull: NativePointer = <NativePointer><any>0;
 export const browserVirtualAppBase = "/"; // keep in sync other places that define browserVirtualAppBase
-export const sizeOfPtr = 4;
+export const sizeOfPtr: 4 | 8 = PointerSize;
