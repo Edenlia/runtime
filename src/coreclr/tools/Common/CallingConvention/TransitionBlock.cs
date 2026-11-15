@@ -45,7 +45,10 @@ namespace Internal.CallingConvention
                     return RiscV64TransitionBlock.Instance;
 
                 case TargetArchitecture.Wasm32:
-                    return Wasm32TransitionBlock.Instance;
+                    return WasmTransitionBlock.Wasm32Instance;
+
+                case TargetArchitecture.Wasm64:
+                    return WasmTransitionBlock.Wasm64Instance;
 
                 default:
                     throw new NotImplementedException(arch.ToString());
@@ -67,6 +70,7 @@ namespace Internal.CallingConvention
         public bool IsLoongArch64 => Architecture == TargetArchitecture.LoongArch64;
         public bool IsRiscV64 => Architecture == TargetArchitecture.RiscV64;
         public bool IsWasm32 => Architecture == TargetArchitecture.Wasm32;
+        public bool IsWasm => Architecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64;
 
         /// <summary>
         /// This property is only overridden in AMD64 Unix variant of the transition block.
@@ -710,13 +714,20 @@ namespace Internal.CallingConvention
             }
         }
 
-        private class Wasm32TransitionBlock : TransitionBlock
+        private sealed class WasmTransitionBlock : TransitionBlock
         {
-            public static TransitionBlock Instance = new Wasm32TransitionBlock();
+            public static readonly TransitionBlock Wasm32Instance = new WasmTransitionBlock(TargetArchitecture.Wasm32, 4);
+            public static readonly TransitionBlock Wasm64Instance = new WasmTransitionBlock(TargetArchitecture.Wasm64, 8);
 
-            public override TargetArchitecture Architecture => TargetArchitecture.Wasm32;
+            private WasmTransitionBlock(TargetArchitecture architecture, int pointerSize)
+            {
+                Architecture = architecture;
+                PointerSize = pointerSize;
+            }
 
-            public override int PointerSize => 4;
+            public override TargetArchitecture Architecture { get; }
+
+            public override int PointerSize { get; }
 
             public override int FloatRegisterSize => 0;
 
@@ -724,9 +735,10 @@ namespace Internal.CallingConvention
 
             public override int NumCalleeSavedRegisters => 0;
 
-            public override int SizeOfTransitionBlock => 8;
+            // Matches native TransitionBlock: return address and saved stack pointer.
+            public override int SizeOfTransitionBlock => 2 * PointerSize;
 
-            public override int OffsetOfArgumentRegisters => 8;
+            public override int OffsetOfArgumentRegisters => SizeOfTransitionBlock;
 
             public override int OffsetOfFloatArgumentRegisters => 0;
 

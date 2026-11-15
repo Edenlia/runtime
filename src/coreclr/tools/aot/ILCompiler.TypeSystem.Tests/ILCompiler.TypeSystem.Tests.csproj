@@ -98,6 +98,14 @@
     <Compile Include="VirtualStaticInterfaceMethodTests.cs" />
     <Compile Include="WellKnownTypeTests.cs" />
     <Compile Include="WasmTargetDetailsTests.cs" />
+    <Compile Include="WasmTransitionBlockTests.cs" />
+    <Compile Include="../../Common/CallingConvention/TransitionBlock.cs" />
+    <Compile Include="../../Common/CallingConvention/ArgIterator.cs" />
+    <Compile Include="$(LibrariesProjectRoot)/Common/src/Internal/VersionResilientHashCode.cs" />
+    <Compile Include="../../Common/TypeSystem/Common/VersionResilientHashCode.TypeSystem.cs" />
+    <Compile Include="../../Common/CallingConvention/ITypeHandle.cs" />
+    <Compile Include="../../Common/Internal/Runtime/CorConstants.cs" />
+    <Compile Include="../../Common/CallingConvention/FpStructInRegistersInfo.cs" />
     <Compile Include="ExceptionStringTests.cs" />
     <Compile Include="MarshalUtilsTests.cs" />
   </ItemGroup>
