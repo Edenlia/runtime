@@ -272,7 +272,8 @@ build_native()
     else
         cmake_command=cmake
         if [[ ( "$hostArch" == "wasm" || "$hostArch" == "wasm64" ) && "$targetOS" == "browser" ]]; then
-            cmake_command="emcmake cmake"
+            # emcmake selects the toolchain at configure time. During --build it
+            # appends configure options after --, where Ninja interprets them.
             echo "Executing $cmake_command --build \"$intermediatesDir\" --target $target -- -j $__NumProc"
             $cmake_command --build "$intermediatesDir" --target $target -- -j "$__NumProc"
             exit_code="$?"
