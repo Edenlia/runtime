@@ -279,9 +279,13 @@ jobs:
       - src/libraries/*/src/*
       - src/coreclr/System.Private.CoreLib/*
       - src/coreclr/tools/aot/ILCompiler.ReadyToRun/*
+      - src/coreclr/tools/aot/crossgen2/*
+      - src/coreclr/tools/aot/AotCompilerCommon.props
       - src/coreclr/tools/Common/*
       - src/coreclr/vm/wasm/*
       - eng/wasm/WasmPInvokeModules.props
+      - eng/Subsets.props
+      - eng/pipelines/common/templates/wasm-coreclr-callhelpers-check.yml
       exclude:
       - ${{ parameters._const_paths._always_exclude }}
 

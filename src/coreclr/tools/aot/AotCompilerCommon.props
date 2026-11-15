@@ -25,7 +25,9 @@
     <CopyAllJitLibrariesToAotCompilerOutput Condition="'$(CopyAllJitLibrariesToAotCompilerOutput)' == '' and '$(CrossHostArch)' == ''">true</CopyAllJitLibrariesToAotCompilerOutput>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Portable call-helper generation only needs the managed type system and lowering. It must
+       not acquire a dependency on a target JIT while bootstrapping a new architecture. -->
+  <ItemGroup Condition="'$(PortableCallHelpersOnly)' != 'true'">
     <Content Include="$(CoreCLRArtifactsPath)/$(CrossHostArch)/$(JitInterfaceLibraryName)"
       CopyToOutputDirectory="PreserveNewest"
       CopyToPublishDirectory="PreserveNewest"

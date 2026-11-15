@@ -70,6 +70,11 @@ namespace ILCompiler
 
         public int Run()
         {
+#if PORTABLE_CALLHELPERS_ONLY
+            if (_generatePortableCallHelpers is null)
+                throw new CommandLineException(SR.PortableCallHelpersOnlyCompiler);
+#endif
+
             if (_outputFilePath == null && !_outNearInput && _generatePortableCallHelpers is null)
                 throw new CommandLineException(SR.MissingOutputFile);
 

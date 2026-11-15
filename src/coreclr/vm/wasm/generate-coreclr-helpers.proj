@@ -10,6 +10,12 @@
                       scanned assemblies were built in.
     BrowserScanPath   Overrides the browser scan path.
     WasiScanPath      Overrides the wasi scan path.
+    CallHelperCompilerPath
+                      Overrides crossgen2 with an executable or a framework-dependent DLL.
+                      Relative paths are resolved against the repository root.
+    CallHelperOutputRoot
+                      Overrides the output root. Tables go under <root>/<target os>/.
+                      Defaults to this source directory for checked-in table regeneration.
     CallHelperTargetOS
                       browser or wasi to regenerate only that flavor's tables (default: both).
                       Lets a build that produced only one flavor, such as a CI leg, regenerate
@@ -19,6 +25,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(NetCoreAppCurrent)</TargetFramework>
+    <CallHelperOutputRoot Condition="'$(CallHelperOutputRoot)' == ''">$(MSBuildThisFileDirectory)</CallHelperOutputRoot>
   </PropertyGroup>
 
   <!-- The framework P/Invoke modules, shared with the runtime tests' corerun relink so the
@@ -98,14 +105,30 @@
       <!-- The self-contained crossgen2 from the same per-flavor build output that produced the
            scan path. -->
       <_Crossgen2Path>$([MSBuild]::NormalizePath('$(ArtifactsBinDir)', 'coreclr', '$(_TargetOS).wasm.$(Configuration)', '$(BuildArchitecture)', 'crossgen2', 'crossgen2$(ExeSuffix)'))</_Crossgen2Path>
-      <_OutputDir>$(MSBuildThisFileDirectory)$(_TargetOS)/</_OutputDir>
+      <_Crossgen2Path Condition="'$(CallHelperCompilerPath)' != ''">$([MSBuild]::NormalizePath('$(RepoRoot)', '$(CallHelperCompilerPath)'))</_Crossgen2Path>
+      <_Crossgen2Extension>$([System.IO.Path]::GetExtension('$(_Crossgen2Path)').ToLowerInvariant())</_Crossgen2Extension>
+      <_Crossgen2Command>&quot;$(_Crossgen2Path)&quot;</_Crossgen2Command>
+      <!-- Use the SDK host already running this project when invoked through dotnet. Direct
+           MSBuild callers can use the repository's DotNetTool setting. -->
+      <_CallHelperDotNetHost>$(DotNetTool)</_CallHelperDotNetHost>
+      <_CallHelperDotNetHost Condition="'$(DOTNET_HOST_PATH)' != ''">$(DOTNET_HOST_PATH)</_CallHelperDotNetHost>
+      <_CallHelperDotNetHostFileName>$([System.IO.Path]::GetFileName('$(_CallHelperDotNetHost)'))</_CallHelperDotNetHostFileName>
+      <_CallHelperDotNetHostPath Condition="'$(_CallHelperDotNetHost)' != '$(_CallHelperDotNetHostFileName)'">$([MSBuild]::NormalizePath('$(RepoRoot)', '$(_CallHelperDotNetHost)'))</_CallHelperDotNetHostPath>
+      <_Crossgen2Command Condition="'$(_Crossgen2Extension)' == '.dll'">&quot;$(_CallHelperDotNetHost)&quot; &quot;$(_Crossgen2Path)&quot;</_Crossgen2Command>
+      <_OutputDir>$([MSBuild]::NormalizeDirectory('$(RepoRoot)', '$(CallHelperOutputRoot)', '$(_TargetOS)'))</_OutputDir>
       <_ResponseFileDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsObjDir)', 'wasm-callhelpers', '$(_TargetOS)'))</_ResponseFileDir>
       <_ResponseFile>$(_ResponseFileDir)generate-coreclr-helpers.rsp</_ResponseFile>
       <_StagingDir>$(_ResponseFileDir)generated/</_StagingDir>
     </PropertyGroup>
 
+    <Error Condition="'$(CallHelperCompilerPath)' != '' and !Exists('$(_Crossgen2Path)')"
+           Text="CallHelperCompilerPath does not exist: $(_Crossgen2Path). Build the helper-only compiler or supply an existing crossgen2 executable or DLL." />
     <Error Condition="!Exists('$(_Crossgen2Path)')"
            Text="crossgen2 was not found at $(_Crossgen2Path). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -c $(Configuration)" />
+    <Error Condition="'$(_Crossgen2Extension)' == '.dll' and '$(_CallHelperDotNetHost)' == ''"
+           Text="A .NET host is required to run the crossgen2 DLL. Invoke this project through the repository's dotnet script or set DotNetTool to an existing .NET host." />
+    <Error Condition="'$(_Crossgen2Extension)' == '.dll' and '$(_CallHelperDotNetHost)' != '$(_CallHelperDotNetHostFileName)' and !Exists('$(_CallHelperDotNetHostPath)')"
+           Text="The .NET host for the crossgen2 DLL does not exist: $(_CallHelperDotNetHost). Invoke this project through the repository's dotnet script or set DotNetTool to an existing .NET host." />
     <Error Condition="!Exists('$(_ScanPath)')"
            Text="Scan path for $(_TargetOS) does not exist: $(_ScanPath). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -c $(Configuration)" />
     <Error Condition="'@(WasmCoreClrFrameworkPInvokeModule)' == ''"
@@ -141,7 +164,7 @@
 
     <WriteLinesToFile File="$(_ResponseFile)" Lines="@(_GeneratorArg)" Overwrite="true" WriteOnlyWhenDifferent="true" />
 
-    <Exec Command="&quot;$(_Crossgen2Path)&quot; &quot;@$(_ResponseFile)&quot;"
+    <Exec Command="$(_Crossgen2Command) &quot;@$(_ResponseFile)&quot;"
           WorkingDirectory="$(RepoRoot)" />
 
     <ItemGroup>

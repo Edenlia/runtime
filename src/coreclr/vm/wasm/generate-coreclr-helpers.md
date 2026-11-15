@@ -84,6 +84,40 @@ Notes:
 - If a required `testhost` scan path or crossgen2 is missing, the script stops and prints the
   exact `build` command needed to produce it.
 
+### Build the helper generator without a target JIT
+
+Portable call-helper generation uses the managed type system and ABI lowering, without invoking
+the target JIT. The on-demand `clr.callhelpers` subset builds a separate framework-dependent
+host tool without copying target JIT or JIT-interface libraries:
+
+```bash
+./build.sh -os browser -arch wasm -c Release -subset clr.callhelpers
+```
+
+Its output is
+`artifacts/bin/coreclr/browser.wasm.Release/<build architecture>/crossgen2-callhelpers/crossgen2.dll`.
+The tool runs on the repository's SDK and only accepts `--generate-portable-callhelpers`;
+ReadyToRun compilation requests fail explicitly. This subset does not build the managed
+framework assemblies that the generator scans. Build those separately using the matching
+configuration and target, as described above.
+
+The regeneration project accepts `CallHelperCompilerPath` for an explicit executable or
+framework-dependent DLL, and `CallHelperOutputRoot` to write under `<root>/<target os>/`
+without changing the checked-in tables. Relative paths are resolved against the repository
+root. For a Linux x64 build host, generate browser tables with the helper-only tool using:
+
+```bash
+./dotnet.sh build src/coreclr/vm/wasm/generate-coreclr-helpers.proj \
+  -t:GenerateCallHelpers -p:Configuration=Release -p:CallHelperTargetOS=browser \
+  -p:CallHelperCompilerPath=artifacts/bin/coreclr/browser.wasm.Release/x64/crossgen2-callhelpers/crossgen2.dll \
+  -p:CallHelperOutputRoot=artifacts/obj/callhelpers-verification
+```
+
+This writes the three generated source files, including their license headers, under
+`artifacts/obj/callhelpers-verification/browser/`. To regenerate the checked-in tables with
+this tool, omit `CallHelperOutputRoot`. Existing script invocations retain their default
+self-contained crossgen2 lookup and source output directories.
+
 ## Which configuration to generate from
 
 Generate the checked-in tables from a **Release** build. The CI check regenerates them from
@@ -127,6 +161,22 @@ After running, review and commit any changes to the generated files under
 
 ## CI check
 
+The helper-only regression can also be run locally after building `clr.callhelpers`
+and the matching `clr+libs` inputs:
+
+```bash
+python3 src/coreclr/vm/wasm/tests/test_helper_bootstrap.py --target-os browser --configuration Release -v
+```
+
+It executes both compilers through the real regeneration project, checks the three
+generated tables byte-for-byte, and checks error cases and paths containing spaces.
+Release additionally checks the committed tables; other configurations compare the
+two compilers without treating configuration-specific comments as committed-table
+changes. `--dotnet`, `--bootstrap`, `--full-compiler`, and `--scan-path` select explicit
+tool/input paths; `--evidence-dir` chooses where commands, logs and hashes are saved.
+Missing prerequisites fail the test rather than skip it. These are host generation
+tests, not guest runtime execution tests.
+
 The Release `browser_wasm` CoreCLR build leg and the `wasi_wasm` CoreCLR build-only leg in
 `eng/pipelines/runtime.yml` run
 [`wasm-coreclr-callhelpers-check.yml`](../../../../eng/pipelines/common/templates/wasm-coreclr-callhelpers-check.yml)
@@ -137,6 +187,9 @@ Other stale entries can crash corerun at run time; a missing
 `[UnmanagedCallersOnly]` thunk, for example, fails startup with
 `GetUnmanagedCallersOnlyThunk: unknown thunk`. Library tests do not catch this because the app
 relink generates its own tables.
+
+The same legs also build the independent `clr.callhelpers` tool and run the helper-only
+comparison and negative tests. The existing normal-compiler regeneration check remains.
 
 The legs are triggered by the `wasm_coreclr_callhelpers` path subset in
 `eng/pipelines/common/evaluate-default-paths.yml`, which covers the library sources, CoreLib and

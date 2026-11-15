@@ -51,3 +51,14 @@ steps:
       exit 1
     displayName: Check ${{ parameters.osGroup }} CoreCLR call helpers are up to date
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+  - bash: |
+      set -euo pipefail
+      target_os='${{ parameters.osGroup }}'
+      configuration='$(_BuildConfig)'
+
+      ./build.sh -os "$target_os" -arch wasm -c "$configuration" -subset clr.callhelpers
+      python3 src/coreclr/vm/wasm/tests/test_helper_bootstrap.py \
+        --target-os "$target_os" --configuration "$configuration" -v
+    displayName: Check ${{ parameters.osGroup }} JIT-independent call-helper generation
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
