@@ -70,6 +70,11 @@ namespace ILCompiler
 
         public int Run()
         {
+#if PORTABLE_CALLHELPERS_ONLY
+            if (_generatePortableCallHelpers is null)
+                throw new CommandLineException(SR.PortableCallHelpersOnlyCompiler);
+#endif
+
             if (_outputFilePath == null && !_outNearInput && _generatePortableCallHelpers is null)
                 throw new CommandLineException(SR.MissingOutputFile);
 
@@ -83,9 +88,20 @@ namespace ILCompiler
 
             // The portable call-helpers generator is currently supported only for Wasm.
             if (_generatePortableCallHelpers is not null
-                && (targetArchitecture != TargetArchitecture.Wasm32 || targetOS is not (TargetOS.Browser or TargetOS.Wasi)))
+                && !((targetArchitecture == TargetArchitecture.Wasm32 && targetOS is (TargetOS.Browser or TargetOS.Wasi))
+                    || (targetArchitecture == TargetArchitecture.Wasm64 && targetOS == TargetOS.Browser)))
             {
                 throw new CommandLineException(SR.GeneratePortableCallHelpersRequiresWasmTarget);
+            }
+
+            // Target selection and helper-only bootstrap are available before the managed/native
+            // ABI and the wasm64 code generator. Do not emit wasm32 helper declarations or allow a
+            // compiler invocation to silently fall back to a different target in the meantime.
+            if (targetArchitecture == TargetArchitecture.Wasm64)
+            {
+                throw new CommandLineException(_generatePortableCallHelpers is not null
+                    ? SR.Wasm64PortableCallHelpersNotSupported
+                    : SR.Wasm64ReadyToRunNotSupported);
             }
             bool targetAllowsRuntimeCodeGeneration = Get(_command.TargetAllowsRuntimeCodeGeneration)
                 ?? GetTargetAllowsRuntimeCodeGeneration(targetOS, targetArchitecture);
@@ -752,13 +768,13 @@ namespace ILCompiler
         private static bool GetTargetAllowsRuntimeCodeGeneration(TargetOS operatingSystem, TargetArchitecture architecture)
         {
             return operatingSystem is not (TargetOS.iOS or TargetOS.iOSSimulator or TargetOS.MacCatalyst or TargetOS.tvOS or TargetOS.tvOSSimulator or TargetOS.Browser or TargetOS.Wasi)
-                && architecture is not TargetArchitecture.Wasm32;
+                && architecture is not (TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64);
         }
 
         // CoreCLR on WebAssembly is built without FEATURE_MULTITHREADING by default.
         private static bool GetTargetIsSingleThreaded(TargetArchitecture architecture)
         {
-            return architecture is TargetArchitecture.Wasm32;
+            return architecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64;
         }
 
         private void CheckManagedCppInputFiles(IEnumerable<string> inputPaths)

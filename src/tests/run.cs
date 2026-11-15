@@ -28,7 +28,7 @@ internal static class TestRunner
     private static readonly Regex s_coreDumpRegex = new("^core$", RegexOptions.CultureInvariant);
     private static readonly Regex s_coreDumpWithPidRegex = new(@"^core\.[0-9]+", RegexOptions.CultureInvariant);
     private static readonly Regex s_issueUrlRegex = new(@"^https://github\.com/([^/]+/[^/]+)/issues/(\d+)", RegexOptions.CultureInvariant);
-    private static readonly string[] s_validArchitectures = ["x64", "x86", "arm", "arm64", "loongarch64", "riscv64", "wasm"];
+    private static readonly string[] s_validArchitectures = ["x64", "x86", "arm", "arm64", "loongarch64", "riscv64", "wasm", "wasm64"];
     private static readonly string[] s_validBuildTypes = ["Debug", "Checked", "Release"];
     private static readonly string[] s_validHostOperatingSystems = ["windows", "osx", "linux", "illumos", "solaris", "haiku", "freebsd", "browser", "android", "wasi"];
     private static readonly string[] s_validParallelValues = ["none", "collections", "assemblies", "all"];
@@ -51,6 +51,16 @@ internal static class TestRunner
 
             if (!runnerArguments.AnalyzeResultsOnly)
             {
+                if (runnerArguments.Architecture == "wasm64")
+                {
+                    // A successful prior run must not supply the executed-test count for this run.
+                    // Match the parser's complete file set, including the bare TestRun.xml name.
+                    foreach (string resultFile in EnumerateTestResultFiles(runnerArguments.LogsDirectory).ToArray())
+                    {
+                        File.Delete(resultFile);
+                    }
+                }
+
                 returnCode = runnerArguments.TestEnvironment is not null
                     ? RunTests(runnerArguments, runnerArguments.TestEnvironment)
                     : CreateAndUseTestEnvironment(runnerArguments, environment);
@@ -61,6 +71,12 @@ internal static class TestRunner
             Dictionary<string, AssemblyInfo> assemblies = new(StringComparer.Ordinal);
             List<CrashedRunner> crashedRunners = ParseTestResults(runnerArguments, tests, assemblies);
             PrintSummary(tests, assemblies, crashedRunners);
+            if (!runnerArguments.AnalyzeResultsOnly && runnerArguments.Architecture == "wasm64" &&
+                assemblies.Values.Sum(assembly => assembly.Passed + assembly.Failed) == 0)
+            {
+                Console.Error.WriteLine("No wasm64 tests executed. An empty or entirely skipped run does not validate this target.");
+                returnCode = 1;
+            }
             PrintActiveIssueSummary(tests, runnerArguments.ActiveIssueDetails);
             int reproCount = CreateRepro(runnerArguments, environment, tests);
 
@@ -93,11 +109,26 @@ internal static class TestRunner
     {
         string runtimeRepositoryLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(GetSourceFilePath())!, "..", ".."));
         string artifactsLocation = Path.Combine(runtimeRepositoryLocation, "artifacts");
-        string hostOperatingSystem = options.HostOperatingSystem ?? GetDefaultHostOperatingSystem();
+        string hostOperatingSystem = options.HostOperatingSystem ?? (options.Architecture == "wasm64" ? "browser" : GetDefaultHostOperatingSystem());
         ValidateValue(hostOperatingSystem, s_validHostOperatingSystems, "Unknown host_os {0}\nSupported OS: {1}");
 
         string architecture = options.Architecture ?? GetDefaultArchitecture();
         ValidateValue(architecture, s_validArchitectures, "Unknown arch {0}.\nSupported architectures: {1}");
+
+        if (architecture == "wasm64")
+        {
+            if (hostOperatingSystem != "browser")
+            {
+                throw new RunnerExitException("wasm64 runtime tests currently support only the browser target.");
+            }
+
+            if (options.RunCrossgen2Tests || options.SynthesizePgo || options.RunNativeAotTests ||
+                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RunCrossGen2")) ||
+                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CrossGen2SynthesizePgo")))
+            {
+                throw new RunnerExitException("wasm64 ReadyToRun and NativeAOT execution are not supported by the target-foundation checkpoint.");
+            }
+        }
 
         string buildType = NormalizeBuildType(options.BuildType);
         ValidateValue(buildType, s_validBuildTypes, "Unknown build_type {0}.\nSupported build types: {1}");
@@ -132,7 +163,7 @@ internal static class TestRunner
             throw new InvalidOperationException("Error, msbuild currently expects tests in artifacts/tests/...");
         }
 
-        bool requiresCoreRoot = options.HostOperatingSystem is not ("browser" or "android");
+        bool requiresCoreRoot = hostOperatingSystem is not ("browser" or "android");
         string? coreRoot = options.CoreRoot;
         if (coreRoot is not null)
         {
@@ -641,6 +672,17 @@ internal static class TestRunner
         }
     }
 
+    private static IEnumerable<string> EnumerateTestResultFiles(string logsDirectory)
+    {
+        return Directory.EnumerateFiles(logsDirectory).Where(file =>
+        {
+            string name = Path.GetFileName(file);
+            return name.EndsWith("testrun.xml", StringComparison.OrdinalIgnoreCase) ||
+                name.Equals("StandaloneRunnerTestResults.testrun.log", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith(".testrun.xml.crashed", StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
     private static List<CrashedRunner> ParseTestResults(
         RunnerArguments arguments,
         List<TestResult> tests,
@@ -650,7 +692,7 @@ internal static class TestRunner
         bool found = false;
         List<CrashedRunner> crashedRunners = [];
 
-        foreach (string file in Directory.EnumerateFiles(arguments.LogsDirectory))
+        foreach (string file in EnumerateTestResultFiles(arguments.LogsDirectory))
         {
             string item = Path.GetFileName(file);
             if (item.EndsWith("testrun.xml", StringComparison.OrdinalIgnoreCase))

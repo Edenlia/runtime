@@ -295,6 +295,14 @@
        native code need a corerun with that code linked in. -->
   <Import Project="$(MSBuildThisFileDirectory)Common\CLRTest.WasmCorerun.targets"
           Condition="('$(TargetOS)' == 'browser' or '$(TargetOS)' == 'wasi') and '$(RuntimeFlavor)' == 'coreclr' and '$(TestBuildMode)' != 'nativeaot'" />
+  <Target Name="_ValidateWasm64TestMode"
+          BeforeTargets="PrepareForBuild;GenerateExecutionScriptsInternal"
+          Condition="'$(TargetArchitecture)' == 'wasm64'">
+    <Error Condition="'$(TargetOS)' != 'browser' or '$(RuntimeFlavor)' != 'coreclr'"
+           Text="wasm64 runtime tests currently support only CoreCLR on browser." />
+    <Error Condition="'$(TestBuildMode)' == 'crossgen2' or '$(TestBuildMode)' == 'nativeaot' or '$(AlwaysUseCrossGen2)' == 'true'"
+           Text="wasm64 ReadyToRun and NativeAOT tests are not supported by the target-foundation checkpoint." />
+  </Target>
   <Target Name="CreateExecuteScript"
           BeforeTargets="Build;CopyAllNativeProjectReferenceBinaries"
           Condition="'$(CLRTestBuildAllTargets)' != 'allTargets' And '$(GenerateRunScript)' != 'false' And ('$(_WillCLRTestProjectBuild)' == 'true')"

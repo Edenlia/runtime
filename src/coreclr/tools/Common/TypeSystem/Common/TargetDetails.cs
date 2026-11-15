@@ -81,6 +81,7 @@ namespace Internal.TypeSystem
                     case TargetArchitecture.X64:
                     case TargetArchitecture.LoongArch64:
                     case TargetArchitecture.RiscV64:
+                    case TargetArchitecture.Wasm64:
                         return 8;
                     case TargetArchitecture.ARM:
                     case TargetArchitecture.X86:
@@ -96,7 +97,7 @@ namespace Internal.TypeSystem
         {
             get
             {
-                return Architecture != TargetArchitecture.Wasm32;
+                return !IsWasm;
             }
         }
 
@@ -289,6 +290,7 @@ namespace Internal.TypeSystem
                 case TargetArchitecture.ARM64:
                 case TargetArchitecture.LoongArch64:
                 case TargetArchitecture.RiscV64:
+                case TargetArchitecture.Wasm64:
                     return new LayoutInt(8);
                 case TargetArchitecture.X86:
                     return new LayoutInt(4);
@@ -304,7 +306,7 @@ namespace Internal.TypeSystem
         {
             get
             {
-                return Architecture == TargetArchitecture.Wasm32;
+                return Architecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64;
             }
         }
 

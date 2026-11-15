@@ -105,27 +105,34 @@ else()
                 LINK_DEPENDS "${JS_CORE_RUN};${JS_CORE_RUN_EXTPOST};${JS_SYSTEM_NATIVE_BROWSER};${JS_SYSTEM_BROWSER_UTILS};"
                 LINK_FLAGS "--js-library ${JS_SYSTEM_NATIVE_BROWSER} --js-library ${JS_SYSTEM_BROWSER_UTILS} --js-library ${JS_CORE_RUN} --extern-post-js ${JS_CORE_RUN_EXTPOST}"
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-            if (CORERUN_IN_BROWSER)
+            if (CORERUN_IN_BROWSER OR CLR_CMAKE_TARGET_ARCH_WASM64)
                 list(APPEND CORERUN_BROWSER_LINK_OPTIONS -sWASM_BIGINT=1)
+            else()
+                list(APPEND CORERUN_BROWSER_LINK_OPTIONS -sWASM_BIGINT=0)
+
+                # The wasm32 Node host does not need BigInt heap views.
+                string(REPLACE "HEAP64," "" CMAKE_EMCC_EXPORTED_RUNTIME_METHODS "${CMAKE_EMCC_EXPORTED_RUNTIME_METHODS}")
+                string(REPLACE "HEAPU64," "" CMAKE_EMCC_EXPORTED_RUNTIME_METHODS "${CMAKE_EMCC_EXPORTED_RUNTIME_METHODS}")
+            endif()
+            if (CORERUN_IN_BROWSER)
                 # Include the virtual file system data for the browser scenario.
                 set(WASM_PRELOAD_DIR "${CMAKE_INSTALL_PREFIX}/IL")
                 if (EXISTS "${WASM_PRELOAD_DIR}")
                     list(APPEND CORERUN_BROWSER_LINK_OPTIONS --preload-file ${WASM_PRELOAD_DIR}@/)
                 endif()
             else()
-                # Node.js doesn't have good support for WASM_BIGINT, so disable it for the Node/shell.
-                list(APPEND CORERUN_BROWSER_LINK_OPTIONS -sWASM_BIGINT=0)
-
-                # remove HEAP64 and HEAPU64 from CMAKE_EMCC_EXPORTED_RUNTIME_METHODS
-                string(REPLACE "HEAP64," "" CMAKE_EMCC_EXPORTED_RUNTIME_METHODS "${CMAKE_EMCC_EXPORTED_RUNTIME_METHODS}")
-                string(REPLACE "HEAPU64," "" CMAKE_EMCC_EXPORTED_RUNTIME_METHODS "${CMAKE_EMCC_EXPORTED_RUNTIME_METHODS}")
-
                 # Add Node.js host file system support.
                 list(APPEND CORERUN_BROWSER_LINK_OPTIONS -sNODERAWFS=1 -lnodefs.js)
             endif()
+            if (CLR_CMAKE_TARGET_ARCH_WASM64)
+                # Permit actual accesses above 4 GiB without an unbounded
+                # reservation. Initial committed memory stays at 128 MiB.
+                list(APPEND CORERUN_BROWSER_LINK_OPTIONS -sMAXIMUM_MEMORY=8589934592)
+            else()
+                list(APPEND CORERUN_BROWSER_LINK_OPTIONS -sMAXIMUM_MEMORY=4294967296)
+            endif()
             list(APPEND CORERUN_BROWSER_LINK_OPTIONS
                 -sINITIAL_MEMORY=134217728
-                -sMAXIMUM_MEMORY=4294967296
                 -sALLOW_MEMORY_GROWTH=1
                 -sGROWABLE_ARRAYBUFFERS=0
                 -sALLOW_TABLE_GROWTH=1
@@ -143,11 +150,15 @@ else()
 
             # Export everything a runtime test needs to re-link corerun with its
             # own native library and generated call tables.
+            set(CORERUN_BROWSER_COMPILE_OPTIONS -fwasm-exceptions -sWASM_LEGACY_EXCEPTIONS=0 -msimd128)
+            if(CLR_CMAKE_TARGET_ARCH_WASM64)
+                list(APPEND CORERUN_BROWSER_COMPILE_OPTIONS -m64)
+            endif()
             corerun_kit_export(
                 COMPONENT hosts
                 SOURCES ${CORERUN_SOURCES}
                 LINK_OPTIONS ${CORERUN_BROWSER_LINK_OPTIONS}
-                COMPILE_OPTIONS -fwasm-exceptions -sWASM_LEGACY_EXCEPTIONS=0 -msimd128
+                COMPILE_OPTIONS ${CORERUN_BROWSER_COMPILE_OPTIONS}
                 JS_LIBRARIES "${JS_SYSTEM_NATIVE_BROWSER}" "${JS_SYSTEM_BROWSER_UTILS}" "${JS_CORE_RUN}"
                 EXTERN_POST_JS "${JS_CORE_RUN_EXTPOST}")
         elseif (CLR_CMAKE_TARGET_WASI)

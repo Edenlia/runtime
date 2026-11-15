@@ -177,7 +177,18 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
            Text="$(MSBuildProjectName) links native test code into a test-specific corerun on $(TargetOS)-wasm, so it must set &lt;RequiresProcessIsolation&gt;true&lt;/RequiresProcessIsolation&gt;; otherwise its output directory is not sent to Helix." />
 
     <Error Condition="'$(_WasmCorerunSkip)' != 'true' and !Exists('$(WasmCorerunKitDir)corerun-link.rsp')"
-           Text="The corerun link kit is missing from '$(WasmCorerunKitDir)'. Build the 'clr.hosts' subset for $(TargetOS)-wasm first (the kit is produced by src/coreclr/hosts/corerun/wasm/testkit.cmake)." />
+           Text="The corerun link kit is missing from '$(WasmCorerunKitDir)'. Build the 'clr.hosts' subset for $(TargetOS)-$(TargetArchitecture) first (the kit is produced by src/coreclr/hosts/corerun/wasm/testkit.cmake)." />
+
+    <!-- A user-supplied kit path must not silently mix wasm32 and wasm64 archives. Older wasm32
+         kits do not have this marker; wasm64 always requires a kit that identifies its target. -->
+    <Error Condition="'$(_WasmCorerunSkip)' != 'true' and '$(TargetArchitecture)' == 'wasm64' and !Exists('$(WasmCorerunKitDir)target-architecture.txt')"
+           Text="The corerun link kit does not identify its target architecture. Rebuild clr.hosts for $(TargetOS)-$(TargetArchitecture)." />
+    <ReadLinesFromFile File="$(WasmCorerunKitDir)target-architecture.txt"
+                       Condition="'$(_WasmCorerunSkip)' != 'true' and Exists('$(WasmCorerunKitDir)target-architecture.txt')">
+      <Output TaskParameter="Lines" PropertyName="_WasmCorerunKitArchitecture" />
+    </ReadLinesFromFile>
+    <Error Condition="'$(_WasmCorerunSkip)' != 'true' and Exists('$(WasmCorerunKitDir)target-architecture.txt') and '$(_WasmCorerunKitArchitecture)' != '$(TargetArchitecture)'"
+           Text="The corerun link kit targets '$(_WasmCorerunKitArchitecture)', but the test targets '$(TargetArchitecture)'. Build or select the matching kit." />
 
     <!-- '%24' below is an escaped '$': these messages name the property literally and then show its
          value, so they read as e.g. "$(TasksConfiguration)='Checked'". Writing a bare '$' would
@@ -188,7 +199,7 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
     <PropertyGroup Condition="'$(_WasmCorerunSkip)' != 'true' and '$(TargetOS)' == 'browser'">
       <_WasmCorerunCc Condition="'$(EmscriptenUpstreamEmscriptenPath)' != ''">$(EmscriptenUpstreamEmscriptenPath)emcc$(_WasmCorerunScriptExt)</_WasmCorerunCc>
       <_WasmCorerunCxx Condition="'$(EmscriptenUpstreamEmscriptenPath)' != ''">$(EmscriptenUpstreamEmscriptenPath)em++$(_WasmCorerunScriptExt)</_WasmCorerunCxx>
-      <_WasmCorerunToolchainMissing>Set %24(EMSDK_PATH), or build the browser-wasm runtime first so that the Emscripten SDK is provisioned into '$(EmscriptenSdkCacheDir)'.</_WasmCorerunToolchainMissing>
+      <_WasmCorerunToolchainMissing>Set %24(EMSDK_PATH), or build the browser-$(TargetArchitecture) runtime first so that the Emscripten SDK is provisioned into '$(EmscriptenSdkCacheDir)'.</_WasmCorerunToolchainMissing>
     </PropertyGroup>
 
     <!-- The kit is relocatable, so the wasi-sdk target, sysroot and component linker, which are
@@ -226,7 +237,17 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
       <_WasmCorerunInputManifest>$(_WasmCorerunDir)inputs.txt</_WasmCorerunInputManifest>
       <_Crossgen2GeneratorRsp>$(_WasmCorerunDir)callhelpers-generator.rsp</_Crossgen2GeneratorRsp>
       <_Crossgen2ExeSuffix Condition="'$(OS)' == 'Windows_NT'">.exe</_Crossgen2ExeSuffix>
-      <Crossgen2Path Condition="'$(Crossgen2Path)' == '' and '$(Crossgen2InBuildDir)' != ''">$([MSBuild]::NormalizePath('$(Crossgen2InBuildDir)', 'crossgen2$(_Crossgen2ExeSuffix)'))</Crossgen2Path>
+      <Crossgen2Path Condition="'$(Crossgen2Path)' == '' and '$(TargetArchitecture)' != 'wasm64' and '$(Crossgen2InBuildDir)' != ''">$([MSBuild]::NormalizePath('$(Crossgen2InBuildDir)', 'crossgen2$(_Crossgen2ExeSuffix)'))</Crossgen2Path>
+      <!-- The wasm64 interpreter bootstrap has a host helper generator without a cross-JIT.
+           Keep its path separate from Crossgen2Path so it cannot be selected for R2R publishing. -->
+      <Crossgen2CallHelpersPath Condition="'$(Crossgen2CallHelpersPath)' == '' and '$(TargetArchitecture)' == 'wasm64' and '$(CoreCLRArtifactsPath)' != ''">$([MSBuild]::NormalizePath('$(CoreCLRArtifactsPath)', '$(BuildArchitecture)', 'crossgen2-callhelpers', 'crossgen2.dll'))</Crossgen2CallHelpersPath>
+      <_WasmCorerunGeneratorPath>$(Crossgen2Path)</_WasmCorerunGeneratorPath>
+      <_WasmCorerunGeneratorPath Condition="'$(_WasmCorerunGeneratorPath)' == '' and '$(TargetArchitecture)' == 'wasm64'">$(Crossgen2CallHelpersPath)</_WasmCorerunGeneratorPath>
+      <_WasmCorerunGeneratorIsDll>$([System.IO.Path]::GetExtension('$(_WasmCorerunGeneratorPath)').Equals('.dll'))</_WasmCorerunGeneratorIsDll>
+      <_WasmCorerunGeneratorHost Condition="'$(_WasmCorerunGeneratorIsDll)' == 'true'">$(DotNetTool)</_WasmCorerunGeneratorHost>
+      <_WasmCorerunGeneratorHost Condition="'$(_WasmCorerunGeneratorIsDll)' == 'true' and '$(_WasmCorerunGeneratorHost)' == ''">$(DOTNET_HOST_PATH)</_WasmCorerunGeneratorHost>
+      <_WasmCorerunGeneratorCommand>&quot;$(_WasmCorerunGeneratorPath)&quot;</_WasmCorerunGeneratorCommand>
+      <_WasmCorerunGeneratorCommand Condition="'$(_WasmCorerunGeneratorIsDll)' == 'true'">&quot;$(_WasmCorerunGeneratorHost)&quot; &quot;$(_WasmCorerunGeneratorPath)&quot;</_WasmCorerunGeneratorCommand>
 
       <!-- Consumed straight out of the kit: the paths in them are relative to the kit directory,
            which is why the compiler invocations below run from there. The generated call tables use
@@ -259,8 +280,10 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
       <_WasmCorerunKitLinkInput Include="$(WasmCorerunKitDir)*$(StaticLibSuffix)" />
       <_WasmCorerunKitLinkInput Include="$(WasmCorerunKitDir)*.js" />
       <_WasmCorerunKitLinkInput Include="$(WasmCorerunKitDir)*.wit" />
-      <_WasmCorerunGeneratorInput Include="$(Crossgen2Path);$([System.IO.Path]::GetDirectoryName('$(Crossgen2Path)'))\*.dll"
-                                  Condition="'$(Crossgen2Path)' != ''" />
+      <_WasmCorerunKitLinkInput Include="$(WasmCorerunKitDir)target-architecture.txt"
+                                Condition="Exists('$(WasmCorerunKitDir)target-architecture.txt')" />
+      <_WasmCorerunGeneratorInput Include="$(_WasmCorerunGeneratorPath);$([System.IO.Path]::GetDirectoryName('$(_WasmCorerunGeneratorPath)'))\*.dll;$([System.IO.Path]::GetDirectoryName('$(_WasmCorerunGeneratorPath)'))\*.deps.json;$([System.IO.Path]::GetDirectoryName('$(_WasmCorerunGeneratorPath)'))\*.runtimeconfig.json"
+                                  Condition="'$(_WasmCorerunGeneratorPath)' != ''" />
 
       <_WasmCorerunCommonLib Include="@(_WasmNativeCommonLib)" />
     </ItemGroup>
@@ -296,7 +319,7 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
     </ItemGroup>
 
     <Error Condition="'@(_WasmCorerunFrameworkAssembly)' == ''"
-           Text="No framework assemblies found in '$(MicrosoftNetCoreAppRuntimePackRidLibTfmDir)'. The 'libs' subset must be built for $(TargetOS)-wasm before building tests that need a test-specific corerun." />
+           Text="No framework assemblies found in '$(MicrosoftNetCoreAppRuntimePackRidLibTfmDir)'. The 'libs' subset must be built for $(TargetOS)-$(TargetArchitecture) before building tests that need a test-specific corerun." />
   </Target>
 
   <!--
@@ -359,16 +382,16 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
       <Output TaskParameter="ManagedAssemblies" ItemName="_WasmCorerunManagedAssembly" />
     </FilterManagedAssemblies>
 
-    <Error Condition="'$(Crossgen2Path)' == ''"
-           Text="crossgen2 was not found. Build the 'clr' subset or set %24(Crossgen2Path) to a crossgen2 executable." />
-    <Error Condition="!Exists('$(Crossgen2Path)')"
-           Text="crossgen2 executable not found: '$(Crossgen2Path)'. Build the 'clr' subset or correct %24(Crossgen2Path)." />
-    <Error Condition="'$([System.IO.Path]::GetExtension(`$(Crossgen2Path)`))' == '.dll'"
-           Text="Set %24(Crossgen2Path) to a crossgen2 executable, not the DLL '$(Crossgen2Path)'." />
+    <Error Condition="'$(_WasmCorerunGeneratorPath)' == ''"
+           Text="The portable call-helper generator was not found. Build the 'clr' subset; wasm64 requires the 'clr.callhelpers' bootstrap tool or an explicit %24(Crossgen2CallHelpersPath)." />
+    <Error Condition="!Exists('$(_WasmCorerunGeneratorPath)')"
+           Text="Portable call-helper generator not found: '$(_WasmCorerunGeneratorPath)'. Build 'clr.callhelpers' for wasm64, or 'clr' for wasm32, or correct the generator path." />
+    <Error Condition="'$(_WasmCorerunGeneratorIsDll)' == 'true' and ('$(_WasmCorerunGeneratorHost)' == '' or !Exists('$(_WasmCorerunGeneratorHost)'))"
+           Text="A framework-dependent call-helper generator requires a .NET host. Set %24(DotNetTool) or %24(DOTNET_HOST_PATH) to the dotnet executable." />
 
     <ItemGroup>
       <_Crossgen2GeneratorArg Include="--targetos:$(TargetOS)" />
-      <_Crossgen2GeneratorArg Include="--targetarch:wasm" />
+      <_Crossgen2GeneratorArg Include="--targetarch:$(TargetArchitecture)" />
       <_Crossgen2GeneratorArg Include="--generate-portable-callhelpers:$(_WasmCorerunDir)" />
       <_Crossgen2GeneratorArg Include="@(_WasmCorerunPInvokeModule->'--directpinvoke:%(Identity)')" />
       <_Crossgen2GeneratorArg Include="@(_WasmCorerunManagedAssembly->'%(FullPath)')" />
@@ -376,7 +399,7 @@ against CORE_ROOT, and no SDK is involved. Only the generator task assembly is s
 
     <WriteLinesToFile File="$(_Crossgen2GeneratorRsp)" Lines="@(_Crossgen2GeneratorArg)" Overwrite="true" WriteOnlyWhenDifferent="true" />
 
-    <Exec Command="&quot;$(Crossgen2Path)&quot; &quot;@$(_Crossgen2GeneratorRsp)&quot;" />
+    <Exec Command="$(_WasmCorerunGeneratorCommand) &quot;@$(_Crossgen2GeneratorRsp)&quot;" />
 
     <ItemGroup>
       <FileWrites Include="$(_Crossgen2GeneratorRsp)" />

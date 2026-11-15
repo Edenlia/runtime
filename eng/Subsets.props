@@ -182,6 +182,7 @@
     <SubsetName Include="Clr.CoreLib" Description="The managed System.Private.CoreLib library for CoreCLR." />
     <SubsetName Include="Clr.NativeCoreLib" Description="Run crossgen on System.Private.CoreLib library for CoreCLR." />
     <SubsetName Include="Clr.Tools" Description="Managed tools that support CoreCLR development and testing." />
+    <SubsetName Include="Clr.CallHelpers" OnDemand="true" Description="Host portable call-helper generator, without a target JIT dependency." />
     <SubsetName Include="Clr.ToolsTests" OnDemand="true" Description="Unit tests for the clr.tools subset." />
     <SubsetName Include="Clr.R2RTests" OnDemand="true" Description="Unit tests for crossgen2 (ReadyToRun compiler)." />
     <SubsetName Include="Clr.Packages" Description="The projects that produce NuGet packages for the CoreCLR runtime, crossgen, and IL tools." />
@@ -337,7 +338,7 @@
 
   <ItemGroup>
     <!-- crossgen2/ILC have dependencies on the JITs, so build them if the cross component includes crossgen2/ILC. -->
-    <_CrossToolSubset Condition="'$(_BuildCrossComponents)' == 'true' and '$(TargetArchitecture)' != 'wasm' and ($(_subset.Contains('+clr.tools+')) or $(_subset.Contains('+clr.nativecorelib+')) or $(_subset.Contains('+clr.crossarchtools+')))" Include="ClrJitSubset=true" />
+    <_CrossToolSubset Condition="'$(_BuildCrossComponents)' == 'true' and '$(TargetsWasm)' != 'true' and ($(_subset.Contains('+clr.tools+')) or $(_subset.Contains('+clr.nativecorelib+')) or $(_subset.Contains('+clr.crossarchtools+')))" Include="ClrJitSubset=true" />
     <!-- When targeting WebAssembly, only build the wasm JIT for the cross component. -->
     <_CrossToolSubset Condition="'$(_BuildCrossComponents)' == 'true' and '$(TargetArchitecture)' == 'wasm' and ($(_subset.Contains('+clr.tools+')) or $(_subset.Contains('+clr.nativecorelib+')) or $(_subset.Contains('+clr.crossarchtools+')))" Include="ClrWasmJitSubset=true" />
     <!-- When targeting Windows, we need to build a copy of the diagnostic libraries that can run on the host to enable remote debugging of a local build. -->
@@ -436,8 +437,8 @@
     <!--
       Always build the in-build variants of these tools. They run on the host machine, which we always have LKG packs for.
     -->
-    <ProjectToBuild Include="$(CoreClrProjectRoot)tools\aot\ILCompiler\ILCompiler_inbuild.csproj" Category="clr" />
-    <ProjectToBuild Include="$(CoreClrProjectRoot)tools\aot\crossgen2\crossgen2_inbuild.csproj" Category="clr" />
+    <ProjectToBuild Include="$(CoreClrProjectRoot)tools\aot\ILCompiler\ILCompiler_inbuild.csproj" Category="clr" Condition="'$(TargetsWasm64)' != 'true'" />
+    <ProjectToBuild Include="$(CoreClrProjectRoot)tools\aot\crossgen2\crossgen2_inbuild.csproj" Category="clr" Condition="'$(TargetsWasm64)' != 'true'" />
 
     <!-- We may use these targets with the in-build ILCompiler or with the shipping ILCompiler. Produce them whenever we may use them. -->
     <ProjectToBuild Include="$(CoreClrProjectRoot)nativeaot\BuildIntegration\BuildIntegration.proj" Category="clr" Condition="'$(SdkToolsSupported)' == 'true' or '$(NativeAotSupported)' == 'true'" />
@@ -452,6 +453,10 @@
     <ProjectToBuild Condition="'$(TargetOS)' == 'windows' or ('$(TargetOS)' == 'linux' and ('$(TargetArchitecture)' == 'x64' or '$(TargetArchitecture)' == 'arm64')) or '$(TargetOS)' == 'osx'" Include="$(CoreClrProjectRoot)tools\SuperFileCheck\SuperFileCheck.csproj" Category="clr" />
 
     <ProjectToBuild Include="$(CoreClrProjectRoot)tools\cdac-build-tool\cdac-build-tool.csproj" Category="clr" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(_subset.Contains('+clr.callhelpers+')) or ('$(TargetsWasm64)' == 'true' and $(_subset.Contains('+clr.tools+')))">
+    <ProjectToBuild Include="$(CoreClrProjectRoot)tools\aot\crossgen2\crossgen2_callhelpers.csproj" Category="clr" />
   </ItemGroup>
 
   <ItemGroup Condition="$(_subset.Contains('+clr.toolstests+'))">

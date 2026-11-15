@@ -21,6 +21,8 @@
   <PropertyGroup>
     <!-- Set IsBrowserWasmProject for browser-wasm targets -->
     <IsBrowserWasmProject Condition="'$(IsBrowserWasmProject)' == '' and ('$(RuntimeIdentifier)' == 'browser-wasm' or '$(RuntimeIdentifiers)' == 'browser-wasm')">true</IsBrowserWasmProject>
+    <IsBrowserWasmProject Condition="'$(IsBrowserWasmProject)' == '' and '$(RuntimeIdentifier)' == 'browser-wasm64'">true</IsBrowserWasmProject>
+    <TargetsWasm64 Condition="'$(RuntimeIdentifier)' == 'browser-wasm64'">true</TargetsWasm64>
 
     <!-- Ensure TargetsBrowser is set so native.wasm.targets populates exported functions/methods -->
     <TargetsBrowser Condition="'$(TargetsBrowser)' == '' and '$(IsBrowserWasmProject)' == 'true'">true</TargetsBrowser>
@@ -618,6 +620,7 @@
       <_EmccCommonFlags Include="-fwasm-exceptions" />
       <_EmccCommonFlags Include="-sWASM_LEGACY_EXCEPTIONS=0" />
       <_EmccCommonFlags Include="-msimd128" />
+      <_EmccCommonFlags Include="-m64" Condition="'$(TargetsWasm64)' == 'true'" />
       <_EmccCommonFlags Include="-mrelaxed-simd" Condition="'$(WasmEnableRelaxedSimd)' == 'true'" />
     </ItemGroup>
 
@@ -671,6 +674,7 @@
     </PropertyGroup>
     <ItemGroup>
       <_EmccCFlagsGenerated Include="@(_EmccCFlags)" />
+      <_EmccCFlagsGenerated Condition="'$(TargetsWasm64)' == 'true'" Include="-DTARGET_WASM;-DTARGET_WASM64;-DTARGET_64BIT;-DTARGET_POINTER_SIZE=8" />
       <_EmccCFlagsGenerated Include="-include &quot;$(MSBuildThisFileDirectory)coreclr_compat.h&quot;" />
       <_EmccCFlagsGenerated Include="-I&quot;$(_VmWasmIncludeDir.TrimEnd('\/'))&quot;" />
       <_EmccCFlagsGenerated Include="-I&quot;$(_MinipalIncludeRoot.TrimEnd('\/'))&quot;" />
@@ -699,7 +703,7 @@
           BeforeTargets="_CoreCLRGenerateManagedToNative"
           DependsOnTargets="ResolveFrameworkReferences">
     <CallTarget Targets="ResolveReadyToRunCompilers"
-                Condition="'$(Crossgen2Path)' == '' and '$(Crossgen2InBuildDir)' == '' and '$(Crossgen2ToolPath)' == '' and '@(ResolvedCrossgen2Pack)' != ''" />
+                Condition="'$(TargetsWasm64)' != 'true' and '$(Crossgen2Path)' == '' and '$(Crossgen2InBuildDir)' == '' and '$(Crossgen2ToolPath)' == '' and '@(ResolvedCrossgen2Pack)' != ''" />
   </Target>
 
   <Target Name="_CoreCLRGenerateManagedToNative">
@@ -767,17 +771,29 @@
     <!-- crossgen2 provides the wasm type layout needed to generate call helpers. -->
     <PropertyGroup>
       <_Crossgen2ExeSuffix Condition="'$(OS)' == 'Windows_NT'">.exe</_Crossgen2ExeSuffix>
+      <Crossgen2CallHelpersPath Condition="'$(TargetsWasm64)' == 'true' and '$(Crossgen2CallHelpersPath)' == '' and '$(CoreCLRArtifactsPath)' != '' and '$(BuildArchitecture)' != ''">$([MSBuild]::NormalizePath('$(CoreCLRArtifactsPath)', '$(BuildArchitecture)', 'crossgen2-callhelpers', 'crossgen2.dll'))</Crossgen2CallHelpersPath>
       <Crossgen2Path Condition="'$(Crossgen2Path)' == '' and '$(Crossgen2InBuildDir)' != ''">$([MSBuild]::NormalizePath('$(Crossgen2InBuildDir)', 'crossgen2$(_Crossgen2ExeSuffix)'))</Crossgen2Path>
       <Crossgen2Path Condition="'$(Crossgen2Path)' == ''">$(Crossgen2ToolPath)</Crossgen2Path>
       <Crossgen2Path Condition="'$(Crossgen2Path)' == ''">@(Crossgen2Tool)</Crossgen2Path>
+      <_Crossgen2GeneratorPath>$(Crossgen2Path)</_Crossgen2GeneratorPath>
+      <_Crossgen2GeneratorPath Condition="'$(TargetsWasm64)' == 'true'">$(Crossgen2CallHelpersPath)</_Crossgen2GeneratorPath>
+      <_Crossgen2GeneratorIsDll Condition="'$([System.IO.Path]::GetExtension(`$(_Crossgen2GeneratorPath)`))' == '.dll'">true</_Crossgen2GeneratorIsDll>
+      <_Crossgen2GeneratorHost>$(DotNetTool)</_Crossgen2GeneratorHost>
+      <_Crossgen2GeneratorHost Condition="'$(_Crossgen2GeneratorHost)' == ''">$(DOTNET_HOST_PATH)</_Crossgen2GeneratorHost>
+      <_Crossgen2GeneratorCommand>&quot;$(_Crossgen2GeneratorPath)&quot;</_Crossgen2GeneratorCommand>
+      <_Crossgen2GeneratorCommand Condition="'$(_Crossgen2GeneratorIsDll)' == 'true'">&quot;$(_Crossgen2GeneratorHost)&quot; &quot;$(_Crossgen2GeneratorPath)&quot;</_Crossgen2GeneratorCommand>
+      <_Crossgen2GeneratorTargetArchitecture>wasm</_Crossgen2GeneratorTargetArchitecture>
+      <_Crossgen2GeneratorTargetArchitecture Condition="'$(TargetsWasm64)' == 'true'">wasm64</_Crossgen2GeneratorTargetArchitecture>
     </PropertyGroup>
 
-    <Error Condition="'$(Crossgen2Path)' == ''"
-           Text="Could not resolve crossgen2. Update the .NET SDK and restore the project, or set %24(Crossgen2Path) to a crossgen2 executable." />
-    <Error Condition="'$([System.IO.Path]::GetExtension(`$(Crossgen2Path)`))' == '.dll'"
+    <Error Condition="'$(_Crossgen2GeneratorPath)' == ''"
+           Text="Could not resolve the portable call-helper generator. For wasm64, build clr.callhelpers and set Crossgen2CallHelpersPath to its crossgen2.dll." />
+    <Error Condition="'$(TargetsWasm64)' != 'true' and '$(_Crossgen2GeneratorIsDll)' == 'true'"
            Text="Set %24(Crossgen2Path) to a crossgen2 executable, not the DLL '$(Crossgen2Path)'." />
-    <Error Condition="!Exists('$(Crossgen2Path)')"
-           Text="crossgen2 executable not found: '$(Crossgen2Path)'. Build or restore crossgen2, or correct %24(Crossgen2Path)." />
+    <Error Condition="'$(_Crossgen2GeneratorIsDll)' == 'true' and '$(_Crossgen2GeneratorHost)' == ''"
+           Text="Set DotNetTool or DOTNET_HOST_PATH to the SDK host for the managed call-helper generator." />
+    <Error Condition="!Exists('$(_Crossgen2GeneratorPath)')"
+           Text="Portable call-helper generator not found: '$(_Crossgen2GeneratorPath)'. Build or restore the selected target's generator." />
 
     <PropertyGroup>
       <_Crossgen2GeneratorRsp>$(_WasmIntermediateOutputPath)callhelpers-generator.rsp</_Crossgen2GeneratorRsp>
@@ -785,7 +801,7 @@
 
     <ItemGroup>
       <_Crossgen2GeneratorArg Include="--targetos:browser" />
-      <_Crossgen2GeneratorArg Include="--targetarch:wasm" />
+      <_Crossgen2GeneratorArg Include="--targetarch:$(_Crossgen2GeneratorTargetArchitecture)" />
       <_Crossgen2GeneratorArg Include="--generate-portable-callhelpers:$(_WasmIntermediateOutputPath)" />
       <_Crossgen2GeneratorArg Include="@(_WasmPInvokeModules->'--directpinvoke:%(Identity)')" />
       <_Crossgen2GeneratorArg Include="@(_WasmManagedAssemblies->'%(FullPath)')" />
@@ -793,7 +809,7 @@
 
     <WriteLinesToFile File="$(_Crossgen2GeneratorRsp)" Lines="@(_Crossgen2GeneratorArg)" Overwrite="true" WriteOnlyWhenDifferent="true" />
 
-    <Exec Command="&quot;$(Crossgen2Path)&quot; &quot;@$(_Crossgen2GeneratorRsp)&quot;" />
+    <Exec Command="$(_Crossgen2GeneratorCommand) &quot;@$(_Crossgen2GeneratorRsp)&quot;" />
 
     <ItemGroup>
       <FileWrites Include="$(_Crossgen2GeneratorRsp);$(_WasmPInvokeTablePath);$(_WasmReversePInvokeTablePath);$(_WasmInterpToNativeTablePath)" />

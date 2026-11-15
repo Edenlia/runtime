@@ -1,4 +1,4 @@
-<Project InitialTargets="FindInvalidSpecifiedSubsetNames;ReportValidSubsetList">
+<Project InitialTargets="FindInvalidSpecifiedSubsetNames;ReportValidSubsetList;ValidateWasm64Subsets">
   <!--
     The imported file supports the '/p:Subset=<desired subset string>' dev build argument.
 
@@ -18,6 +18,11 @@
     <PropertyGroup>
       <UserRequestedHelp Condition="'%(InvalidSpecifiedSubsetName.Identity)' == 'help'">true</UserRequestedHelp>
     </PropertyGroup>
+  </Target>
+
+  <Target Name="ValidateWasm64Subsets" Condition="'$(TargetsWasm64)' == 'true'">
+    <Error Condition="$(_subset.Contains('+clr.nativecorelib+')) or $(_subset.Contains('+clr.jit+')) or $(_subset.Contains('+clr.wasmjit+')) or $(_subset.Contains('+clr.r2rtests+')) or $(_subset.Contains('+clr.crossarchtools+'))"
+           Text="The wasm64 JIT and ReadyToRun compiler are not implemented. Build clr.corelib and clr.callhelpers separately for the target-foundation checkpoint." />
   </Target>
 
   <Target Name="ReportValidSubsetList"

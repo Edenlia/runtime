@@ -7,6 +7,7 @@ configuration="Release"
 browser_scan_path_override=""
 wasi_scan_path_override=""
 target_os=""
+target_arch="wasm"
 
 usage="Usage: $0 [options]
 
@@ -15,25 +16,35 @@ Options:
   -s, --scan-path <path>                        Override the default browser scan path
   -w, --wasi-scan-path <path>                   Override the default wasi scan path
   -t, --target-os <browser|wasi>                Regenerate only this flavor (default: both)
+  -a, --arch <wasm|wasm64>                     Target architecture (default: wasm)
   -h, --help                                    Show this help message"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -c|--configuration)
+            [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
             configuration="$2"
             shift 2
             ;;
         -s|--scan-path)
+            [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
             browser_scan_path_override="$2"
             shift 2
             ;;
         -w|--wasi-scan-path)
+            [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
             wasi_scan_path_override="$2"
             shift 2
             ;;
         -t|--target-os)
+            [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
             target_os="$2"
+            shift 2
+            ;;
+        -a|--arch)
+            [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+            target_arch="$2"
             shift 2
             ;;
         -h|--help)
@@ -60,6 +71,25 @@ case "$config_lower" in
 esac
 
 target_os="$(echo "$target_os" | tr '[:upper:]' '[:lower:]')"
+target_arch="$(echo "$target_arch" | tr '[:upper:]' '[:lower:]')"
+case "$target_arch" in
+    wasm)
+        ;;
+    wasm64)
+        # The initial wasm64 target is browser-only. An unspecified OS selects that one
+        # supported target instead of attempting the wasm32 default of both flavors.
+        target_os="${target_os:-browser}"
+        if [[ "$target_os" != "browser" ]]; then
+            echo "Error: wasm64 call helpers currently support only --target-os browser." >&2
+            exit 1
+        fi
+        ;;
+    *)
+        echo "Error: Invalid architecture \"$target_arch\". Must be wasm or wasm64." >&2
+        exit 1
+        ;;
+esac
+
 case "$target_os" in
     ""|browser|wasi)
         ;;
@@ -74,6 +104,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/../../../.." && pwd)"
 
 echo "Configuration: $configuration"
+echo "Target architecture: $target_arch"
 echo "Repo root: $repo_root"
 
 cd "$repo_root"
@@ -84,6 +115,7 @@ args=(
     build "$script_dir/generate-coreclr-helpers.proj"
     -t:GenerateCallHelpers
     "-p:Configuration=$configuration"
+    "-p:CallHelperTargetArchitecture=$target_arch"
 )
 
 if [[ -n "$browser_scan_path_override" ]]; then

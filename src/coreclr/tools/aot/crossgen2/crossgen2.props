@@ -17,6 +17,10 @@
     <RunAnalyzers>false</RunAnalyzers>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(PortableCallHelpersOnly)' == 'true'">
+    <DefineConstants>$(DefineConstants);PORTABLE_CALLHELPERS_ONLY</DefineConstants>
+  </PropertyGroup>
+
   <Import Project="../AotCompilerCommon.props" />
 
   <ItemGroup Label="Embedded Resources">

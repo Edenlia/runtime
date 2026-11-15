@@ -127,6 +127,20 @@ namespace Explicit
 
 namespace Sequential
 {
+    public struct NativeSizedFields
+    {
+        public byte prefix;
+        public IntPtr pointer;
+        public UIntPtr unsignedPointer;
+        public int token;
+    }
+
+    public struct ReferenceAndToken
+    {
+        public object reference;
+        public int token;
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public class Class1
     {

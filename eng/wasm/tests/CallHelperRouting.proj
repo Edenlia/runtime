@@ -1,0 +1,53 @@
+<Project DefaultTargets="_CoreCLRGenerateManagedToNative">
+  <!-- Host routing test only. Framework resolution and module/assembly filtering are stubbed;
+       the imported app target, SDK host and helper bootstrap assembly are real. -->
+  <PropertyGroup>
+    <RoutingTestRepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', '..'))</RoutingTestRepoRoot>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">browser-wasm64</RuntimeIdentifier>
+    <TargetsWasm64>false</TargetsWasm64>
+    <CoreCLRArtifactsPath>$(RoutingTestArtifactsPath)</CoreCLRArtifactsPath>
+    <BuildArchitecture>$(RoutingTestHostArchitecture)</BuildArchitecture>
+    <WasmPInvokeModulesPropsPath>$(RoutingTestRepoRoot)eng/wasm/WasmPInvokeModules.props</WasmPInvokeModulesPropsPath>
+    <DotNetTool />
+    <DotNetTool Condition="'$(DisableDotNetTool)' != 'true'">$(RoutingTestDotNet)</DotNetTool>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <_WasmIntermediateOutputPath>$(HarnessOutput)/</_WasmIntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <WasmAssembliesToBundle Include="$(RoutingTestCoreLib)" />
+  </ItemGroup>
+  <Import Project="$(RoutingTestRepoRoot)src/mono/browser/build/BrowserWasmApp.CoreCLR.targets" />
+
+  <UsingTask TaskName="ComputeWasmPInvokeModules" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <TargetOS ParameterType="System.String" />
+      <IncludeCustomModules ParameterType="System.Boolean" />
+      <InvariantGlobalization ParameterType="System.Boolean" />
+      <FrameworkModules ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <NativeFileReferences ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <Modules ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        Modules = FrameworkModules ?? System.Array.Empty<Microsoft.Build.Framework.ITaskItem>();
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="FilterManagedAssemblies" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Assemblies ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <ManagedAssemblies ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        ManagedAssemblies = Assemblies;
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="ResolveFrameworkReferences" />
+  <Target Name="PrepareHarness" BeforeTargets="_CoreCLRGenerateManagedToNative">
+    <MakeDir Directories="$(HarnessOutput)" />
+  </Target>
+</Project>

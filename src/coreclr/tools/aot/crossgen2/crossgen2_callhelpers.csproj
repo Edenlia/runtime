@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A host tool for interpreter bootstrap. Keep it separate from the compiler output so that
+       a helper-only build cannot be mistaken for a usable ReadyToRun compiler. -->
+  <PropertyGroup>
+    <CrossHostArch>$(BuildArchitecture)</CrossHostArch>
+    <PortableCallHelpersOnly>true</PortableCallHelpersOnly>
+    <OutputPath>$(RuntimeBinDir)$(BuildArchitecture)/crossgen2-callhelpers/</OutputPath>
+    <SelfContained>false</SelfContained>
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+  <Import Project="crossgen2.props" />
+</Project>

@@ -98,7 +98,7 @@ namespace ILCompiler
             {
                 return "";
             }
-            else if (architecture is TargetArchitecture.Wasm32)
+            else if (architecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64)
             {
                 // TODO-WASM: return the correct intrinsic id once xplat intrinsics are implemented.
                 return "";
@@ -162,7 +162,7 @@ namespace ILCompiler
             {
                 return SimdVectorLength.None;
             }
-            else if (_targetArchitecture == TargetArchitecture.Wasm32)
+            else if (_targetArchitecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64)
             {
                 return SimdVectorLength.Vector128Bit;
             }

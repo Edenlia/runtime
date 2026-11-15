@@ -23,6 +23,12 @@ assembly closure, so these checked-in files and a relinked app are produced by o
 By default the scripts generate **both** WebAssembly variations; pass `--target-os browser` or
 `--target-os wasi` to regenerate only one:
 
+The architecture defaults to `wasm` (32-bit). `--arch wasm64` selects the separate browser
+Memory64 target and defaults the OS to `browser`; `wasi` with `wasm64` is rejected. The wasm64
+entry point currently diagnoses the missing managed/native ABI implementation instead of
+emitting helpers with wasm32 pointer declarations. Selecting the target does not yet make
+helper generation or runtime execution available.
+
 | Target OS | Output directory                | Default scan path (testhost) |
 |-----------|---------------------------------|------------------------------|
 | `browser` | `src/coreclr/vm/wasm/browser/`  | `artifacts/bin/testhost/net12.0-browser-<config>-wasm/shared/Microsoft.NETCore.App/12.0.0/` |
@@ -120,10 +126,43 @@ src/coreclr/vm/wasm/generate-coreclr-helpers.sh -c Release
 | `-s`, `--scan-path <path>` | Override the default **browser** scan path. |
 | `-w`, `--wasi-scan-path <path>` | Override the default **wasi** scan path. |
 | `-t`, `--target-os <browser\|wasi>` | Regenerate only this flavor (default: both). |
+| `-a`, `--arch <wasm\|wasm64>` | Target architecture (default: `wasm`). `wasm64` is browser-only. |
 | `-h`, `--help` | Show usage. |
 
 After running, review and commit any changes to the generated files under
 `src/coreclr/vm/wasm/browser/` and `src/coreclr/vm/wasm/wasi/`.
+
+## Interpreter bootstrap without a target JIT
+
+Portable helper generation does not invoke the JIT. The separate
+`crossgen2_callhelpers.csproj` builds a framework-dependent host tool without copying native
+JIT or JIT-interface libraries. It only accepts `--generate-portable-callhelpers`; compilation
+requests fail explicitly. This keeps interpreter bootstrap independent of unfinished target
+code generation and leaves the full compiler output untouched.
+
+Build it for the wasm64 target from the repository root:
+
+```bash
+./dotnet.sh build src/coreclr/tools/aot/crossgen2/crossgen2_callhelpers.csproj \
+  -c Release -p:TargetOS=browser -p:TargetArchitecture=wasm64
+```
+
+The tool is written to
+`artifacts/bin/coreclr/browser.wasm64.Release/<build architecture>/crossgen2-callhelpers/crossgen2.dll`
+and runs on the repository's SDK. This build establishes the bootstrap tool path; it does not
+claim that wasm64 helper emission is ready. After the wasm64 managed/native ABI is implemented,
+the regeneration entry point is:
+
+```bash
+src/coreclr/vm/wasm/generate-coreclr-helpers.sh -c Release --arch wasm64
+```
+
+That path selects the wasm64 testhost inputs, writes generated source under
+`src/coreclr/vm/wasm/browser/wasm64/`, and leaves its response file and staging output under
+`artifacts/obj/wasm-callhelpers/browser/wasm64/`. It never falls back to wasm32 framework inputs,
+the wasm32 compiler directory, or the checked-in wasm32 output. Supplying a scan-path override
+is the caller's responsibility; the compiler still uses the explicitly selected target layout.
+ReadyToRun compilation for wasm64 is also rejected until the code generator is implemented.
 
 ## CI check
 

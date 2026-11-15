@@ -1,0 +1,23 @@
+<Project DefaultTargets="Check">
+  <!-- Exercise target selection without restoring packages or building a guest runtime. -->
+  <PropertyGroup>
+    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', '..'))</RepoRoot>
+    <RepositoryEngineeringDir>$(RepoRoot)eng/</RepositoryEngineeringDir>
+    <CoreClrProjectRoot>$(RepoRoot)src/coreclr/</CoreClrProjectRoot>
+    <RuntimeFlavor Condition="'$(RuntimeFlavor)' == ''">CoreCLR</RuntimeFlavor>
+    <Configuration>Release</Configuration>
+    <Subset Condition="'$(Subset)' == ''">clr.callhelpers</Subset>
+    <Platform Condition="'$(Platform)' == ''">$(TargetArchitecture)</Platform>
+  </PropertyGroup>
+  <Import Project="../../OSArch.props" />
+  <Import Project="../../RuntimeIdentifier.props" />
+  <Import Project="../../Subsets.props" />
+  <PropertyGroup>
+    <Platform>$(TargetArchitecture)</Platform>
+    <FeatureCoreCLR Condition="'$(RuntimeFlavor)' == 'CoreCLR'">true</FeatureCoreCLR>
+  </PropertyGroup>
+  <Import Project="../../../src/libraries/System.Private.CoreLib/src/System.Private.CoreLib.Shared.projitems" />
+  <Import Project="../Wasm64Validation.targets" />
+  <Import Project="../../SubsetValidation.targets" />
+  <Target Name="Check" />
+</Project>

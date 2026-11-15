@@ -1,0 +1,16 @@
+<Project InitialTargets="ValidateWasm64Target">
+  <Target Name="ValidateWasm64Target">
+    <Error Condition="'$(RuntimeIdentifier)' == 'browser-wasm64' and '$(TargetArchitecture)' != 'wasm64'"
+           Text="RuntimeIdentifier=browser-wasm64 requires TargetArchitecture=wasm64." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(TargetOS)' != 'browser'"
+           Text="The wasm64 target currently requires TargetOS=browser." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and ('$(RuntimeFlavor)' != 'CoreCLR' or '$(UseMonoRuntime)' == 'true')"
+           Text="The wasm64 target currently requires the CoreCLR runtime." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(WasmEnableThreads)' == 'true'"
+           Text="The wasm64 target currently supports a single managed thread only." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(RuntimeIdentifier)' != '' and '$(RuntimeIdentifier)' != 'browser-wasm64' and '$(IsInBuildToolProject)' != 'true'"
+           Text="The wasm64 target requires RuntimeIdentifier=browser-wasm64, not $(RuntimeIdentifier)." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(IsInBuildToolProject)' != 'true' and '$(PublishReadyToRun)' == 'true'"
+           Text="ReadyToRun compilation for wasm64 is not implemented. Use PublishReadyToRun=false for interpreter bring-up." />
+  </Target>
+</Project>

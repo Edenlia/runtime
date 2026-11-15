@@ -14,11 +14,16 @@
                       browser or wasi to regenerate only that flavor's tables (default: both).
                       Lets a build that produced only one flavor, such as a CI leg, regenerate
                       its own tables.
+    CallHelperTargetArchitecture
+                      wasm (default) or wasm64. wasm64 is browser-only and uses the isolated
+                      helper-only bootstrap compiler; emission requires the managed/native ABI.
 -->
 <Project Sdk="Microsoft.Build.NoTargets">
 
   <PropertyGroup>
     <TargetFramework>$(NetCoreAppCurrent)</TargetFramework>
+    <CallHelperTargetArchitecture Condition="'$(CallHelperTargetArchitecture)' == ''">wasm</CallHelperTargetArchitecture>
+    <CallHelperTargetOS Condition="'$(CallHelperTargetArchitecture)' == 'wasm64' and '$(CallHelperTargetOS)' == ''">browser</CallHelperTargetOS>
   </PropertyGroup>
 
   <!-- The framework P/Invoke modules, shared with the runtime tests' corerun relink so the
@@ -37,11 +42,11 @@
   <ItemGroup>
     <_WasmCallHelperTarget Include="browser" Condition="'$(CallHelperTargetOS)' == '' or '$(CallHelperTargetOS)' == 'browser'">
       <ScanPath Condition="'$(BrowserScanPath)' != ''">$([MSBuild]::EnsureTrailingSlash('$(BrowserScanPath)'))</ScanPath>
-      <ScanPath Condition="'$(BrowserScanPath)' == ''">$(_TesthostDir)$(NetCoreAppCurrent)-browser-$(Configuration)-wasm/shared/Microsoft.NETCore.App/$(_FrameworkVersion)/</ScanPath>
+      <ScanPath Condition="'$(BrowserScanPath)' == ''">$(_TesthostDir)$(NetCoreAppCurrent)-browser-$(Configuration)-$(CallHelperTargetArchitecture)/shared/Microsoft.NETCore.App/$(_FrameworkVersion)/</ScanPath>
     </_WasmCallHelperTarget>
     <_WasmCallHelperTarget Include="wasi" Condition="'$(CallHelperTargetOS)' == '' or '$(CallHelperTargetOS)' == 'wasi'">
       <ScanPath Condition="'$(WasiScanPath)' != ''">$([MSBuild]::EnsureTrailingSlash('$(WasiScanPath)'))</ScanPath>
-      <ScanPath Condition="'$(WasiScanPath)' == ''">$(_TesthostDir)$(NetCoreAppCurrent)-wasi-$(Configuration)-wasm/shared/Microsoft.NETCore.App/$(_FrameworkVersion)/</ScanPath>
+      <ScanPath Condition="'$(WasiScanPath)' == ''">$(_TesthostDir)$(NetCoreAppCurrent)-wasi-$(Configuration)-$(CallHelperTargetArchitecture)/shared/Microsoft.NETCore.App/$(_FrameworkVersion)/</ScanPath>
     </_WasmCallHelperTarget>
   </ItemGroup>
 
@@ -86,6 +91,10 @@
   </UsingTask>
 
   <Target Name="_ValidateCallHelperTargetOS">
+    <Error Condition="'$(CallHelperTargetArchitecture)' != 'wasm' and '$(CallHelperTargetArchitecture)' != 'wasm64'"
+           Text="Unknown CallHelperTargetArchitecture '$(CallHelperTargetArchitecture)'. Expected wasm or wasm64." />
+    <Error Condition="'$(CallHelperTargetArchitecture)' == 'wasm64' and '$(CallHelperTargetOS)' != 'browser'"
+           Text="wasm64 call helpers currently support only CallHelperTargetOS=browser." />
     <Error Condition="'@(_WasmCallHelperTarget)' == ''"
            Text="Unknown CallHelperTargetOS '$(CallHelperTargetOS)'. Expected browser or wasi." />
   </Target>
@@ -97,22 +106,31 @@
       <_ScanPath>%(_WasmCallHelperTarget.ScanPath)</_ScanPath>
       <!-- The self-contained crossgen2 from the same per-flavor build output that produced the
            scan path. -->
-      <_Crossgen2Path>$([MSBuild]::NormalizePath('$(ArtifactsBinDir)', 'coreclr', '$(_TargetOS).wasm.$(Configuration)', '$(BuildArchitecture)', 'crossgen2', 'crossgen2$(ExeSuffix)'))</_Crossgen2Path>
+      <_Crossgen2Path>$([MSBuild]::NormalizePath('$(ArtifactsBinDir)', 'coreclr', '$(_TargetOS).$(CallHelperTargetArchitecture).$(Configuration)', '$(BuildArchitecture)', 'crossgen2', 'crossgen2$(ExeSuffix)'))</_Crossgen2Path>
+      <_Crossgen2Command>&quot;$(_Crossgen2Path)&quot;</_Crossgen2Command>
+      <_CallHelperDotNetHost>$(DotNetTool)</_CallHelperDotNetHost>
+      <_CallHelperDotNetHost Condition="'$(DOTNET_HOST_PATH)' != ''">$(DOTNET_HOST_PATH)</_CallHelperDotNetHost>
       <_OutputDir>$(MSBuildThisFileDirectory)$(_TargetOS)/</_OutputDir>
       <_ResponseFileDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsObjDir)', 'wasm-callhelpers', '$(_TargetOS)'))</_ResponseFileDir>
+      <_Crossgen2Path Condition="'$(CallHelperTargetArchitecture)' == 'wasm64'">$([MSBuild]::NormalizePath('$(ArtifactsBinDir)', 'coreclr', '$(_TargetOS).$(CallHelperTargetArchitecture).$(Configuration)', '$(BuildArchitecture)', 'crossgen2-callhelpers', 'crossgen2.dll'))</_Crossgen2Path>
+      <_Crossgen2Command Condition="'$(CallHelperTargetArchitecture)' == 'wasm64'">&quot;$(_CallHelperDotNetHost)&quot; &quot;$(_Crossgen2Path)&quot;</_Crossgen2Command>
+      <_OutputDir Condition="'$(CallHelperTargetArchitecture)' == 'wasm64'">$(_OutputDir)wasm64/</_OutputDir>
+      <_ResponseFileDir Condition="'$(CallHelperTargetArchitecture)' == 'wasm64'">$([MSBuild]::NormalizeDirectory('$(_ResponseFileDir)', 'wasm64'))</_ResponseFileDir>
       <_ResponseFile>$(_ResponseFileDir)generate-coreclr-helpers.rsp</_ResponseFile>
       <_StagingDir>$(_ResponseFileDir)generated/</_StagingDir>
     </PropertyGroup>
 
+    <Error Condition="!Exists('$(_Crossgen2Path)') and '$(CallHelperTargetArchitecture)' == 'wasm64'"
+           Text="The helper-only compiler was not found at $(_Crossgen2Path). Build it first with dotnet build src/coreclr/tools/aot/crossgen2/crossgen2_callhelpers.csproj -c $(Configuration) -p:TargetOS=$(_TargetOS) -p:TargetArchitecture=wasm64." />
     <Error Condition="!Exists('$(_Crossgen2Path)')"
-           Text="crossgen2 was not found at $(_Crossgen2Path). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -c $(Configuration)" />
+           Text="crossgen2 was not found at $(_Crossgen2Path). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -arch $(CallHelperTargetArchitecture) -c $(Configuration)" />
     <Error Condition="!Exists('$(_ScanPath)')"
-           Text="Scan path for $(_TargetOS) does not exist: $(_ScanPath). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -c $(Configuration)" />
+           Text="Scan path for $(_TargetOS)/$(CallHelperTargetArchitecture) does not exist: $(_ScanPath). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -arch $(CallHelperTargetArchitecture) -c $(Configuration)" />
     <Error Condition="'@(WasmCoreClrFrameworkPInvokeModule)' == ''"
            Text="No WasmCoreClrFrameworkPInvokeModule entries were found in $(WasmPInvokeModulesPropsPath)." />
 
-    <Message Importance="High" Text="[$(_TargetOS)] Scan path: $(_ScanPath)" />
-    <Message Importance="High" Text="[$(_TargetOS)] Output path: $(_OutputDir)" />
+    <Message Importance="High" Text="[$(_TargetOS)/$(CallHelperTargetArchitecture)] Scan path: $(_ScanPath)" />
+    <Message Importance="High" Text="[$(_TargetOS)/$(CallHelperTargetArchitecture)] Output path: $(_OutputDir)" />
 
     <RemoveDir Directories="$(_StagingDir)" />
     <MakeDir Directories="$(_OutputDir);$(_ResponseFileDir);$(_StagingDir)" />
@@ -133,7 +151,7 @@
                             Condition="'$(_TargetOS)' == 'wasi'" />
       <_GeneratorArg Remove="@(_GeneratorArg)" />
       <_GeneratorArg Include="--targetos:$(_TargetOS)" />
-      <_GeneratorArg Include="--targetarch:wasm" />
+      <_GeneratorArg Include="--targetarch:$(CallHelperTargetArchitecture)" />
       <_GeneratorArg Include="--generate-portable-callhelpers:$(_StagingDir)" />
       <_GeneratorArg Include="@(_TargetPInvokeModule->'--directpinvoke:%(Identity)')" />
       <_GeneratorArg Include="@(_ScanAssembly->'%(FullPath)')" />
@@ -141,7 +159,7 @@
 
     <WriteLinesToFile File="$(_ResponseFile)" Lines="@(_GeneratorArg)" Overwrite="true" WriteOnlyWhenDifferent="true" />
 
-    <Exec Command="&quot;$(_Crossgen2Path)&quot; &quot;@$(_ResponseFile)&quot;"
+    <Exec Command="$(_Crossgen2Command) &quot;@$(_ResponseFile)&quot;"
           WorkingDirectory="$(RepoRoot)" />
 
     <ItemGroup>

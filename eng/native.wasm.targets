@@ -24,8 +24,15 @@
     <FeatureMultithreading Condition="('$(TargetsBrowser)' != 'true' and '$(TargetsWasi)' != 'true') or '$(WasmEnableThreads)' == 'true'">true</FeatureMultithreading>
 
     <_IcuDir Condition="'$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)' != '' and '$(TargetsWasm)' == 'true'">$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)/runtimes/$(TargetOS)-$(TargetArchitecture)$(_RuntimeVariant)/native</_IcuDir>
+    <_IcuDir Condition="'$(WasmIcuNativeDir)' != ''">$(WasmIcuNativeDir)</_IcuDir>
     <_TzdDir Condition="'$(PkgSystem_Runtime_TimeZoneData)' != '' and '$(TargetsWasm)' == 'true'">$([MSBuild]::NormalizePath('$(PkgSystem_Runtime_TimeZoneData)', 'contentFiles', 'any', 'any', 'data'))</_TzdDir>
   </PropertyGroup>
+
+  <Target Name="ValidateWasm64NativeDependencies" BeforeTargets="BuildRuntime;BuildNativeCommon"
+          Condition="'$(TargetsWasm64)' == 'true' and '$(ClrCrossComponentsBuild)' != 'true'">
+    <Error Condition="'$(_IcuDir)' == '' or !Exists('$(_IcuDir)/include/unicode/utypes.h') or !Exists('$(_IcuDir)/lib/libicuuc.a') or !Exists('$(_IcuDir)/lib/libicui18n.a') or !Exists('$(_IcuDir)/lib/libicudata.a')"
+           Text="Missing ICU native dependencies for $(TargetOS)-$(TargetArchitecture) in '$(_IcuDir)'. Restore a matching ICU transport or set WasmIcuNativeDir to an ICU build made with the selected Memory64 toolchain; wasm32 libraries cannot be substituted." />
+  </Target>
 
   <ItemGroup>
       <NativeCMakeArg Condition="'$(_IcuDir)' != ''" Include="-cmakeargs &quot;-DCMAKE_ICU_DIR=$(_IcuDir)&quot;" />
@@ -40,6 +47,7 @@
   <!-- Default memory settings shared by the prebuilt browserhost and app-level relinking. -->
   <PropertyGroup Condition="'$(TargetsBrowser)' == 'true'">
     <BrowserHostInitialHeapSize Condition="'$(BrowserHostInitialHeapSize)' == ''">33554432</BrowserHostInitialHeapSize>
+    <BrowserHostMaximumHeapSize Condition="'$(BrowserHostMaximumHeapSize)' == '' and '$(TargetsWasm64)' == 'true'">8589934592</BrowserHostMaximumHeapSize>
     <BrowserHostMaximumHeapSize Condition="'$(BrowserHostMaximumHeapSize)' == ''">2147483648</BrowserHostMaximumHeapSize>
     <BrowserHostStackSize Condition="'$(BrowserHostStackSize)' == ''">2MB</BrowserHostStackSize>
   </PropertyGroup>
@@ -49,6 +57,7 @@
        features (relaxed SIMD, threads) and optimization/debug/strip options are added by each consumer. -->
   <ItemGroup>
     <_WasmOptBaselineFeatureFlag Include="--enable-exception-handling;--enable-reference-types;--enable-multivalue;--enable-simd;--enable-bulk-memory;--enable-nontrapping-float-to-int" />
+    <_WasmOptBaselineFeatureFlag Condition="'$(TargetsWasm64)' == 'true'" Include="--enable-memory64" />
   </ItemGroup>
 
   <!-- Remaining settings baked into the prebuilt CoreCLR runtime pack. These are only consumed by

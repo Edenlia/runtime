@@ -11,7 +11,7 @@ function print_usage {
     echo 'Optional arguments:'
     echo '  -h|--help                        : Show usage information.'
     echo '  -v, --verbose                    : Show output from each test.'
-    echo '  <arch>                           : One of x64, x86, arm, arm64, loongarch64, riscv64, wasm. Defaults to current architecture.'
+    echo '  <arch>                           : One of x64, x86, arm, arm64, loongarch64, riscv64, wasm, wasm64. Defaults to current architecture.'
     echo '  <build configuration>            : One of debug, checked, release. Defaults to debug.'
     echo '  android                          : Set build OS to Android.'
     echo '  wasi                             : Set build OS to WASI.'
@@ -42,7 +42,7 @@ function print_usage {
     echo '  --tieringtest                    : Run each test to encourage tier1 rejitting'
     echo '  --runnativeaottests              : Run NativeAOT compiled tests'
     echo '  --interpreter                    : Runs the tests with the interpreter enabled'
-    echo '  --node                           : Runs the tests with NodeJS (wasm only)'
+    echo '  --node                           : Runs the tests with NodeJS (wasm and wasm64 only)'
     echo '  --runner-filter=<pattern>        : Only run merged runners whose name contains <pattern>'
     echo '  --active-issue-details           : Show per-issue breakdown of ActiveIssue-skipped tests'
     echo '  --tree=<path>                    : Only run tests under the specified subtree (e.g. JIT/Regression)'
@@ -79,10 +79,15 @@ nativeaottest=0
 runnerFilter=
 activeIssueDetails=
 treeSubtree=
+treeSpecified=0
 
 for i in "$@"
 do
     if [[ "$__nextTreeArg" == "1" ]]; then
+        if [[ -z "$i" || "$i" == -* ]]; then
+            echo "The --tree option requires a path."
+            exit $EXIT_CODE_EXCEPTION
+        fi
         treeSubtree="$i"
         __nextTreeArg=
         continue
@@ -114,8 +119,8 @@ do
         riscv64)
             buildArch="riscv64"
             ;;
-        wasm)
-            buildArch="wasm"
+        wasm|wasm64)
+            buildArch="$i"
             ;;
         android)
             buildOS="android"
@@ -203,12 +208,15 @@ do
             ;;
         --tree=*|-tree=*)
             treeSubtree=${i#*=}
+            treeSpecified=1
             ;;
         --tree:*|-tree:*)
             treeSubtree=${i#*:}
+            treeSpecified=1
             ;;
         --tree|-tree)
             __nextTreeArg=1
+            treeSpecified=1
             ;;
         --interpreter)
             export RunInterpreter=1
@@ -225,14 +233,30 @@ do
         *)
             echo "Unknown switch: $i"
             print_usage
-            exit $EXIT_CODE_SUCCESS
+            exit $EXIT_CODE_EXCEPTION
             ;;
     esac
 done
 
-# Set default for RunWithNodeJS when using wasm architecture
-if [ "$buildArch" = "wasm" ] && [ -z "$RunWithNodeJS" ]; then
+if [[ "$__nextTreeArg" == "1" || ( "$treeSpecified" == "1" && -z "$treeSubtree" ) ]]; then
+    echo "The --tree option requires a path."
+    exit $EXIT_CODE_EXCEPTION
+fi
+
+# Set default for RunWithNodeJS when using a WebAssembly architecture.
+if [[ "$buildArch" == "wasm" || "$buildArch" == "wasm64" ]] && [[ -z "$RunWithNodeJS" ]]; then
     export RunWithNodeJS=1
+fi
+
+if [[ "$buildArch" == "wasm64" ]]; then
+    if [[ -n "$buildOS" && "$buildOS" != "browser" ]]; then
+        echo "wasm64 runtime tests currently support only the browser target."
+        exit $EXIT_CODE_EXCEPTION
+    fi
+    if [[ -n "$RunCrossGen2" || -n "$CrossGen2SynthesizePgo" || "$nativeaottest" != "0" ]]; then
+        echo "wasm64 ReadyToRun and NativeAOT execution are not supported by the target-foundation checkpoint."
+        exit $EXIT_CODE_EXCEPTION
+    fi
 fi
 
 ################################################################################
@@ -244,7 +268,7 @@ runtestArguments=("-arch" "${buildArch}" "-build_type" "${buildConfiguration}")
 echo "Build Architecture            : ${buildArch}"
 echo "Build Configuration           : ${buildConfiguration}"
 
-if [ "$buildArch" = "wasm" -a -z "$buildOS" ]; then
+if [[ "$buildArch" == "wasm" || "$buildArch" == "wasm64" ]] && [[ -z "$buildOS" ]]; then
     buildOS="browser"
 fi
 

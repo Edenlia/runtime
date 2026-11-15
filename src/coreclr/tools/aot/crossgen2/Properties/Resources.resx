@@ -298,7 +298,16 @@
     <value>Name of a statically linked native module P/Invokes may resolve against</value>
   </data>
   <data name="GeneratePortableCallHelpersRequiresWasmTarget" xml:space="preserve">
-    <value>--generate-portable-callhelpers requires --targetarch wasm together with --targetos browser or --targetos wasi</value>
+    <value>--generate-portable-callhelpers requires --targetarch wasm with --targetos browser or wasi, or --targetarch wasm64 with --targetos browser</value>
+  </data>
+  <data name="PortableCallHelpersOnlyCompiler" xml:space="preserve">
+    <value>This bootstrap tool only supports --generate-portable-callhelpers. Build the full crossgen2 compiler for ReadyToRun compilation.</value>
+  </data>
+  <data name="Wasm64PortableCallHelpersNotSupported" xml:space="preserve">
+    <value>The wasm64 target is recognized, but portable call-helper generation requires the wasm64 managed/native ABI implementation. No helpers were generated.</value>
+  </data>
+  <data name="Wasm64ReadyToRunNotSupported" xml:space="preserve">
+    <value>ReadyToRun compilation for wasm64 is not supported yet. Use the interpreter bootstrap path.</value>
   </data>
   <data name="TargetOSUnsupported" xml:space="preserve">
     <value>Target OS is not supported</value>

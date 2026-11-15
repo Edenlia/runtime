@@ -141,7 +141,7 @@ usage_list+=("    target OS. Common values: linux (default on Linux), osx (defau
 usage_list+=("    ios, iossimulator, tvos, tvossimulator, maccatalyst, browser, wasi.")
 usage_list+=("    For mobile/device targets (android, ios, iossimulator, tvos, tvossimulator), this script")
 usage_list+=("    automatically skips building native test components.")
-usage_list+=("-browser - Shorthand for '-os browser' (also sets architecture to wasm).")
+usage_list+=("-browser - Shorthand for '-os browser' (defaults architecture to wasm; preserves wasm64).")
 usage_list+=("-wasi - Shorthand for '-os wasi' (also sets architecture to wasm).")
 usage_list+=("")
 usage_list+=("-rebuild - Clean up all test artifacts prior to building tests.")
@@ -309,12 +309,16 @@ handle_arguments_local() {
 
         browser|-browser)
             __TargetOS=browser
-            __TargetArch=wasm
+            if [[ "$__TargetArch" != "wasm64" ]]; then
+                __TargetArch=wasm
+            fi
             ;;
 
         wasi|-wasi)
             __TargetOS=wasi
-            __TargetArch=wasm
+            if [[ "$__TargetArch" != "wasm64" ]]; then
+                __TargetArch=wasm
+            fi
             ;;
 
         log*|-log*)
@@ -380,6 +384,17 @@ CORE_ROOT=
 EnableNativeSanitizers=
 
 source $__RepoRootDir/src/coreclr/_build-commons.sh
+
+if [[ "$__TargetArch" == "wasm64" ]]; then
+    if [[ "$__TargetOS" != "browser" || "$__Mono" == "1" ]]; then
+        echo "wasm64 runtime tests currently support only CoreCLR on browser."
+        exit 1
+    fi
+    if [[ -n "$__TestBuildMode" ]]; then
+        echo "wasm64 ReadyToRun and NativeAOT tests are not supported by the target-foundation checkpoint."
+        exit 1
+    fi
+fi
 
 if [[ "${__TargetArch}" != "${__HostArch}" ]]; then
     __CrossBuild=1
@@ -461,15 +476,20 @@ if [[ "$__RunTests" -ne 0 ]]; then
 
     echo "Run Tests..."
 
-    nextCommand="$__TestDir/run.sh --testRootDir=$__TestBinDir"
+    nextCommand="$__TestDir/run.sh $__TargetArch $__BuildType --testRootDir=$__TestBinDir"
     echo "$nextCommand"
     eval $nextCommand
+
+    if [[ "$?" -ne 0 ]]; then
+        echo "Test run failed."
+        exit 1
+    fi
 
     echo "Tests run successful."
 else
     echo "To run all the tests use:"
     echo ""
-    echo "    src/tests/run.sh $__BuildType"
+    echo "    src/tests/run.sh $__TargetArch $__BuildType"
     echo ""
     echo "To run a single test use:"
     echo ""
