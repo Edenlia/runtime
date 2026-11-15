@@ -234,6 +234,16 @@ internal static class TestRunner
         };
     }
 
+    private static bool IsRuntimeEnvironmentVariable(string key)
+    {
+        // The nested SDK/MSBuild process needs its host configuration. These two variables
+        // select its writable CLI home and SDK installation rather than configure the guest.
+        return !key.Equals("DOTNET_CLI_HOME", StringComparison.OrdinalIgnoreCase) &&
+            !key.Equals("DOTNET_INSTALL_DIR", StringComparison.OrdinalIgnoreCase) &&
+            (key.Contains("dotnet", StringComparison.OrdinalIgnoreCase) ||
+             key.Contains("superpmi", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static Dictionary<string, string> GetEnvironment(string? testEnvironment)
     {
         Dictionary<string, string> dotnetVariables = CreateEnvironmentDictionary();
@@ -242,8 +252,7 @@ internal static class TestRunner
         foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
         {
             string key = (string)entry.Key;
-            if (key.Contains("dotnet", StringComparison.OrdinalIgnoreCase) ||
-                key.Contains("superpmi", StringComparison.OrdinalIgnoreCase))
+            if (IsRuntimeEnvironmentVariable(key))
             {
                 variables.Add((key, (string?)entry.Value ?? ""));
             }
@@ -252,7 +261,7 @@ internal static class TestRunner
         foreach ((string key, string value) in variables)
         {
             dotnetVariables[key] = value;
-            Environment.SetEnvironmentVariable(key, "");
+            Environment.SetEnvironmentVariable(key, null);
         }
 
         if (testEnvironment is not null)
@@ -285,8 +294,7 @@ internal static class TestRunner
         Dictionary<string, string> dotnetVariables = CreateEnvironmentDictionary();
         foreach ((string key, string value) in environment)
         {
-            if (key.Contains("dotnet", StringComparison.OrdinalIgnoreCase) ||
-                key.Contains("superpmi", StringComparison.OrdinalIgnoreCase))
+            if (IsRuntimeEnvironmentVariable(key))
             {
                 dotnetVariables[key] = value;
             }
@@ -314,7 +322,7 @@ internal static class TestRunner
             }
 
             Console.WriteLine($"Unset {key}");
-            Environment.SetEnvironmentVariable(key, "");
+            Environment.SetEnvironmentVariable(key, null);
             contents.AppendLine($"{command} {key}={value}");
         }
 

@@ -60,9 +60,21 @@ class RunResultsTests(unittest.TestCase):
         launcher.write_text(
             '#!/usr/bin/env python3\n'
             'import os\n'
+            'import subprocess\n'
             'from pathlib import Path\n'
             'logs = Path(os.environ["HARNESS_LOG_DIR"])\n'
             'kind = os.environ["HARNESS_RESULT_KIND"]\n'
+            'if os.environ.get("HARNESS_VERIFY_HOST_ENV") == "1":\n'
+            '    assert os.environ.get("DOTNET_CLI_HOME") == os.environ["HARNESS_EXPECTED_CLI_HOME"]\n'
+            '    assert os.environ.get("DOTNET_INSTALL_DIR") == os.environ["HARNESS_EXPECTED_INSTALL_DIR"]\n'
+            '    assert "DOTNET_WasmRunnerIsolationProbe" not in os.environ\n'
+            '    guest = Path(os.environ["__TestEnv"]).read_text()\n'
+            '    assert "export DOTNET_WasmRunnerIsolationProbe=guest-only-probe" in guest\n'
+            '    assert "DOTNET_CLI_HOME" not in guest\n'
+            '    assert "DOTNET_INSTALL_DIR" not in guest\n'
+            '    version = subprocess.run([os.environ["HARNESS_HOST_TOOL"], "--version"],\n'
+            '                             text=True, capture_output=True, check=True)\n'
+            '    (logs / "host-sdk-version.txt").write_text(version.stdout)\n'
             'if kind != "none":\n'
             '    (logs / "StandaloneRunnerTestResults.testrun.log").write_text("current.sh: " + kind + "\\n")\n',
             encoding="utf-8",
@@ -75,7 +87,7 @@ class RunResultsTests(unittest.TestCase):
         if compiled.returncode != 0:
             raise RuntimeError(compiled.stdout + compiled.stderr)
 
-    def verify_results(self, kind, expected_code, analyze=False, skip_tests=False):
+    def verify_results(self, kind, expected_code, analyze=False, skip_tests=False, verify_host_env=False):
         logs = self.repository / self.id().split(".")[-1]
         logs.mkdir()
         stale_xml = (
@@ -94,6 +106,14 @@ class RunResultsTests(unittest.TestCase):
         environment["HARNESS_RESULT_KIND"] = kind
         if skip_tests:
             environment["SkipTests"] = "true"
+        if verify_host_env:
+            install_dir = str(Path(DOTNET).resolve().parent)
+            environment["DOTNET_INSTALL_DIR"] = install_dir
+            environment["DOTNET_WasmRunnerIsolationProbe"] = "guest-only-probe"
+            environment["HARNESS_VERIFY_HOST_ENV"] = "1"
+            environment["HARNESS_EXPECTED_CLI_HOME"] = environment["DOTNET_CLI_HOME"]
+            environment["HARNESS_EXPECTED_INSTALL_DIR"] = install_dir
+            environment["HARNESS_HOST_TOOL"] = DOTNET
         arguments = ["-arch", "wasm64", "-os", "browser", "-logs_dir", str(logs)]
         if analyze:
             arguments.append("--analyze_results_only")
@@ -108,6 +128,8 @@ class RunResultsTests(unittest.TestCase):
         self.assertEqual((logs / "unrelated.log").read_text(encoding="utf-8"), "preserve")
         if expected_code != 0:
             self.assertIn("No wasm64 tests executed", output)
+        if verify_host_env:
+            self.assertRegex((logs / "host-sdk-version.txt").read_text(encoding="utf-8"), r"^\d+\.")
 
     def test_all_skipped_cannot_use_stale_success(self):
         self.verify_results("Skip", 1)
@@ -123,6 +145,9 @@ class RunResultsTests(unittest.TestCase):
 
     def test_analyze_only_preserves_results(self):
         self.verify_results("none", 0, analyze=True)
+
+    def test_host_sdk_configuration_is_preserved_and_guest_knobs_are_isolated(self):
+        self.verify_results("Pass", 0, verify_host_env=True)
 
 
 if __name__ == "__main__":

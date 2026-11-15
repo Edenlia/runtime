@@ -143,7 +143,21 @@ For a restricted home directory, put `DOTNET_CLI_HOME`, `XDG_RUNTIME_DIR`,
 `XDG_DATA_HOME`, `NUGET_PACKAGES` and `npm_config_cache` in writable task
 directories. Record these paths. Use a single heavy native build at a time.
 
+For the unchanged wasm32 baseline on Debian 13, the host cross-JIT built with
+official distribution clang 19.1.7. The Emscripten-bundled clang 23 and system
+GCC 14 failed upstream host JIT warning checks (`unused-template` and `nonnull`,
+respectively). Their failed logs were retained. Selecting `-clang19` for the
+host leaves the repository-pinned Emscripten guest compiler unchanged. Use
+`CLR_READELF=/usr/bin/readelf` when the selected LLVM bundle lacks
+`llvm-readelf`; no compiler patch or warning suppression is needed for the
+successful host cross-JIT lane.
+
 ## Checkpoint evidence and next gate
+
+This is an unintegrated, Release-only development checkpoint. Checked builds,
+a full wasm32 product regression on the feature worktree, and the browser/SDK
+workload matrix have not been run. The complete foundation acceptance gate
+remains open.
 
 Host validation has executed the complete type-system suite (359 passed,
 0 skipped), including explicit Wasm32/Wasm64 layout cases. The architecture
@@ -157,6 +171,24 @@ architecture selection, and stale results that could otherwise turn an empty
 wasm64 run into a false pass. Analysis-only runs preserve existing results.
 The wasm32 baseline must separately establish product and execution results;
 native toolchain probes and host compiler tests cannot establish it.
+
+The unchanged upstream baseline completed the Release `clr+libs+packs` build
+with clang 19 as the host compiler (0 warnings/errors). The selected standalone
+EH `finally` and GC `keepalivetry` tests each executed once through the existing
+MSBuild/Node backend, with `DOTNET_InterpMode=3`, expected/actual exit 100,
+and zero skips. Matching Release browser call-helper regeneration produced no
+tracked source changes.
+
+The upstream `run.sh` entry itself was blocked before guest execution: its runner
+clears `DOTNET_CLI_HOME`, and the nested SDK tries to write to a read-only home.
+Those zero-execution attempts are recorded separately from the successful
+backend tests. This feature branch preserves `DOTNET_CLI_HOME` and
+`DOTNET_INSTALL_DIR` for the nested SDK while forwarding runtime knobs to the
+guest environment script. It uses `null` to remove those knobs from the host;
+an empty string leaves a variable present on .NET 12. Six host result/environment
+regressions, including a real nested SDK launch, pass alongside the eight shell
+argument tests. Browser JS and workload execution remain `NOT RUN` for this
+checkpoint.
 
 The next implementation checkpoint is the managed/native ABI, followed by GC
 and browser loading. Freeze the common helper/VM/layout contract before
