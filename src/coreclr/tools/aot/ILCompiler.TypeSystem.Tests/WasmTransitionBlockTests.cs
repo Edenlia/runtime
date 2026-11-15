@@ -75,9 +75,51 @@ namespace TypeSystemTests
             Assert.Equal(block.OffsetOfArgs + 16, iterator.GetAsyncContinuationArgOffset());
         }
 
+        [Theory]
+        [InlineData(TargetArchitecture.Wasm32, false)]
+        [InlineData(TargetArchitecture.Wasm32, true)]
+        [InlineData(TargetArchitecture.Wasm64, false)]
+        [InlineData(TargetArchitecture.Wasm64, true)]
+        public void AggregateReturnDoesNotInsertReturnBufferArgument(TargetArchitecture architecture, bool hidden)
+        {
+            TransitionBlock block = TransitionBlock.FromTarget(architecture, false, false, false);
+            int hiddenSize = hidden ? 24 : 0;
+
+            // vm/callingconvention.h explicitly clears RETURN_HAS_RET_BUFFER under
+            // TARGET_WASM: even large interpreter struct returns do not add an argument.
+            foreach (int returnSize in new[] { 8, 24 })
+            {
+                var returnType = new Handle(CorElementType.ELEMENT_TYPE_VALUETYPE, block.PointerSize, returnSize);
+                var iterator = CreateIteratorWithReturnType(block, hidden, returnType,
+                    new Handle(CorElementType.ELEMENT_TYPE_PTR, block.PointerSize),
+                    new Handle(CorElementType.ELEMENT_TYPE_I4, block.PointerSize));
+
+                Assert.False(iterator.HasRetBuffArg());
+                Assert.Equal(block.OffsetOfArgs + hiddenSize, iterator.GetNextOffset());
+                Assert.Equal(block.OffsetOfArgs + hiddenSize + 8, iterator.GetNextOffset());
+                Assert.Equal(TransitionBlock.InvalidOffset, iterator.GetNextOffset());
+                Assert.Equal(hiddenSize + 16, iterator.SizeOfFrameArgumentArray());
+
+                if (hidden)
+                {
+                    Assert.Equal(block.OffsetOfArgs, iterator.GetThisOffset());
+                    Assert.Equal(block.OffsetOfArgs + 8, iterator.GetParamTypeArgOffset());
+                    Assert.Equal(block.OffsetOfArgs + 16, iterator.GetAsyncContinuationArgOffset());
+                }
+
+                var emptyIterator = CreateIteratorWithReturnType(block, hidden, returnType);
+                Assert.False(emptyIterator.HasRetBuffArg());
+                Assert.Equal(TransitionBlock.InvalidOffset, emptyIterator.GetNextOffset());
+                Assert.Equal(hiddenSize, emptyIterator.SizeOfFrameArgumentArray());
+            }
+        }
+
         private static ArgIterator<Handle> CreateIterator(TransitionBlock block, bool hidden, params Handle[] parameters)
+            => CreateIteratorWithReturnType(block, hidden, new Handle(CorElementType.ELEMENT_TYPE_VOID, block.PointerSize), parameters);
+
+        private static ArgIterator<Handle> CreateIteratorWithReturnType(TransitionBlock block, bool hidden, Handle returnType, params Handle[] parameters)
             => new(block,
-                new ArgIteratorData<Handle>(hidden, false, parameters, new Handle(CorElementType.ELEMENT_TYPE_VOID, block.PointerSize)),
+                new ArgIteratorData<Handle>(hidden, false, parameters, returnType),
                 hidden ? CallingConventions.ManagedInstance : CallingConventions.ManagedStatic,
                 hasParamType: hidden, hasAsyncContinuation: hidden, extraFunctionPointerArg: false,
                 forcedByRefParams: null, skipFirstArg: false, extraObjectFirstArg: false, isWindows: false,

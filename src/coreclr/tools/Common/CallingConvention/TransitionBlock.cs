@@ -352,7 +352,7 @@ namespace Internal.CallingConvention
                                 break;
                             }
 
-                            if (IsWasm32)
+                            if (IsWasm)
                             {
                                 // Wasm doesn't use a ret buffer for returning structs in the interpreter calling convention, which is the TransitionBlock convention on Wasm platforms.
                                 break;
