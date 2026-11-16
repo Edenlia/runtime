@@ -4,7 +4,14 @@
 #include "asmconstants.h"
 #include "wasm-asm.h"
 
+#ifdef TARGET_WASM64
+// Let the native compiler lower the final function-pointer operand to its table ABI.
+.functype WasmCallGenericDictionaryHelper (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+#define CALL_GENERIC_DICTIONARY_HELPER call WasmCallGenericDictionaryHelper
+#else
 .tabletype __indirect_function_table, funcref
+#define CALL_GENERIC_DICTIONARY_HELPER call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+#endif
 
 .size   g_pClassWithSlotAndModule, WASM_PTR_SIZE
 .size   g_pMethodWithSlotAndModule, WASM_PTR_SIZE
@@ -56,7 +63,7 @@ DynamicHelper_GenericDictionaryLookup_Class_SizeCheck_TestForNull:
         local.tee       2
         local.get       2
         WASM_PTR_LOAD        0
-        call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+        CALL_GENERIC_DICTIONARY_HELPER
         local.set       3
         end_block
         local.get       3                                                                       // Return the result.
@@ -106,7 +113,7 @@ DynamicHelper_GenericDictionaryLookup_Method_SizeCheck_TestForNull:
         local.tee       2
         local.get       2
         WASM_PTR_LOAD        0
-        call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+        CALL_GENERIC_DICTIONARY_HELPER
         local.set       3
         end_block
         local.get       3                                                                       // Return the result.
@@ -148,7 +155,7 @@ DynamicHelper_GenericDictionaryLookup_Class_TestForNull:
         local.tee       2
         local.get       2
         WASM_PTR_LOAD        0
-        call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+        CALL_GENERIC_DICTIONARY_HELPER
         local.set       3
         end_block
         local.get       3                                                                       // Return the result.
@@ -267,7 +274,7 @@ DynamicHelper_GenericDictionaryLookup_Method_TestForNull:
         local.tee       2
         local.get       2
         WASM_PTR_LOAD        0
-        call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+        CALL_GENERIC_DICTIONARY_HELPER
         local.set       3
         end_block
         local.get       3                                                                       // Return the result.
@@ -364,7 +371,7 @@ DynamicHelper_GenericDictionaryLookup_Class_UseHelper:
         local.tee       2
         local.get       2
         WASM_PTR_LOAD        0
-        call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+        CALL_GENERIC_DICTIONARY_HELPER
         return
         end_function
 
@@ -385,6 +392,6 @@ DynamicHelper_GenericDictionaryLookup_Method_UseHelper:
         local.tee       2
         local.get       2
         WASM_PTR_LOAD        0
-        call_indirect    __indirect_function_table, (WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE, WASM_PTR_TYPE) -> (WASM_PTR_TYPE)
+        CALL_GENERIC_DICTIONARY_HELPER
         return
         end_function

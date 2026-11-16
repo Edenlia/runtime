@@ -286,6 +286,28 @@ VOID PALAPI RtlRestoreContext(IN PCONTEXT ContextRecord, IN PEXCEPTION_RECORD Ex
     __builtin_unreachable();
 }
 
+#ifdef TARGET_WASM64
+// A function pointer has the native representation. The compiler selects
+// the operand type for call_indirect from the target's function table ABI.
+extern "C" TADDR WasmCallGenericDictionaryHelper(TADDR sp, TADDR context, TADDR args, TADDR entryPoint, PCODE target)
+{
+    using Helper = TADDR (*)(TADDR, TADDR, TADDR, TADDR);
+    return reinterpret_cast<Helper>(target)(sp, context, args, entryPoint);
+}
+
+extern "C" __attribute__((used)) TADDR WasmCallFuncletWithThrowable(TADDR sp, TADDR fp, Object* throwable, PCODE target)
+{
+    using Funclet = TADDR (*)(TADDR, TADDR, Object*);
+    return reinterpret_cast<Funclet>(target)(sp, fp, throwable);
+}
+
+extern "C" __attribute__((used)) void WasmCallFuncletWithoutThrowable(TADDR sp, TADDR fp, PCODE target)
+{
+    using Funclet = void (*)(TADDR, TADDR);
+    reinterpret_cast<Funclet>(target)(sp, fp);
+}
+#endif
+
 // These CallFunclet functions are used to call funclets from the VM.
 // They set up a new stack frame for calling a function which provides the TERMINATE_R2R_STACK_WALK flag so that unwinds from the funclet terminate correctly.
 // then invoke the new funclet with SP pointing to the top of the new frame.
@@ -311,7 +333,11 @@ static __attribute__((naked)) UINT_PTR CallFuncletWithThrowable(UINT_PTR pFuncle
          "local.get       1\n"               // Get the frame pointer argument for the original function
          "local.get       2\n"               // Get the exception object for the funclet
          "local.get       0\n"               // Get the funclet address to call
+#ifdef TARGET_WASM64
+         "call            WasmCallFuncletWithThrowable\n"
+#else
          "call_indirect    __indirect_function_table, (" WASM_PTR_TYPE_STR ", " WASM_PTR_TYPE_STR ", " WASM_PTR_TYPE_STR ") -> (" WASM_PTR_TYPE_STR ")\n"
+#endif
          "local.set       0\n"               // Capture the return into a local so that we can return it after restoring the original stack pointer
          "global.set      __stack_pointer\n" // Restore the original stack pointer before returning to the caller of the funclet
          "local.get       0\n"               // Return the value from the funclet call
@@ -339,7 +365,11 @@ static __attribute__((naked)) UINT_PTR CallFuncletWithoutThrowable(UINT_PTR pFun
          "local.get       2\n"               // Get the stack pointer
          "local.get       1\n"               // Get the frame pointer argument for the original function
          "local.get       0\n"               // Get the funclet address to call
+#ifdef TARGET_WASM64
+         "call            WasmCallFuncletWithoutThrowable\n"
+#else
          "call_indirect    __indirect_function_table, (" WASM_PTR_TYPE_STR ", " WASM_PTR_TYPE_STR ") -> ()\n"
+#endif
          "global.set      __stack_pointer\n" // Restore the original stack pointer before returning to the caller of the funclet
          WASM_PTR_CONST_STR "       0\n"
          "return\n"
