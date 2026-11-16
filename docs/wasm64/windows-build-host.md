@@ -51,6 +51,13 @@ after SDK acquisition: explicit `PythonExecutable`, then `EMSDK_PYTHON`, then th
 runtime SDK's bundled Python, then `python`. Quoted Windows directory arguments
 use forward slashes so a trailing backslash cannot consume the closing quote.
 
+The verified ICU directory also uses forward-slash spelling at the Windows
+`NativeCMakeArg` boundary. A quoted trailing backslash otherwise absorbs the
+following native options, including CMake's `-B` and `-S`, into `CMAKE_ICU_DIR`.
+This changes only the same physical directory's invocation spelling; verification,
+source selection and compiler/linker settings are unchanged. Linux paths are not
+rewritten.
+
 The normal native MSBuild graph prepares ICU before `BuildRuntime` as well as
 `BuildNativeCommon`. Inspect the imported `BeforeTargets` hooks when determining
 dependencies, rather than only `runtime.proj`'s explicit dependency property.
@@ -160,6 +167,15 @@ normalized `putil.cpp` LF to CRLF. Recipe 8 corrects the hunk application to pre
 every other byte and fixes extensionless Node validation; its whole-source retry
 has not yet run. Recipe 7's identity and files remain recorded under recipe 7.
 No complete CoreCLR product, managed guest or browser loader success is implied.
+
+The first complete normal Windows native-graph attempt exposed that native argv
+boundary: CMake completed its capability checks but wrote an accidental in-source
+build because the verified dependency's closing quote was consumed. No native CLR
+compilation or valid profile configuration is inferred from that attempt. Its
+generated files and logs were archived. Actual MSBuild target-metadata and normal
+`gen-buildsys.cmd` probes reproduce the failure and confirm that the Windows path
+normalization preserves the following arguments and intended build directory.
+Those metadata-only probes do not claim a complete runtime build.
 
 Standalone native Memory64 and UE's lowered final module require separate real
 product/guest tests. UE's established final link retains

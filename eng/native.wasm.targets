@@ -94,6 +94,7 @@
     <Error Condition="'@(_PreparedMemory64Icu)' == ''" Text="The Memory64 ICU dependency did not return a verified output directory." />
     <PropertyGroup>
       <_IcuDir>@(_PreparedMemory64Icu)</_IcuDir>
+      <_IcuDir Condition="'$(HostOS)' == 'windows'">$(_IcuDir.Replace('\', '/'))</_IcuDir>
     </PropertyGroup>
     <ItemGroup>
       <NativeCMakeArg Include="-cmakeargs &quot;-DCMAKE_ICU_DIR=$(_IcuDir)&quot;" />
