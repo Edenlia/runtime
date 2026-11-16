@@ -31,6 +31,10 @@ if "%WASM_TOOL_CACHE_RESULT%" == "" (
 set "EMSDK_PATH=%WASM_TOOL_CACHE_RESULT%"
 
 :CallEmsdkEnv
+rem Modern emsdk activation clears explicit cache/config overrides as stale SDK state.
+rem Preserve caller selections for both configuration and the subsequent native build.
+set "__RuntimeEmCache=%EM_CACHE%"
+set "__RuntimeEmConfig=%EM_CONFIG%"
 set "EMSDK_QUIET=1"
 if exist "%EMSDK_PATH%\emsdk_env.cmd" (
     call "%EMSDK_PATH%\emsdk_env.cmd"
@@ -41,6 +45,10 @@ if exist "%EMSDK_PATH%\emsdk_env.cmd" (
     exit /B 1
 )
 if errorlevel 1 exit /B 1
+if defined __RuntimeEmCache set "EM_CACHE=%__RuntimeEmCache%"
+if defined __RuntimeEmConfig set "EM_CONFIG=%__RuntimeEmConfig%"
+set "__RuntimeEmCache="
+set "__RuntimeEmConfig="
 
 :AfterEmsdkEnv
 
@@ -49,7 +57,7 @@ setlocal enabledelayedexpansion
 set __SourceDir=%1
 set __IntermediatesDir=%2
 set "__IntermediatesDirPath=%~2"
-set "__CompilerInputs=CMAKE_TOOLCHAIN_FILE=!CMAKE_TOOLCHAIN_FILE!;CC=!CC!;CXX=!CXX!;VCToolsInstallDir=!VCToolsInstallDir!;EM_CONFIG=!EM_CONFIG!;EM_LLVM_ROOT=!EM_LLVM_ROOT!;DOTNET_EMSCRIPTEN_LLVM_ROOT=!DOTNET_EMSCRIPTEN_LLVM_ROOT!"
+set "__CompilerInputs=CMAKE_TOOLCHAIN_FILE=!CMAKE_TOOLCHAIN_FILE!;CC=!CC!;CXX=!CXX!;VCToolsInstallDir=!VCToolsInstallDir!;EM_CONFIG=!EM_CONFIG!;EM_CACHE=!EM_CACHE!;EM_LLVM_ROOT=!EM_LLVM_ROOT!;DOTNET_EMSCRIPTEN_LLVM_ROOT=!DOTNET_EMSCRIPTEN_LLVM_ROOT!"
 set __VSVersion=%3
 set __Arch=%4
 set __CmakeGenerator=Visual Studio

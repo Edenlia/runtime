@@ -29,6 +29,14 @@ Windows's extensionless `node` spelling resolves to the same-path `node.exe`.
 Its resolved command and binary hash are recorded. Reusing an output with a
 different identity fails.
 
+The Windows native entry preserves an explicitly supplied `EM_CACHE` and
+`EM_CONFIG` across SDK activation. Modern `emsdk_env` clears these overrides;
+without restoration, configuration and the following native build silently use
+the SDK's default cache instead of the dependency cache prepared by MSBuild.
+When an override is absent, the SDK's own default is retained. Cache selection
+also participates in the native compiler-input fingerprint, so changing it
+invalidates the previous CMake compiler state and object outputs.
+
 For example, after assigning absolute paths for the local tools and owned outputs:
 
 ```powershell
@@ -176,6 +184,17 @@ generated files and logs were archived. Actual MSBuild target-metadata and norma
 `gen-buildsys.cmd` probes reproduce the failure and confirm that the Windows path
 normalization preserves the following arguments and intended build directory.
 Those metadata-only probes do not claim a complete runtime build.
+
+After the argv repair, the next normal graph configured the intended interpreter
+and native-pthread profile and compiled production CLR sources. Its corerun link
+then exposed the SDK activation override loss: three prepared private-cache MT
+EH archives were searched for in the SDK default cache. Its partial outputs and
+logs were archived. Stock activation reproduces the cleared overrides. The
+derived normal-entry repair passes actual default wasm32/wasm64 compilation and
+a native-pthread wasm64 executable link with a frozen cache. Configuration and
+the returned caller both retain explicit overrides; an absent-overrides wasm32
+build retains SDK defaults. These boundary checks do not claim a complete CLR
+product or managed guest.
 
 Standalone native Memory64 and UE's lowered final module require separate real
 product/guest tests. UE's established final link retains
