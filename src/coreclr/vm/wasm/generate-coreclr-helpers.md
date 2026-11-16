@@ -17,6 +17,18 @@ Each run leaves the exact generator invocation in a response file under
 `artifacts/obj/wasm-callhelpers/<target os>/generate-coreclr-helpers.rsp`, which is the first thing
 to look at when a regenerated table is not what was expected.
 
+For `--arch wasm64`, inputs come from the matching `browser-wasm64` framework build, generated
+source goes under `src/coreclr/vm/wasm/browser/wasm64/`, and the response file and staging output
+go under `artifacts/obj/wasm-callhelpers/browser/wasm64/`. This target currently requires
+`browser`. Missing wasm64 inputs are an error; the generator does not substitute wasm32
+framework assemblies or tables.
+
+Both guest widths use the ordinary host crossgen2. Its build directory remains
+`artifacts/bin/coreclr/browser.wasm.<configuration>/<build architecture>/crossgen2/`.
+The explicit `--targetarch` in the response file determines the guest type system and ABI;
+portable generation returns before native JIT initialization. This path does not require a
+wasm64 cross-JIT and does not enable wasm64 ReadyToRun compilation.
+
 The relink targets for browser and wasi apps run the same crossgen2 mode over the app's own
 assembly closure, so these checked-in files and a relinked app are produced by one code path.
 
@@ -120,10 +132,36 @@ src/coreclr/vm/wasm/generate-coreclr-helpers.sh -c Release
 | `-s`, `--scan-path <path>` | Override the default **browser** scan path. |
 | `-w`, `--wasi-scan-path <path>` | Override the default **wasi** scan path. |
 | `-t`, `--target-os <browser\|wasi>` | Regenerate only this flavor (default: both). |
+| `-a`, `--arch <wasm\|wasm64>` | Guest architecture (default: `wasm`). `wasm64` defaults to `browser` and rejects `wasi`. |
+| `--compiler-path <path>` | Explicit ordinary host crossgen2 executable or framework-dependent DLL. |
+| `--output-root <path>` | Write beneath this root instead of the source tree; per-OS and wasm64 subdirectories are retained. |
 | `-h`, `--help` | Show usage. |
 
 After running, review and commit any changes to the generated files under
 `src/coreclr/vm/wasm/browser/` and `src/coreclr/vm/wasm/wasi/`.
+
+For example, after building the full browser-wasm64 framework closure, regenerate its tables
+with a Release host compiler:
+
+```bash
+src/coreclr/vm/wasm/generate-coreclr-helpers.sh -c Release --arch wasm64
+```
+
+To scan Checked guest inputs with a Release host compiler on Linux x64, select that compiler
+explicitly. An alternate output root is useful when comparing results without editing source:
+
+```bash
+src/coreclr/vm/wasm/generate-coreclr-helpers.sh -c Checked --arch wasm64 \
+  --compiler-path artifacts/bin/coreclr/browser.wasm.Release/x64/crossgen2/crossgen2 \
+  --output-root artifacts/obj/callhelpers-verification
+```
+
+The equivalent MSBuild properties are `CallHelperTargetArchitecture`, `CallHelperCompilerPath`,
+and `CallHelperOutputRoot` on `generate-coreclr-helpers.proj`. Compiler paths and output roots
+may be absolute or relative to the repository root. DLLs run with the current `DOTNET_HOST_PATH`
+or the repository's `DotNetTool`; no separate helper-only compiler is used. Ordinary wasm32
+invocations retain their previous compiler lookup, scan path, source output, and response-file
+location.
 
 ## CI check
 

@@ -497,7 +497,7 @@ namespace Internal.CallingConvention
             }
             else
             {
-                if (_transitionBlock.IsWasm32)
+                if (_transitionBlock.IsWasm)
                 {
                     if (_argType == CorElementType.ELEMENT_TYPE_VALUETYPE)
                     {
@@ -722,6 +722,7 @@ namespace Internal.CallingConvention
                         break;
 
                     case TargetArchitecture.Wasm32:
+                    case TargetArchitecture.Wasm64:
                         _wasmOfsStack = numRegistersUsed * _transitionBlock.StackElemSize(_transitionBlock.PointerSize);
                         break;
 
@@ -925,6 +926,7 @@ namespace Internal.CallingConvention
                     }
 
                 case TargetArchitecture.Wasm32:
+                case TargetArchitecture.Wasm64:
                     {
                         bool isValueType = (argType == CorElementType.ELEMENT_TYPE_VALUETYPE);
                         int cbArg = ALIGN_UP(argSize, 8);
@@ -1537,7 +1539,7 @@ namespace Internal.CallingConvention
                     }
                 }
 
-                if (maxOffset == _transitionBlock.OffsetOfArgs && _transitionBlock.IsWasm32)
+                if (maxOffset == _transitionBlock.OffsetOfArgs && _transitionBlock.IsWasm)
                 {
                     // Wasm puts all arguments on the stack, even the unnamed ones like the param registers, this pointer and async continuation. If we didn't see any named arguments, then we need to account for the unnamed ones here.
                     maxOffset = _transitionBlock.OffsetOfArgs + _wasmOfsStack;
@@ -1571,6 +1573,7 @@ namespace Internal.CallingConvention
             switch (_transitionBlock.Architecture)
             {
                 case TargetArchitecture.Wasm32:
+                case TargetArchitecture.Wasm64:
                     {
                         ArgLocDesc pLoc = default;
                         int byteArgSize = GetArgSize();
@@ -1800,7 +1803,7 @@ namespace Internal.CallingConvention
         private ushort _armWFPRegs;          // Bitmask of available floating point argument registers (s0-s15/d0-d7)
         private bool _armRequires64BitAlignment; // Cached info about the current arg
 
-        private int _wasmOfsStack;          // Cached info about the current arg for Wasm32
+        private int _wasmOfsStack;          // Cached info about the current arg for Wasm
 
         private int _arm64IdxGenReg;        // Next general register to be assigned a value
         private int _arm64OfsStack;         // Offset of next stack location to be assigned a value
