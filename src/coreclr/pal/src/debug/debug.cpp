@@ -427,7 +427,7 @@ Function:
 BOOL
 IsInDebugBreak(void *addr)
 {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     _ASSERT("IsInDebugBreak not implemented on wasm");
     return false;
 #else

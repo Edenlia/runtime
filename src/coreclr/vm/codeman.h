@@ -2341,7 +2341,7 @@ public:
         return m_CPUCompileFlags;
     }
 
-#if defined(TARGET_WASM) && !defined(DACCESS_COMPILE)
+#if (defined(TARGET_WASM) || defined(TARGET_WASM64)) && !defined(DACCESS_COMPILE)
     // Wasm cannot detect instruction sets at run time; CoreLib's ReadyToRun image defines them.
     void SetInstructionSetFromCoreLib(CORINFO_InstructionSet instructionSet)
     {
@@ -2405,7 +2405,7 @@ struct cdac_data<LoaderCodeHeap>
 //
 //*****************************************************************************
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 struct VirtualIPRangeSection
 {
     VirtualIPRangeSection(Range range, IJitManager* pJit, RangeSection::RangeSectionFlags flags, PTR_Module pR2RModule) : rangeSection(range, pJit, flags, pR2RModule), pNext(nullptr)
@@ -2575,7 +2575,7 @@ public:
                                        RangeSection::RangeSectionFlags flags,
                                        PTR_Module pModule);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // Register a virtual IP range for a WASM R2R module.
     // Returns the start virtual IP assigned to this module.
     static constexpr TADDR WasmInitialVirtualIP = (static_cast<TADDR>(1) << (sizeof(TADDR) * 8 - 1)) | 1;
@@ -2660,7 +2660,7 @@ private:
     SPTR_DECL(InterpreterCodeManager, m_pInterpreterCodeMan);
 #endif
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     static VirtualIPRangeSection* s_pVirtualIPRangeList;
     static FunctionTableIndexRangeSection* s_pFunctionTableIndexRangeList;
 #endif // TARGET_WASM
@@ -2797,13 +2797,13 @@ struct cdac_data<ExecutionManager>
 #ifdef FEATURE_INTERPRETER
     static constexpr PTR_InterpreterJitManager* InterpreterJitManagerAddress = &ExecutionManager::m_pInterpreterJitManager;
 #endif // FEATURE_INTERPRETER
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     static constexpr VirtualIPRangeSection** VirtualIPRangeListAddress = &ExecutionManager::s_pVirtualIPRangeList;
     static constexpr FunctionTableIndexRangeSection** FunctionTableIndexRangeListAddress = &ExecutionManager::s_pFunctionTableIndexRangeList;
 #endif // TARGET_WASM
 };
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 template<>
 struct cdac_data<VirtualIPRangeSection>
 {
@@ -3113,7 +3113,7 @@ public:
         return STUB_CODE_BLOCK_UNKNOWN;
     }
 
-#if !defined(DACCESS_COMPILE) && !defined(TARGET_WASM)
+#if !defined(DACCESS_COMPILE) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     // Return execution control for interpreter bytecode breakpoints
     virtual IExecutionControl* GetExecutionControl();
 #endif // !DACCESS_COMPILE && !TARGET_WASM
@@ -3302,7 +3302,7 @@ private:
     PTR_CBYTE   DecodeGCHdrInfoHelper(hdrInfo   ** infoPtr);
 #endif // TARGET_X86
 
-#if defined(TARGET_WASM)
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 ULONG       GetFixedStackSize();
 #endif
 

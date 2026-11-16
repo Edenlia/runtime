@@ -62,7 +62,7 @@ DWORD GetClrModulePathName(SString& buffer)
 #ifdef HOST_WINDOWS
     return WszGetModuleFileName((HINSTANCE)GetClrModuleBase(), buffer);
 #else
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
     HMODULE hModule = PAL_GetPalHostModule();
 #else
     // on wasm the PAL library is statically linked

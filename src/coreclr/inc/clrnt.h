@@ -512,7 +512,7 @@ RtlVirtualUnwind(
 
 #endif // TARGET_RISCV64
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 //
 // Define unwind information flags.
 //

@@ -1750,7 +1750,7 @@ typedef struct _KNONVOLATILE_CONTEXT_POINTERS {
     //
 
 } KNONVOLATILE_CONTEXT_POINTERS, *PKNONVOLATILE_CONTEXT_POINTERS;
-#elif defined(HOST_WASM)
+#elif (defined(HOST_WASM) || defined(HOST_WASM64))
 #define CONTEXT_CONTROL 0
 #define CONTEXT_INTEGER 0
 #define CONTEXT_FLOATING_POINT 0
@@ -3128,7 +3128,7 @@ public:
 
 #define HRESULT_FROM_NT(x)      ((HRESULT) ((x) | FACILITY_NT_BIT))
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 #define _ReturnAddress() __builtin_return_address(0)
 #else
 #define _ReturnAddress() 0

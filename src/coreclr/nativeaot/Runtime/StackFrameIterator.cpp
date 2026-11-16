@@ -642,7 +642,7 @@ void StackFrameIterator::InternalInit(Thread * pThreadToWalk, PTR_PAL_LIMITED_CO
 // thunks report a conservative range).
 void StackFrameIterator::InternalInit(Thread * pThreadToWalk, NATIVE_CONTEXT* pCtx, uint32_t dwFlags)
 {
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
     PORTABILITY_ASSERT("StackFrameIterator::InternalInit with native context");
 #else
     ASSERT((dwFlags & MethodStateCalculated) == 0);

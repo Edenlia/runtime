@@ -2032,7 +2032,7 @@ Return :
 BOOL
 CPalThread::EnsureSignalAlternateStack()
 {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // WebAssembly does not support alternate signal stacks.
     return TRUE;
 #else // !TARGET_WASM
@@ -2108,7 +2108,7 @@ Return :
 void
 CPalThread::FreeSignalAlternateStack()
 {
-#ifndef TARGET_WASM // WebAssembly does not support alternate signal stacks.
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64) // WebAssembly does not support alternate signal stacks.
     void *altstack = m_alternateStack;
     size_t altStackSize = m_alternateStackSize;
     m_alternateStack = nullptr;

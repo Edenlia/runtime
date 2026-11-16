@@ -41,11 +41,11 @@ public:
     static bool CloseFile(MemoryMapHandle fileHandle);
     static bool GetFileSize(MemoryMapHandle fileHandle, uint64_t* size);
     static int32_t GetLastMemoryMappingError();
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     static bool ReadFile(MemoryMapHandle fileHandle, uint64_t offset, void* buffer, size_t size);
 #endif // TARGET_WASM
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     static MemoryMapHandle CreateMemoryMapping(MemoryMapHandle fileHandle, uint64_t size, MemoryProtection protection);
     static bool CloseMemoryMapping(MemoryMapHandle mapping);
 
@@ -91,7 +91,7 @@ public:
     static bool DecommitMemory(void* address, size_t size);
     static bool ReleaseMemoryReservation(void* address, size_t size);
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     // Use placeholders to map file-backed sections at fixed offsets within one contiguous address range.
     // Replacing parts of the reservation preserves ownership of those addresses, avoiding races with other
     // allocations and allowing unmodified file-backed pages to stay shared instead of copying the image.
@@ -175,7 +175,7 @@ public:
     };
 #endif // !TARGET_WASM
 
-#if defined(TARGET_UNIX) && !defined(TARGET_WASM)
+#if defined(TARGET_UNIX) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     // Returns an error number directly, without discarding modified private pages.
     static int MarkMemoryAsNotNeeded(void* address, size_t size);
 

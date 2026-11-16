@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <minipal/memorybarrierprocesswide.h>
 
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
 #include <pthread.h>
 #include <stdio.h>
 #include <sys/mman.h>
@@ -98,7 +98,7 @@ bool minipal_initialize_memory_barrier_process_wide(void)
         return true;
     }
 
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
     // browser/wasm is currently single threaded
 #elif defined(HOST_APPLE)
     // Apple platforms do not support membarrier, so we use a different mechanism
@@ -165,7 +165,7 @@ void minipal_memory_barrier_process_wide(void)
 {
     assert(s_initializedMemoryBarrierSuccessfullyInitialized);
 
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
     // browser/wasm is currently single threaded
 #elif defined(HOST_APPLE)
     int status;

@@ -2026,7 +2026,7 @@ VOID DECLSPEC_NORETURN RealCOMPlusThrow(OBJECTREF throwable)
     GCPROTECT_END();
 }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 EXCEPTION_DISPOSITION SetTargetFrame(PAL_SEHException& ex, UINT_PTR targetSP)
 {
     ex.TargetFrameSp = targetSP;
@@ -2044,7 +2044,7 @@ VOID DECLSPEC_NORETURN __fastcall PropagateExceptionThroughNativeFrames(Object *
     }
     CONTRACTL_END;
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // On WASM, the exception needs to keep propagating until it reaches the target frame. On other platforms,
     // this is ensured by unwinding stack up to the target frame before propagating the exception. This
     // difference is due to the fact that on WASM we don't have native stack unwinding support.
@@ -2061,7 +2061,7 @@ VOID DECLSPEC_NORETURN __fastcall PropagateExceptionThroughNativeFrames(Object *
         OBJECTREF throwable = ObjectToOBJECTREF(exceptionObj);
 #endif // TARGET_WASM
         RealCOMPlusThrowWorker(throwable);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     }
     PAL_EXCEPT(SetTargetFrame(ex, __param->targetSP))
     {
@@ -2540,7 +2540,7 @@ void StackTraceInfo::AppendElement(OBJECTREF pThrowable, UINT_PTR currentIP, UIN
         }
         else if (!pCf->HasFaulted() && stackTraceElem.ip != 0)
         {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
             if (!ExecutionManager::IsVirtualIP(stackTraceElem.ip))
 #endif
             {
@@ -10087,7 +10087,7 @@ void SoftwareExceptionFrame::UpdateRegDisplay_Impl(const PREGDISPLAY pRD, bool u
 {
     LIMITED_METHOD_DAC_CONTRACT;
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 #define CALLEE_SAVED_REGISTER(regname) pRD->pCurrentContext->regname = *dac_cast<PTR_SIZE_T>((TADDR)m_ContextPointers.regname);
     ENUM_CALLEE_SAVED_REGISTERS();
 #undef CALLEE_SAVED_REGISTER
@@ -10128,7 +10128,7 @@ void SoftwareExceptionFrame::SetContext(T_CONTEXT *pContext)
 
     m_Context = *pContext;
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 #define CALLEE_SAVED_REGISTER(regname) m_ContextPointers.regname = &m_Context.regname;
     ENUM_CALLEE_SAVED_REGISTERS();
 #undef CALLEE_SAVED_REGISTER
@@ -10534,7 +10534,7 @@ void SoftwareExceptionFrame::UpdateContextFromTransitionBlock(TransitionBlock *p
     m_ReturnAddress = pTransitionBlock->m_ReturnAddress;
 }
 
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
 void SoftwareExceptionFrame::UpdateContextFromTransitionBlock(TransitionBlock *pTransitionBlock)
 {
     LIMITED_METHOD_CONTRACT;

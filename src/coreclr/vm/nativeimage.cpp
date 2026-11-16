@@ -209,7 +209,7 @@ namespace
             }
         }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         // On WebAssembly the runtime only loads flat webcil composites, which do not expose a named
         // "RTR_HEADER" export the way PE R2R images do; obtain the R2R header from the decoder instead.
         // PE R2R images (which rely on the export) cannot be loaded on WASM, so the export path is never

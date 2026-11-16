@@ -671,7 +671,7 @@ PTR_ReadyToRunInfo ReadyToRunInfo::Initialize(Module * pModule, AllocMemTracker 
         return NULL;
     }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     if (pHeader->MajorVersion < 32)
     {
         DoLog("Ready to Run disabled - unsupported Wasm frame identity encoding");
@@ -921,7 +921,7 @@ ReadyToRunInfo::ReadyToRunInfo(Module * pModule, LoaderAllocator* pLoaderAllocat
         m_nRuntimeFunctions = 0;
     }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // For WASM, the min function table index is stored as a u32 immediately after the
     // sentinel entry (0xFFFFFFFF) at the end of the RUNTIME_FUNCTION table.
     if (m_nRuntimeFunctions > 0)
@@ -968,7 +968,7 @@ ReadyToRunInfo::ReadyToRunInfo(Module * pModule, LoaderAllocator* pLoaderAllocat
         m_methodDefEntryPoints = NativeArray(&m_nativeReader, pEntryPointsDir->VirtualAddress);
     }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     m_pSectionDelayLoadMethodCallThunks = m_pComposite->FindSection(ReadyToRunSectionType::DelayLoadMethodCallThunks);
 #endif
 
@@ -1292,7 +1292,7 @@ void ReadyToRunInfo::RegisterResumptionStub(PCODE stubEntryPoint)
         sizeof(s_resumptionStubSig),
         &amTracker);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // SetMethodDescForEntryPointInNativeImage needs to have the virtual IP
     uint32_t id = stubEntryPoint - m_pCompositeInfo->GetMinFunctionTableIndex();
     stubEntryPoint = R2RRelativeFunctionIndexToVirtualIP(id);
@@ -1439,7 +1439,7 @@ PCODE ReadyToRunInfo::GetEntryPoint(MethodDesc * pMD, PrepareCodeConfig* pConfig
 #ifdef FEATURE_TIERED_COMPILATION
 #error "Portable entry points are not currently supported with tiered compilation, as the interaction between the two is not yet fully worked out."
 #endif
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     void* actualEntryPoint;
     actualEntryPoint = (void*)(GetMinFunctionTableIndex() + id);
     PCODE virtualEntrypointIP;
@@ -1653,7 +1653,7 @@ MethodDesc * ReadyToRunInfo::MethodIterator::GetMethodDesc_NoRestore()
     }
 
     _ASSERTE(id < m_pInfo->m_nRuntimeFunctions);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     PCODE pEntryPoint = m_pInfo->R2RRelativeFunctionIndexToVirtualIP(id);
 #else
     PCODE pEntryPoint = dac_cast<TADDR>(m_pInfo->GetImage()->GetBase()) + RUNTIME_FUNCTION__BeginAddress(&m_pInfo->m_pRuntimeFunctions[id]);
@@ -2857,7 +2857,7 @@ PCODE DynamicHelpers::CreateDictionaryLookupHelper(LoaderAllocator * pAllocator,
 }
 #endif // FEATURE_STUBPRECODE_DYNAMIC_HELPERS
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 // Decode a ULEB128-encoded value that must fit in a UINT32.
 // Advances *ppData past the encoded bytes. Asserts if the value overflows 32 bits.
 UINT32 DecodeULEB128AsU32(PTR_BYTE* ppData)

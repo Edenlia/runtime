@@ -1423,7 +1423,7 @@ FCIMPL3(INT32, Interlocked_CompareExchange32, INT32* location, INT32 value, INT3
 }
 FCIMPLEND
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 extern "C" decltype(Interlocked_CompareExchange32) Interlocked_CompareExchange32Pointer
     __attribute__((alias("Interlocked_CompareExchange32")));
 #endif // TARGET_WASM

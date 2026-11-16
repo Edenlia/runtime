@@ -56,7 +56,7 @@ public:
 
 public:
 #ifndef DACCESS_COMPILE
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // One-time initialization of the lock guarding webcil relocation de-duplication.
     static void Startup();
 #endif // TARGET_WASM
@@ -293,13 +293,13 @@ public:
     FlatImageLayout(PEImage* pOwner);
     FlatImageLayout(PEImage* pOwner, const BYTE* array, COUNT_T size);
     void* LoadImageByCopyingParts(PEImagePart* imageParts) const;
-#if !defined(TARGET_WASM)
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     void* LoadImageByMappingParts(PEImagePart* imageParts) const;
 #endif
 #endif
 
 private:
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     NewArrayHolder<BYTE> m_wasmData;
 #else
     VMToOSInterface::MemoryMappedViewHolder m_fileView;

@@ -188,7 +188,7 @@ typedef DWORD (WINAPI *PTHREAD_START_ROUTINE)(void* lpThreadParameter);
  #define MemoryBarrier __sync_synchronize
 #endif // __riscv
 
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
   #define YieldProcessor()
   #define MemoryBarrier __sync_synchronize
 #endif // HOST_WASM

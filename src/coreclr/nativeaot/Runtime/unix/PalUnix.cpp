@@ -441,7 +441,7 @@ typedef uint32_t(__stdcall *BackgroundCallback)(_In_opt_ void* pCallbackContext)
 
 bool PalStartBackgroundWork(_In_ BackgroundCallback callback, _In_opt_ void* pCallbackContext, UInt32_BOOL highPriority)
 {
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
     // No threads, so we can't start one
     ASSERT(false);
 #endif // HOST_WASM
@@ -519,7 +519,7 @@ HANDLE PalGetModuleHandleFromPointer(_In_ void* pointer, bool pinModule)
 
     // Emscripten's implementation of dladdr corrupts memory,
     // but always returns 0 for the module handle, so just skip the call
-#if !defined(HOST_WASM)
+#if !(defined(HOST_WASM) || defined(HOST_WASM64))
     Dl_info info;
     int st = dladdr(pointer, &info);
     if (st != 0)
@@ -662,7 +662,7 @@ void PalFlushInstructionCache(_In_ void* pAddress, size_t size)
     }
 #elif (defined(HOST_MACCATALYST) || defined(HOST_IOS) || defined(HOST_TVOS)) && defined(HOST_ARM64)
     sys_icache_invalidate (pAddress, size);
-#elif !defined(HOST_WASM)
+#elif !(defined(HOST_WASM) || defined(HOST_WASM64))
     __builtin___clear_cache((char *)pAddress, (char *)pAddress + size);
 #endif
 }
@@ -914,7 +914,7 @@ bool PalGetMaximumStackBounds(_Out_ void** ppStackLowOut, _Out_ void** ppStackHi
 //
 int32_t PalGetModuleFileName(_Out_ const TCHAR** pModuleNameOut, HANDLE moduleBase)
 {
-#if defined(HOST_WASM)
+#if (defined(HOST_WASM) || defined(HOST_WASM64))
     // Emscripten's implementation of dladdr corrupts memory and doesn't have the real name, so make up a name instead
     const TCHAR* wasmModuleName = "WebAssemblyModule";
     *pModuleNameOut = wasmModuleName;

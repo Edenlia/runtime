@@ -59,7 +59,7 @@
 #ifndef DACCESS_COMPILE
 Thread* GetThreadAsyncSafe()
 {
-#if defined(TARGET_UNIX) && !defined(TARGET_WASM)
+#if defined(TARGET_UNIX) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     return (Thread*)FindThreadInSignalSafeMap(minipal_get_current_thread_id_no_cache());
 #else
     return GetThreadNULLOk();
@@ -386,7 +386,7 @@ void SetThread(Thread* t)
     if (t != NULL)
     {
         t_CurrentThreadInfo.m_pAppDomain = AppDomain::GetCurrentDomain();
-#if defined(TARGET_UNIX) && !defined(TARGET_WASM)
+#if defined(TARGET_UNIX) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
         if (!InsertThreadIntoSignalSafeMap(t->GetOSThreadId64(), t))
         {
             EEPOLICY_HANDLE_FATAL_ERROR_WITH_MESSAGE(COR_E_EXECUTIONENGINE, W("Failed to insert thread into signal-safe map due to out of memory."));
@@ -400,7 +400,7 @@ void SetThread(Thread* t)
     else
     {
         t_CurrentThreadInfo.m_pAppDomain = NULL;
-#if defined(TARGET_UNIX) && !defined(TARGET_WASM)
+#if defined(TARGET_UNIX) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
         if (origThread != NULL)
         {
             RemoveThreadFromSignalSafeMap(origThread->GetOSThreadId64(), origThread);
@@ -5769,7 +5769,7 @@ void CheckRegDisplaySP (REGDISPLAY *pRD)
 {
 // on wasm the SP is address to interpreter stack, which is located on heap and not on C runtime stack
 // WASM-TODO: update this when we will have codegen
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     if (pRD->SP && pRD->_pThread)
     {
 #ifndef NO_FIXED_STACK_LIMIT

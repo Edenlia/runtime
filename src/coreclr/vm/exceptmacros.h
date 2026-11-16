@@ -218,7 +218,7 @@ VOID DECLSPEC_NORETURN UnwindAndContinueRethrowHelperAfterCatch(Frame* pEntryFra
 class ResumeAfterCatchException;
 #endif
 
-#if defined(FEATURE_INTERPRETER) && !defined(HOST_WASM)
+#if defined(FEATURE_INTERPRETER) && !(defined(HOST_WASM) || defined(HOST_WASM64))
 VOID DECLSPEC_NORETURN RethrowResumeAfterCatchException(const ResumeAfterCatchException& ex, Frame *pFrame, TADDR ssp);
 
 #if defined(HOST_AMD64) && defined(HOST_WINDOWS)

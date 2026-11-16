@@ -924,7 +924,7 @@ void SystemDomain::LazyInitFrozenObjectsHeap()
     }
 }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 extern "C" PCODE g_pPollGC;
 PCODE g_pPollGC;
 #endif // !TARGET_WASM
@@ -1064,7 +1064,7 @@ void SystemDomain::LoadBaseSystemClasses()
         g_pExceptionServicesInternalCallsClass = CoreLibBinder::GetClass(CLASS__EXCEPTIONSERVICES_INTERNALCALLS);
         g_pStackFrameIteratorClass = CoreLibBinder::GetClass(CLASS__STACKFRAMEITERATOR);
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         g_pPollGC = CoreLibBinder::GetMethod(METHOD__THREAD__POLLGC)->GetMultiCallableAddrOfCode();
 #endif // !TARGET_WASM
 #if defined(FEATURE_PERFTRACING) && defined(FEATURE_MULTITHREADING)

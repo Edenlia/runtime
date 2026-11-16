@@ -467,7 +467,7 @@ void Module::Initialize(AllocMemTracker *pamTracker, LPCWSTR szName)
     m_pNativeImage = NULL;
     if ((m_pReadyToRunInfo = ReadyToRunInfo::Initialize(this, pamTracker)) != NULL)
     {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         // Direct R2R calls can execute before assembly activation. Register virtual IPs as soon as
         // the R2R info is installed so stack walks can resolve those frames.
         m_pReadyToRunInfo->RegisterVirtualIPRange(this);
@@ -3471,7 +3471,7 @@ void Module::RunEagerFixups()
     COUNT_T nSections;
     PTR_READYTORUN_IMPORT_SECTION pSections = GetImportSections(&nSections);
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     if (nSections == 0)
         return;
 #endif // !TARGET_WASM
@@ -3509,7 +3509,7 @@ void Module::RunEagerFixups()
         // For composite images, multiple modules may request initializing eager fixups
         // from multiple threads so we need to lock their resolution.
         CrstHolder compositeEagerFixups(compositeNativeImage->EagerFixupsLock());
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         GetReadyToRunInfo()->RegisterVirtualIPRange(this);
         if (nSections == 0)
             return;
@@ -3529,7 +3529,7 @@ void Module::RunEagerFixups()
     else
     {
         // Per-module eager fixups don't need locking
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         GetReadyToRunInfo()->RegisterVirtualIPRange(this);
         if (nSections == 0)
             return;
@@ -3545,7 +3545,7 @@ void Module::RunEagerFixupsUnlocked()
     PTR_READYTORUN_IMPORT_SECTION pSections = GetImportSections(&nSections);
     ReadyToRunLoadedImage *pNativeImage = GetReadyToRunImage();
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     TADDR base = dac_cast<TADDR>(pNativeImage->GetBase());
 
     ExecutionManager::AddCodeRange(

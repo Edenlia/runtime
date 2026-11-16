@@ -143,7 +143,7 @@ static const Entry s_sysNative[] =
     DllImportEntry(SystemNative_GetSpaceInfoForMountPoint)
     DllImportEntry(SystemNative_GetFileSystemTypeNameForMountPoint)
     DllImportEntry(SystemNative_GetAllMountPoints)
-#if !defined(TARGET_WASM) && !defined(TARGET_WASI)
+#if !(defined(TARGET_WASM) || defined(TARGET_WASM64)) && !defined(TARGET_WASI)
     DllImportEntry(SystemNative_ReadEvents)
     DllImportEntry(SystemNative_CreateNetworkChangeListenerSocket)
 #endif // !defined(TARGET_WASM) && !defined(TARGET_WASI)

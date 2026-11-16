@@ -268,7 +268,7 @@ public:
         REGNUM_T5,
         REGNUM_T6,
         REGNUM_PC,
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
         REGNUM_PC, // wasm doesn't have registers
 #else
         PORTABILITY_WARNING("Register numbers not defined on this platform")
@@ -299,7 +299,7 @@ public:
 
     };
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // WASM has no physical registers. A register field in a variable location holds a wasm
     // local index biased past the reserved RegNum values above.
     static constexpr uint32_t WASM_LOCAL_REGNUM_BASE = REGNUM_AMBIENT_SP + 1;

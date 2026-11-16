@@ -1381,8 +1381,11 @@ DEFINE_FIELD_U(dictionaryIndexAndSlot, GenericHandleArgs, dictionaryIndexAndSlot
 
 DEFINE_CLASS(EH, Runtime, EH)
 DEFINE_METHOD(EH, RH_THROW_EX, RhThrowEx, SM_PtrObj_PtrExInfo_RetVoid)
+// Keep these as separate guards for the ILLink descriptor generator.
 #ifndef TARGET_WASM
+#ifndef TARGET_WASM64
 DEFINE_METHOD(EH, RH_THROWHW_EX, RhThrowHwEx, SM_UInt_PtrExInfo_RetVoid)
+#endif // !TARGET_WASM64
 #endif // !TARGET_WASM
 DEFINE_METHOD(EH, RH_RETHROW, RhRethrow, SM_PtrExInfo_PtrExInfo_RetVoid)
 DEFINE_CLASS(EXCEPTIONSERVICES_INTERNALCALLS, ExceptionServices, InternalCalls)

@@ -27,7 +27,7 @@
 #include "strsafe.h"
 
 #include "configuration.h"
-#if !defined(DACCESS_COMPILE) && !defined(TARGET_WASM)
+#if !defined(DACCESS_COMPILE) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
 #include "../debug/ee/executioncontrol.h"
 #endif // !DACCESS_COMPILE && !TARGET_WASM
 
@@ -60,7 +60,7 @@ SVAL_IMPL(RangeSectionMapData, ExecutionManager, g_codeRangeMap);
 VOLATILE_SVAL_IMPL_INIT(LONG, ExecutionManager, m_dwReaderCount, 0);
 VOLATILE_SVAL_IMPL_INIT(LONG, ExecutionManager, m_dwWriterLock, 0);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 VirtualIPRangeSection* ExecutionManager::s_pVirtualIPRangeList = nullptr;
 FunctionTableIndexRangeSection* ExecutionManager::s_pFunctionTableIndexRangeList = nullptr;
 static TADDR s_nextVirtualIP = ExecutionManager::WasmInitialVirtualIP;
@@ -1300,7 +1300,7 @@ PTR_VOID GetUnwindDataBlob(TADDR moduleBase, PTR_RUNTIME_FUNCTION pRuntimeFuncti
     *pSize = size;
     return xdata;
 
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
     PTR_BYTE pUnwindInfo(dac_cast<PTR_BYTE>(moduleBase + pRuntimeFunction->UnwindData));
     PTR_BYTE pUnwindData = pUnwindInfo;
     DecodeULEB128AsU32(&pUnwindData); // Skip the count of bytes to unwind
@@ -1498,7 +1498,7 @@ void EEJitManager::SetCpuInfo()
     }
 #endif
 
-#if defined(TARGET_WASM)
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     CPUCompileFlags.Set(InstructionSet_WasmBase);
     CPUCompileFlags.Set(InstructionSet_PackedSimd);
 #endif
@@ -4817,7 +4817,7 @@ void InterpreterJitManager::JitTokenToMethodRegionInfo(const METHODTOKEN& Method
     methodRegionInfo->coldSize         = 0;
 }
 
-#if !defined(DACCESS_COMPILE) && !defined(TARGET_WASM)
+#if !defined(DACCESS_COMPILE) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
 IExecutionControl* InterpreterJitManager::GetExecutionControl()
 {
     LIMITED_METHOD_CONTRACT;
@@ -5372,7 +5372,7 @@ ExecutionManager::FindCodeRange(PCODE currentPC, ScanFlag scanFlag)
     if (currentPC == (PCODE)NULL)
         return NULL;
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     if (IsVirtualIP(currentPC))
     {
         VirtualIPRangeSection* pVIPRange = FindVirtualIPRangeSection(currentPC);
@@ -5547,7 +5547,7 @@ BOOL ExecutionManager::IsManagedCodeWorker(PCODE currentPC, RangeSectionLockStat
     // the range section from underneath us.
 
     RangeSection* pRS;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     if (IsVirtualIP(currentPC))
     {
         pRS = FindCodeRange(currentPC, ScanNoReaderLock);
@@ -5834,7 +5834,7 @@ void ExecutionManager::AddCodeRange(TADDR          pStartRange,
         ThrowOutOfMemory();
 }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 TADDR ExecutionManager::AddVirtualIPRange(UINT32 numVirtualIPs,
                                           IJitManager* pJit,
                                           PTR_Module pModule)
@@ -6938,7 +6938,7 @@ PTR_EXCEPTION_CLAUSE_TOKEN ReadyToRunJitManager::GetNextEHClause(EH_CLAUSE_ENUME
     pEHClauseOut->Flags = pClause->Flags;
     pEHClauseOut->FilterOffset = pClause->FilterOffset;
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // Wasm Virtual IPs are encoded with half their virtual IP value
     pEHClauseOut->TryStartPC *= 2;
     pEHClauseOut->TryEndPC *= 2;
@@ -6953,7 +6953,7 @@ PTR_EXCEPTION_CLAUSE_TOKEN ReadyToRunJitManager::GetNextEHClause(EH_CLAUSE_ENUME
 
 StubCodeBlockKind ReadyToRunJitManager::GetStubCodeBlockKind(RangeSection * pRangeSection, PCODE currentPC)
 {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     return STUB_CODE_BLOCK_UNKNOWN;
 #else
     CONTRACTL
@@ -7431,7 +7431,7 @@ BOOL ReadyToRunJitManager::IsFilterFunclet(EECodeInfo * pCodeInfo)
     if (!pCodeInfo->IsFunclet())
         return FALSE;
 
-#if defined(TARGET_X86) || defined(TARGET_WASM)
+#if defined(TARGET_X86) || defined(TARGET_WASM) || defined(TARGET_WASM64)
     // x86 and wasm don't use personality routines in unwind data, so we have to fallback to
     // the slow implementation
     return IJitManager::IsFilterFunclet(pCodeInfo);

@@ -2219,7 +2219,7 @@ template <typename GcInfoEncoding> OBJECTREF* TGcInfoDecoder<GcInfoEncoding>::Ge
         _ASSERTE( GC_FRAMEREG_REL == spBase );
         _ASSERTE( NO_STACK_BASE_REGISTER != m_StackBaseRegister );
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         // Wasm is a bit strange and when we do SetStackBaseRegister(REG_FPBASE)
         //  what that actually does is set it to REG_NA, which currently has the value 2.
         _ASSERTE( 2 == m_StackBaseRegister );

@@ -40,7 +40,7 @@ static bool AllowR2RForImage(PEImage* pOwner)
 #ifndef DACCESS_COMPILE
 extern BOOL g_useDefaultBaseAddr;
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 // Guards s_relocatedWebcilBases in ApplyBaseRelocations so concurrent loads of the same shared
 // host-probed webcil buffer cannot relocate it more than once. Initialized by PEImageLayout::Startup.
 static CrstStatic s_webcilRelocationCrst;
@@ -260,7 +260,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
     SSIZE_T tableBaseDelta = GetTableBaseOffset();
 #endif // FEATURE_WEBCIL
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // Host-probed webcil R2R images share one in-memory buffer, so the binder can open the same
     // image twice (identity probe + load). WASM table-index relocations are additive
     // (index += tableBase), so relocating the shared buffer twice doubles tableBase and corrupts
@@ -304,7 +304,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
     COUNT_T dirSize;
     TADDR dir = GetDirectoryEntryData(IMAGE_DIRECTORY_ENTRY_BASERELOC, &dirSize);
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     // Minimize protection changes by keeping a whole section unprotected at a time.
     BYTE * pWriteableRegion = NULL;
     SIZE_T cbWriteableRegion = 0;
@@ -318,7 +318,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
     const SIZE_T cbPageSize = 4096;
 
     COUNT_T dirPos = 0;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // WASM will pad out the reloc size to the next 16 byte boundary, so we need to validate we can safely read the IMAGE_BASE_RELOCATION struct before processing each entry.
     while (dirPos + sizeof(IMAGE_BASE_RELOCATION) <= dirSize)
 #else
@@ -329,7 +329,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
 
         COUNT_T fixupsSize = VAL32(r->SizeOfBlock);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         if (fixupsSize == 0)
         {
             // Since WASM will pad the reloc block to the next 16 byte boundary with 0's we need to allow for a SizeOfBlock being zero.
@@ -353,7 +353,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
         // VirtualAddress, so GetBase() + rva is the correct address (equivalent to GetRvaData(rva)).
         BYTE * pageAddress = (BYTE *)GetBase() + rva;
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         // Check whether the page is outside the unprotected region.
         // Webcil data is already writable, so skip memory protection management.
         if (IsPEFormat() && (SIZE_T)(pageAddress - pWriteableRegion) >= cbWriteableRegion)
@@ -451,7 +451,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
             }
         }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         if (IsPEFormat())
         {
             if (IsExecutableProtection(oldProtection) && pEndAddressToFlush != NULL)
@@ -475,7 +475,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
     }
     _ASSERTE(dirSize == dirPos || !IsPEFormat());
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     if (hasOldProtection)
     {
 #if defined(__APPLE__) && defined(HOST_ARM64)
@@ -489,7 +489,7 @@ void PEImageLayout::ApplyBaseRelocations(bool relocationMustWriteCopy)
 #endif // __APPLE__ && HOST_ARM64
     }
 #endif // !TARGET_WASM
-#if defined(TARGET_UNIX) && !defined(TARGET_WASM)
+#if defined(TARGET_UNIX) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     // Relocations are not needed after they have been applied.
     if (dirSize != 0)
     {
@@ -527,7 +527,7 @@ void ConvertedImageLayout::FreeImageParts()
 
         SIZE_T partSize = reinterpret_cast<SIZE_T>(nextPart.GetAddress()) -
             reinterpret_cast<SIZE_T>(imagePart.GetAddress());
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         _ASSERTE(imagePart.IsAllocated());
         if (!VMToOSInterface::ReleaseMemoryReservation(imagePart.GetAddress(), partSize))
         {
@@ -581,7 +581,7 @@ ConvertedImageLayout::ConvertedImageLayout(FlatImageLayout* source, bool disable
 
     LOG((LF_LOADER, LL_INFO100, "PEImage: Opening manually mapped stream\n"));
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     // LoadImageByMappingParts assumes the source has a file mapping handle created/managed by the runtime.
     // This is not the case for non-file images (for example, external data). Only try to load by mapping for files.
     if (!disableMapping && m_pOwner->IsFile())
@@ -754,7 +754,7 @@ FlatImageLayout::FlatImageLayout(PEImage* pOwner)
         INT64 uncompressedSize;
         BOOL isCompressed = pOwner->IsCompressed(&uncompressedSize);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         m_wasmData = new BYTE[static_cast<COUNT_T>(size)];
         if (!VMToOSInterface::ReadFile(hFile, static_cast<uint64_t>(offset), m_wasmData,
                 static_cast<size_t>(size)))
@@ -795,7 +795,7 @@ FlatImageLayout::FlatImageLayout(PEImage* pOwner)
 
             if (uncompressedSize <= 0 || static_cast<UINT64>(uncompressedSize) > COUNT_T_MAX)
                 EEFileLoadException::Throw(pOwner->GetPathForErrorMessages(), COR_E_BADIMAGEFORMAT);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
             NewArrayHolder<BYTE> anonView(new BYTE[static_cast<COUNT_T>(uncompressedSize)]);
             void* uncompressed = anonView;
 #else
@@ -834,7 +834,7 @@ FlatImageLayout::FlatImageLayout(PEImage* pOwner)
             CompressionNative_InflateEnd(&zStream);
 
             addr = uncompressed;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
             m_wasmData = anonView.Detach();
 #else
             m_fileView = std::move(anonView);
@@ -876,7 +876,7 @@ FlatImageLayout::FlatImageLayout(PEImage* pOwner, const BYTE* array, COUNT_T siz
             ThrowHR(COR_E_BADIMAGEFORMAT, virusHrString);
         }
 #endif // TARGET_WINDOWS
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         m_wasmData = new BYTE[size];
         memcpy(m_wasmData, array, size);
         InitDecoders(m_wasmData, size);
@@ -1008,7 +1008,7 @@ void* FlatImageLayout::LoadImageByCopyingParts(PEImagePart* imageParts) const
         section++;
     }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     // Apply write protection to copied headers
     if (!VMToOSInterface::ProtectMemory(base, VAL32(FindNTHeaders()->OptionalHeader.SizeOfHeaders),
         VMToOSInterface::MemoryProtection::ReadOnly))
@@ -1039,7 +1039,7 @@ void* FlatImageLayout::LoadImageByCopyingParts(PEImagePart* imageParts) const
     return base;
 }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 
 void* FlatImageLayout::LoadImageByMappingParts(PEImagePart* imageParts) const
 {

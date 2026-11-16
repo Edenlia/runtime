@@ -589,7 +589,7 @@ protected:
 #endif // DACCESS_COMPILE
 
 #ifndef DACCESS_COMPILE
-#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !defined(TARGET_WASM)
+#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     // Pseudo-virtual method for updating floating point registers during stack walk
     void UpdateFloatingPointRegisters_Impl(const PREGDISPLAY pRD, TADDR targetSP);
 public:
@@ -705,7 +705,7 @@ public:
 #elif defined(TARGET_RISCV64)
             Object** firstIntReg = (Object**)&this->GetContext()->Gp;
             Object** lastIntReg  = (Object**)&this->GetContext()->T6;
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
             Object** firstIntReg = nullptr;
             Object** lastIntReg  = nullptr;
 #else
@@ -785,7 +785,7 @@ inline CONTEXT * GETREDIRECTEDCONTEXT(Thread * thread) { LIMITED_METHOD_CONTRACT
 
 typedef DPTR(class TransitionFrame) PTR_TransitionFrame;
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 // Wasm has no native return address for an R2R inline P/Invoke. This sentinel marks the frame as
 // active; stack walkers recover the caller virtual IP from m_pCallSiteSP.
 static constexpr TADDR INLINED_PINVOKE_FROM_R2R = 1;
@@ -876,7 +876,7 @@ public:
     TADDR GetSP()
     {
         LIMITED_METHOD_DAC_CONTRACT;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         TransitionBlock* pTransitionBlock = (TransitionBlock*)GetTransitionBlock();
         if (pTransitionBlock != NULL)
         {
@@ -1242,7 +1242,7 @@ public:
     TADDR GetTransitionBlock_Impl()
     {
         LIMITED_METHOD_DAC_CONTRACT;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         TransitionBlock* pTransitionBlock = (TransitionBlock*)m_pTransitionBlock;
         if (pTransitionBlock != NULL)
         {
@@ -2040,7 +2040,7 @@ public:
     }
 
 #ifndef DACCESS_COMPILE
-#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !defined(TARGET_WASM)
+#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     void UpdateFloatingPointRegisters_Impl(const PREGDISPLAY pRD, TADDR targetSP);
 #endif // (!TARGET_X86 || TARGET_UNIX) && !TARGET_WASM
 #endif // DACCESS_COMPILE
@@ -2320,7 +2320,7 @@ public:
 #endif
 
 #ifndef DACCESS_COMPILE
-#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !defined(TARGET_WASM)
+#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     void UpdateFloatingPointRegisters_Impl(const PREGDISPLAY pRD, TADDR targetSP);
 #endif // (!TARGET_X86 || TARGET_UNIX) && !TARGET_WASM
 #endif // DACCESS_COMPILE

@@ -15,7 +15,7 @@
 #include "gchelpers.inl"
 #include "arraynative.inl"
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 extern "C" void SamplingProfiler_OnSamplepoint();
 #endif
 
@@ -349,7 +349,7 @@ void InvokeUnmanagedCalliWithTransition(PCODE ftn, InterpreterCalliCookie cookie
     inlinedCallFrame.Pop();
 }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 #include "callstubgenerator.h"
 
 static CallStubHeader *UpdateCallStubForMethod(MethodDesc *pMD, PCODE target)
@@ -675,7 +675,7 @@ void DBG_PrintInterpreterStack()
 #endif // _DEBUG
 
 #ifdef FEATURE_PORTABLE_ENTRYPOINTS
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 typedef void* (*HELPER_FTN_P_P)(int*, void*, int32_t);
 typedef void* (*HELPER_FTN_BOX_UNBOX)(int*, MethodTable*, void*, int32_t);
 typedef Object* (*HELPER_FTN_NEWARR)(int*, MethodTable*, intptr_t, int32_t);
@@ -909,7 +909,7 @@ NOINLINE static void InterpThrow(InterpMethodContextFrame* pFrame, const int32_t
 
 // When enabled, each opcode dispatches directly to the next one via an indirect goto,
 // avoiding the overhead of the central switch dispatch.
-#if !defined(TARGET_WINDOWS) && !defined(TARGET_WASM) && !defined(DEBUG)
+#if !defined(TARGET_WINDOWS) && !(defined(TARGET_WASM) || defined(TARGET_WASM64)) && !defined(DEBUG)
 #define USE_COMPUTED_GOTO 1
 #endif
 
@@ -1310,7 +1310,7 @@ extern "C" ContinuationObject* AsyncHelpers_ResumeInterpreterContinuationWorker(
     return (ContinuationObject*)OBJECTREFToObject(contRef);
 }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 FCIMPL2(ContinuationObject*, AsyncHelpers_ResumeInterpreterContinuation, ContinuationObject* cont, uint8_t* resultStorage)
 {
     STATIC_CONTRACT_WRAPPER;

@@ -383,7 +383,7 @@ public:
 #if defined(TARGET_APPLE)
 #include <mach-o/dyld.h>
 #include <mach-o/loader.h>
-#elif !defined(TARGET_WASM)
+#elif !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 #include <link.h>
 #include <elf.h>
 #include <cstring>
@@ -432,7 +432,7 @@ namespace pal
     const char_t dir_delim = W('/');
     const char_t env_path_delim = W(':');
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 #if defined(__APPLE__)
     const char_t nativelib_ext[] = W(".dylib");
 #else // Various Linux-related OS-es
@@ -632,7 +632,7 @@ namespace pal
 
     inline void* get_image_base(mod_t m, void* sym)
     {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         Dl_info info;
         if (dladdr(sym, &info) != 0)
         {
@@ -678,7 +678,7 @@ namespace pal
 
             return image_size;
         }
-#elif !defined(TARGET_WASM)
+#elif !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         ElfW(Ehdr)* ehdr = reinterpret_cast<ElfW(Ehdr)*>(base_address);
         if (std::memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0)
             return 0;
@@ -710,7 +710,7 @@ namespace pal
 
     inline bool try_load_hostpolicy(pal::string_t mock_hostpolicy_value)
     {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         if (!string_ends_with(mock_hostpolicy_value, pal::nativelib_ext))
             mock_hostpolicy_value.append(pal::nativelib_ext);
 
@@ -744,7 +744,7 @@ namespace pal
 
     inline bool try_load_coreclr(const pal::string_t& core_root, pal::mod_t& hMod)
     {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         pal::string_t coreclr_path = core_root;
         pal::ensure_trailing_delimiter(coreclr_path);
         coreclr_path.append(pal::coreclr_lib);

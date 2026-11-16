@@ -87,7 +87,7 @@ bool VMToOSInterface::GetFileSize(MemoryMapHandle fileHandle, uint64_t* size)
     return true;
 }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 bool VMToOSInterface::ReadFile(MemoryMapHandle fileHandle, uint64_t offset, void* buffer, size_t size)
 {
     uint8_t* destination = static_cast<uint8_t*>(buffer);
@@ -145,7 +145,7 @@ void VMToOSInterface::JitWriteProtect(bool writeEnable)
 }
 #endif // HOST_OSX && HOST_ARM64
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 #include <errno.h>
 #include <string.h>
 #include <minipal/ospagesize.h>

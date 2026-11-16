@@ -13,7 +13,7 @@
 #ifndef _WASM_ASYNC_CONTINUATION_H
 #define _WASM_ASYNC_CONTINUATION_H
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 
 // Load the shared `asyncContinuation` global.
 extern "C" uint32_t RuntimeAsync_LoadAsyncContinuation();

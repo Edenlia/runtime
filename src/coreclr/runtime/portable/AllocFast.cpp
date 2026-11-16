@@ -25,7 +25,7 @@ static Thread* GetThread()
     return ThreadStore::GetCurrentThread();
 }
 
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
 // This managed helper reuses the caller's shadow stack and never returns to the native allocation frames.
 EXTERN_C [[noreturn]] void RhExceptionHandling_FailedAllocation(uintptr_t sp, MethodTable* pMT, bool isOverflow);
 #define PREPARE_TRANSITION_ARG() \
@@ -51,7 +51,7 @@ EXTERN_C void RhExceptionHandling_FailedAllocation_Helper(MethodTable* pMT, bool
 #define TRANSITION_ARG_TYPE TransitionBlock*
 #endif // FEATURE_NATIVEAOT
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 #define CALLER_STACK_POINTER_ARG_DECL , uintptr_t callersStackPointer
 #define CALLER_STACK_POINTER_ARG_PASSTHRU , callersStackPointer
 #else
@@ -64,7 +64,7 @@ EXTERN_C Object* RhpGcAlloc(MethodTable* pMT, uint32_t uFlags, uintptr_t numElem
 static void FailedAllocation(MethodTable* pMT, bool isOverflow CALLER_STACK_POINTER_ARG_DECL)
 {
 #ifdef FEATURE_NATIVEAOT
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
     RhExceptionHandling_FailedAllocation(callersStackPointer, pMT, isOverflow);
 #else
     ASSERT_UNCONDITIONALLY("NYI"); // TODO: Throw overflow or OOM

@@ -76,7 +76,7 @@ public:
     }
 };
 
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
 VOID DECLSPEC_NORETURN RethrowResumeAfterCatchExceptionSkipManagedFrames(const ResumeAfterCatchException& ex, CONTEXT *pContext, TADDR ssp, bool isInterruptedContext = false);
 #endif // HOST_WASM
 

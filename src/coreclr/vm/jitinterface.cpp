@@ -14372,7 +14372,7 @@ BOOL LoadDynamicInfoEntry(Module *currentModule,
             ReadyToRunInfo * pR2RInfo = currentModule->GetReadyToRunInfo();
 
             DWORD stubRVA = GET_UNALIGNED_VAL32(pBlob);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
             // Wasm code is a function-table index, not imageBase+RVA; resolve like a method entry point.
             //
             PCODE stubEntryPoint = pR2RInfo->GetMinFunctionTableIndex() + stubRVA;
@@ -14398,7 +14398,7 @@ BOOL LoadDynamicInfoEntry(Module *currentModule,
             DWORD locationRVA = GET_UNALIGNED_VAL32(pBlob);
             pBlob += sizeof(DWORD);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
             // Wasm code is a function-table index, not imageBase+RVA; but what we actually need is the virtual ip
             PCODE targetEntryPoint = pR2RInfo->R2RRelativeFunctionIndexToVirtualIP(targetRVA);
 #else
@@ -14646,7 +14646,7 @@ BOOL LoadDynamicInfoEntry(Module *currentModule,
                 DWORD instructionSetEncoded = CorSigUncompressData(pBlob);
                 bool mustInstructionSetBeSupported = !!(instructionSetEncoded & 1);
                 ReadyToRunInstructionSet instructionSet = (ReadyToRunInstructionSet)(instructionSetEncoded >> 1);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
                 // Other images must match the instruction sets CoreLib was compiled for.
                 if (mustInstructionSetBeSupported && currentModule->IsSystem())
                 {

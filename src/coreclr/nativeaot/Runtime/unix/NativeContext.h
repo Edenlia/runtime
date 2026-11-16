@@ -4,7 +4,7 @@
 #ifndef __NATIVE_CONTEXT_H__
 #define __NATIVE_CONTEXT_H__
 
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
 
 #if HAVE_UCONTEXT_H
 #include <ucontext.h>

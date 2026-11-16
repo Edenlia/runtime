@@ -9,7 +9,7 @@
 #include "corerun.hpp"
 #include "dotenv.hpp"
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 #include <pinvoke_override.hpp>
 #endif // TARGET_WASM
 
@@ -174,7 +174,7 @@ static std::unordered_map<string_t, string_t> build_tpa(const string_t& core_roo
 
 static bool try_get_export(pal::mod_t mod, const char* symbol, void** fptr)
 {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     assert(mod != nullptr && symbol != nullptr && fptr != nullptr);
     *fptr = pal::get_module_symbol(mod, symbol);
     if (*fptr != nullptr)
@@ -725,7 +725,7 @@ static int run(const configuration& config)
         coreclr_set_error_writer_func(log_error_info);
     }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // install the pinvoke override callback to resolve p/invokes to statically linked libraries
     add_pinvoke_override();
 #endif // TARGET_WASM

@@ -40,7 +40,7 @@
 #define GC_STATS
 #endif
 
-#if defined(TARGET_X86) || defined(TARGET_ARM) || defined(TARGET_WASM)
+#if defined(TARGET_X86) || defined(TARGET_ARM) || defined(TARGET_WASM) || defined(TARGET_WASM64)
     #define USE_LAZY_PREFERRED_RANGE       0
 
 #elif defined(TARGET_64BIT)
@@ -174,6 +174,6 @@
 // of stub-based interface dispatch.
 //#define STUB_LOGGING
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 #define PEIMAGE_FLAT_LAYOUT_ONLY
 #endif // !TARGET_WASM

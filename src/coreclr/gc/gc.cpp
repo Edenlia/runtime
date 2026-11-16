@@ -1243,7 +1243,7 @@ heap_segment* gc_heap::segment_standby_list;
 #endif //USE_REGIONS
 bool          gc_heap::use_large_pages_p = 0;
 bool          gc_heap::large_pages_emulation_mode_p = 0;
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
 bool          gc_heap::never_decommit_p = 0;
 #endif // !HOST_WASM
 #ifdef HEAP_BALANCE_INSTRUMENTATION

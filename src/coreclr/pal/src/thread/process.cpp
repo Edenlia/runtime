@@ -1458,7 +1458,7 @@ PROCLaunchCreateDump(
     LPSTR errorMessageBuffer,
     INT cbErrorMessageBuffer)
 {
-#if defined(TARGET_IOS) || defined(TARGET_TVOS) || defined(TARGET_WASM)
+#if defined(TARGET_IOS) || defined(TARGET_TVOS) || defined(TARGET_WASM) || defined(TARGET_WASM64)
     return FALSE;
 #else
     _ASSERTE(argv[0] != nullptr);

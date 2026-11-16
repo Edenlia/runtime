@@ -74,7 +74,7 @@ enum
 
 int32_t SystemNative_GetOSArchitecture(void)
 {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     return ARCH_WASM;
 #else
     int32_t result = -1;

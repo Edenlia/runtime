@@ -1296,7 +1296,7 @@ bool gc_heap::compute_hard_limit()
     large_pages_emulation_mode_p = (large_pages_config == 2);
 #endif //HOST_64BIT
 
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
     // Large pages are pre-committed and cannot be decommitted, so they imply
     // never_decommit_p.
     never_decommit_p = use_large_pages_p;

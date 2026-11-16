@@ -229,7 +229,7 @@ BOOL SEHInitializeSignals(CorUnix::CPalThread *pthrCurrent, DWORD flags)
             return FALSE;
         }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         // create a guard page for the alternate stack
         int st = mprotect((void*)g_stackOverflowHandlerStack, minipal_getpagesize(), PROT_NONE);
         if (st != 0)

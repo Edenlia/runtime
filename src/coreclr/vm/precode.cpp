@@ -1004,7 +1004,7 @@ TADDR GetDiagnosticCodeStartFromEntryPoint(MethodDesc* pMD, TADDR entryPoint)
 
     TADDR start = GetInterpreterCodeFromEntryPointIfPresent(entryPoint);
 
-#if defined(TARGET_WASM) && defined(FEATURE_PORTABLE_ENTRYPOINTS)
+#if (defined(TARGET_WASM) || defined(TARGET_WASM64)) && defined(FEATURE_PORTABLE_ENTRYPOINTS)
     if (start == entryPoint && entryPoint == pMD->GetPortableEntryPointIfExists() &&
         PortableEntryPoint::HasNativeEntryPoint((PCODE)entryPoint))
     {

@@ -5376,7 +5376,7 @@ private:
     // Set unconditionally on WASM and whenever use_large_pages_p is set (large pages
     // are pre-committed and cannot be decommitted). Code that wants to skip a
     // decommit-related path should test this flag rather than use_large_pages_p.
-#ifdef HOST_WASM
+#if defined(HOST_WASM) || defined(HOST_WASM64)
     static constexpr bool never_decommit_p = true;
 #else // HOST_WASM
     PER_HEAP_ISOLATED_FIELD_INIT_ONLY bool never_decommit_p;

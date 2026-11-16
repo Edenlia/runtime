@@ -20,7 +20,7 @@
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #endif
-#ifndef HOST_WASM
+#if !defined(HOST_WASM) && !defined(HOST_WASM64)
 #include <sys/wait.h>
 #endif
 #include <sys/time.h>
@@ -52,7 +52,7 @@
 #include <minipal/thread.h>
 #include <generatedumpflags.h>
 
-#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !defined(HOST_WASM)
+#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !(defined(HOST_WASM) || defined(HOST_WASM64))
 
 // Crash dump generating program arguments. MAX_ARGV_ENTRIES is the max number
 // of entries if every createdump option/argument is passed.
@@ -382,7 +382,7 @@ PalCreateCrashDumpIfEnabled(int signal, siginfo_t* siginfo, void* context, void*
     // Preserve context pointer to prevent optimization
     DoNotOptimize(&context);
 
-#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !defined(HOST_WASM)
+#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !(defined(HOST_WASM) || defined(HOST_WASM64))
     // If enabled, launch the create minidump utility and wait until it completes
     if (g_argvCreateDump[0] != nullptr)
     {
@@ -512,7 +512,7 @@ PalGenerateCoreDump(
     char* errorMessageBuffer,
     int cbErrorMessageBuffer)
 {
-#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !defined(HOST_WASM)
+#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !(defined(HOST_WASM) || defined(HOST_WASM64))
     const char* argvCreateDump[MAX_ARGV_ENTRIES];
     if (dumpType <= DumpTypeUnknown || dumpType > DumpTypeMax)
     {
@@ -549,7 +549,7 @@ Return
 bool
 PalCreateDumpInitialize()
 {
-#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !defined(HOST_WASM)
+#if !defined(HOST_MACCATALYST) && !defined(HOST_IOS) && !defined(HOST_TVOS) && !(defined(HOST_WASM) || defined(HOST_WASM64))
     bool enabled = false;
     RhConfig::Environment::TryGetBooleanValue("DbgEnableMiniDump", &enabled);
     if (enabled)

@@ -30,7 +30,7 @@
 #include "interpexec.h"
 #endif
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 #include "wasmasynccontinuation.h"
 #include "wasm/helpers.hpp"
 #endif
@@ -2087,7 +2087,7 @@ FORCEINLINE static void* ExecuteInterpretedMethodBody(
     pArgumentRegisters->r[2] = (INT64)*frames.interpreterFrame.GetContinuationPtr();
 #elif defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
     pArgumentRegisters->a[2] = (INT64)*frames.interpreterFrame.GetContinuationPtr();
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
     // Wasm has no async-continuation-return register; write the value to the
     // shared `asyncContinuation` global (see wasmasynccontinuation.h) that the
     // R2R caller reads after the call. The transition-block register area is
@@ -2204,7 +2204,7 @@ void ExecuteInterpretedMethodWithArgs(TADDR targetIp, int8_t* args, size_t argSi
 
     TransitionBlock block{};
     block.m_ReturnAddress = (TADDR)callerIp;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     // m_StackPointer is in a union, and doesn't get zero-initialized by the {} initializer, so we need to explicitly set it to 0 here.
     // The WebAssembly codegen will use this field to determine where the stack base is, and if it's not set to 0 then the WebAssembly
     // codegen will think that the stack base is at some random offset from the actual stack base, which will cause stack accesses to
@@ -2272,7 +2272,7 @@ void ExecuteInterpretedMethodWithArgs_PortableEntryPoint_Complex(PCODE portableE
                 pPFrame->MarkPrestubComplete();
                 Object* continuationRet = nullptr;
                 Object** pContinuationRet = nullptr;
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
                 // Gate on IsAsyncMethod to match InvokeManagedMethod/InvokeCalliStub; don't preload
                 // the global, InvokeCalliStub publishes the callee's continuation into continuationRet.
                 if (pTargetMethod->IsAsyncMethod())
@@ -2281,7 +2281,7 @@ void ExecuteInterpretedMethodWithArgs_PortableEntryPoint_Complex(PCODE portableE
                 }
 #endif // TARGET_WASM
                 InvokeManagedMethod(pTargetMethod, args, retBuff, (PCODE)targetIp, pContinuationRet);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
                 if (pContinuationRet != nullptr)
                 {
                     RuntimeAsync_StoreAsyncContinuation((uint32_t)(uintptr_t)continuationRet);
@@ -3136,7 +3136,7 @@ EXTERN_C PCODE STDCALL ExternalMethodFixupWorker(
 #endif
 #if defined(FEATURE_CACHED_INTERFACE_DISPATCH)
             {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
                 if (ALIGN_UP(rva, sizeof(TADDR) * 2) == rva && pImportSection->EntrySize == sizeof(TADDR) * 2)
                 {
                     // The entry is aligned and the size is correct, so we can use the cached interface dispatch mechanism
@@ -3708,7 +3708,7 @@ PCODE DynamicHelperFixup(TransitionBlock * pTransitionBlock, TADDR * pCell, DWOR
 
     switch (kind)
     {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     case READYTORUN_FIXUP_NewObject:
         th = ZapSig::DecodeType(pModule, pInfoModule, pBlob);
         th.AsMethodTable()->EnsureInstanceActive();
@@ -3798,7 +3798,7 @@ PCODE DynamicHelperFixup(TransitionBlock * pTransitionBlock, TADDR * pCell, DWOR
         {
             switch (kind)
             {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
             case READYTORUN_FIXUP_IsInstanceOf:
             case READYTORUN_FIXUP_ChkCast:
                 {
@@ -3912,7 +3912,7 @@ PCODE DynamicHelperFixup(TransitionBlock * pTransitionBlock, TADDR * pCell, DWOR
     {
         switch (kind)
         {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         case READYTORUN_FIXUP_NewObject:
             {
                 bool fHasSideEffectsUnused;

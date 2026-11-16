@@ -15,7 +15,7 @@ class ClosedStaticRetBufPortableEntryPoint;
 // No-op on non-WASM platforms.
 void InitializePregeneratedStringThunkHash();
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 // Look up a pregenerated thunk by its string key.
 // Returns NULL if the string is not found in the table.
 PCODE LookupPregeneratedThunkByString(const char* str);

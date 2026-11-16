@@ -1232,7 +1232,7 @@ bool EECodeManager::EnumGcRefs( PREGDISPLAY     pRD,
         // Wasm R2R does not have fully interruptible reporting, so the aborted
         // parent frame cannot report its roots. Report the always-live untracked
         // slots from the filter instead.
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         if (!ExecutionManager::IsVirtualIP(pCodeInfo->GetCodeAddress()))
 #endif // TARGET_WASM
         {
@@ -1823,7 +1823,7 @@ EXTERN_C UINT_PTR F_CALL_CONV CallEHFunclet(Object *pThrowable, UINT_PTR pFuncle
 // This is an assembly helper that enables us to call into EH filter funclets.
 EXTERN_C int F_CALL_CONV CallEHFilterFunclet(Object *pThrowable, CONTEXT *pContext, UINT_PTR pFuncletToInvoke, UINT_PTR *pFuncletCallerSP);
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 typedef DWORD_PTR (HandlerFn)(UINT_PTR uStackFrame, Object* pExceptionObj);
 #else
 typedef TADDR HandlerFn;
@@ -1833,7 +1833,7 @@ static inline UINT_PTR CastHandlerFn(HandlerFn *pfnHandler)
 {
 #ifdef TARGET_ARM
     return DataPointerToThumbCode<UINT_PTR, HandlerFn *>(pfnHandler);
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
     return (TADDR)ExecutionManager::GetWasmFunctionTableIndexFromVirtualIP((TADDR)pfnHandler);
 #else
     return (UINT_PTR)pfnHandler;
@@ -1942,7 +1942,7 @@ void EECodeManager::UpdateSSP(PREGDISPLAY pRD)
 
 #ifdef FEATURE_INTERPRETER
 
-#if !defined(TARGET_WASM)
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 // ASM helper that creates a TransitionBlock and calls CallInterpreterFuncletWorker
 extern "C" DWORD_PTR STDCALL CallInterpreterFunclet(OBJECTREF throwable, void* pHandler, REGDISPLAY *pRD, ExInfo *pExInfo, bool isFilter);
 #endif // !TARGET_WASM
@@ -2009,7 +2009,7 @@ extern "C" DWORD_PTR STDCALL CallInterpreterFuncletWorker(OBJECTREF throwable, v
 
 DWORD_PTR InterpreterCodeManager::CallFunclet(OBJECTREF throwable, void* pHandler, REGDISPLAY *pRD, ExInfo *pExInfo, bool isFilter)
 {
-#if !defined(TARGET_WASM)
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     // Call the ASM helper which creates a real TransitionBlock
     return CallInterpreterFunclet(throwable, pHandler, pRD, pExInfo, isFilter);
 #else

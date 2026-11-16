@@ -7,7 +7,7 @@
 
 #ifndef DACCESS_COMPILE
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
 
 #include "stringthunkhash.h"
 #include "loaderallocator.hpp"
@@ -78,7 +78,7 @@ void ProcessInjectStringThunksFixup(ReadyToRunInfo * pR2RInfo, PCCOR_SIGNATURE p
         if (newEntryCount == 0)
             return;
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         WebcilDecoder decoder;
         decoder.Init(dac_cast<void*>(pR2RInfo->GetImage()->GetBase()), pR2RInfo->GetImage()->GetVirtualSize());
         TADDR rvaBase = decoder.GetTableBaseOffset();

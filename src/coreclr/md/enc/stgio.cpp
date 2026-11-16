@@ -174,7 +174,7 @@ static void StgIOCloseFile(STGIO_FILE hFile)
     fclose(hFile);
 }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
 static VMToOSInterface::MemoryMapHandle StgIOGetMappableFile(STGIO_FILE hFile)
 {
     return fileno(hFile);
@@ -941,7 +941,7 @@ HRESULT StgIO::MapFileToMem(            // Return code.
         _ASSERTE(m_hFile != STGIO_INVALID_FILE || m_iType == STGIO_STREAM);
         _ASSERTE(m_rgPageMap == 0);
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         // For read mode, use a memory mapped file since the size will never
         // change for the life of the handle.
         if ((m_fFlags & DBPROP_TMODEF_WRITE) == 0 && m_iType != STGIO_STREAM)
@@ -1013,7 +1013,7 @@ ErrExit:
     // Check for errors and clean up.
     if (FAILED(hr))
     {
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
         if (m_hMapping != VMToOSInterface::InvalidMemoryMapHandle)
             VMToOSInterface::CloseMemoryMapping(m_hMapping);
 #endif // !TARGET_WASM
@@ -1137,7 +1137,7 @@ HRESULT StgIO::GetPtrForMem(            // Return code.
                 return (hr);
             }
 
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
             // Change the memory to read only to avoid any modifications.  Any faults
             // that occur indicate a bug whereby the engine is trying to write to
             // protected memory.
@@ -1336,7 +1336,7 @@ void StgIO::FreePageMap()
     // If a small file was allocated, then free that memory.
     if (m_bFreeMem && m_pBaseData)
         FreeMemory(m_pBaseData);
-#ifndef TARGET_WASM
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64)
     // For mmf, close handles and free resources.
     else if (m_hMapping != VMToOSInterface::InvalidMemoryMapHandle && m_pBaseData)
     {

@@ -419,7 +419,7 @@ MethodDesc* ILStubCache::CreateR2RBackedILStub(
 
     pMD->SetStoredMethodSig((PCCOR_SIGNATURE)pSig, cbSig);
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     PCODE pEntryPoint = pMD->GetTemporaryEntryPoint();
     PortableEntryPoint::SetActualCode(pEntryPoint, (void*)PCODEToPINSTR(r2rEntryPoint));
 #else

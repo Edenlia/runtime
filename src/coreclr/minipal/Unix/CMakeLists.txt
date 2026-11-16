@@ -5,7 +5,7 @@ set(SOURCES
     memory.cpp
 )
 
-if(NOT CLR_CMAKE_TARGET_ARCH_WASM)
+if(NOT (CLR_CMAKE_TARGET_ARCH_WASM OR CLR_CMAKE_TARGET_ARCH_WASM64))
     list(APPEND SOURCES
         doublemapping.cpp
         execmemallocator.cpp
@@ -26,6 +26,6 @@ add_library(coreclrminipal
 
 target_link_libraries(coreclrminipal PRIVATE minipal)
 
-if (CLR_CMAKE_TARGET_ARCH_WASM)
+if (CLR_CMAKE_TARGET_ARCH_WASM OR CLR_CMAKE_TARGET_ARCH_WASM64)
   install_clr(TARGETS coreclrminipal DESTINATIONS sharedFramework COMPONENT runtime)
-endif (CLR_CMAKE_TARGET_ARCH_WASM)
+endif (CLR_CMAKE_TARGET_ARCH_WASM OR CLR_CMAKE_TARGET_ARCH_WASM64)

@@ -585,7 +585,7 @@ void Frame::PopIfChained() noexcept
 }
 #endif // TARGET_UNIX && !DACCESS_COMPILE
 
-#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !defined(TARGET_WASM)
+#if (!defined(TARGET_X86) || defined(TARGET_UNIX)) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
 
 void Frame::UpdateFloatingPointRegisters_Impl(const PREGDISPLAY pRD, TADDR targetSP)
 {

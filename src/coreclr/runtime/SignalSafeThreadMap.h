@@ -4,7 +4,7 @@
 #ifndef __SIGNALSAFETHREADMAP_H__
 #define __SIGNALSAFETHREADMAP_H__
 
-#if defined(TARGET_UNIX) && !defined(TARGET_WASM)
+#if defined(TARGET_UNIX) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
 
 //  Insert a thread into the signal-safe map.
 //  * osThread - The OS thread ID to insert.

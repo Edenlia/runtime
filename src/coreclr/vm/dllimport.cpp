@@ -5932,7 +5932,7 @@ namespace
             return;
         }
 
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
         // CoreLib eager fixups run before CoreLib is active. Resolving a statically
         // linked target does not load a library or execute its initialization code.
         if (!g_fEEStarted && pMD->GetModule()->IsSystem())

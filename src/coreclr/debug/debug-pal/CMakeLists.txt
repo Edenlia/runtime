@@ -40,7 +40,7 @@ if(CLR_CMAKE_HOST_UNIX)
       unix/processdescriptor.cpp
     )
 
-    if (NOT CLR_CMAKE_TARGET_ARCH_WASM)
+    if (NOT (CLR_CMAKE_TARGET_ARCH_WASM OR CLR_CMAKE_TARGET_ARCH_WASM64))
         list(APPEND DEBUG_PAL_SOURCES unix/wait.cpp)
         # Strict POSIX mode hides pipe2 on BSD even when the platform supports it.
         set_property(SOURCE unix/wait.cpp APPEND PROPERTY COMPILE_OPTIONS -U_POSIX_C_SOURCE)

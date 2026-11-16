@@ -236,7 +236,7 @@ extern "C"
     FCDECL2(INT32, Interlocked_Exchange32, INT32 *location, INT32 value);
     FCDECL2_IV(INT64, Interlocked_Exchange64, INT64 *location, INT64 value);
     FCDECL3(INT32, Interlocked_CompareExchange32, INT32* location, INT32 value, INT32 comparand);
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     decltype(Interlocked_CompareExchange32) Interlocked_CompareExchange32Pointer;
 #endif // TARGET_WASM
     FCDECL3_IVV(INT64, Interlocked_CompareExchange64, INT64* location, INT64 value, INT64 comparand);

@@ -3,7 +3,7 @@
 
 #include "ospagesize.h"
 
-#if defined(HOST_WASM) || defined(HOST_WINDOWS)
+#if (defined(HOST_WASM) || defined(HOST_WASM64)) || defined(HOST_WINDOWS)
 
 extern uint32_t minipal_getpagesize(void);
 

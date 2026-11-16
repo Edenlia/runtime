@@ -823,7 +823,7 @@ PAL_CopyModuleData(PVOID moduleBase, PVOID destinationBufferStart, PVOID destina
     }
     return param.result;
 }
-#elif defined(TARGET_WASM)
+#elif defined(TARGET_WASM) || defined(TARGET_WASM64)
 // WASM-TODO: get rid of whole module loading on wasm
 PALIMPORT
 int
@@ -923,7 +923,7 @@ BOOL LOADInitializeModules()
 
     exe_module.self = (HMODULE)&exe_module;
     exe_module.dl_handle = dlopen(nullptr, RTLD_LAZY);
-#ifndef TARGET_WASM // wasm does not support shared libraries
+#if !defined(TARGET_WASM) && !defined(TARGET_WASM64) // wasm does not support shared libraries
     if (exe_module.dl_handle == nullptr)
     {
         ERROR("Executable module will be broken : dlopen(nullptr) failed\n");

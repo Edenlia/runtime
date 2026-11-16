@@ -328,7 +328,7 @@ void StressLog::Initialize(unsigned facilities, unsigned level, unsigned maxByte
 
 void StressLog::AddModule(uint8_t* moduleBase)
 {
-#ifdef TARGET_WASM
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
     return; // no modules on wasm
 #endif
     unsigned moduleIndex = 0;

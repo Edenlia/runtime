@@ -1,6 +1,6 @@
 project(System.Net.Security.Native C)
 
-if(CLR_CMAKE_TARGET_ARCH_WASM)
+if(CLR_CMAKE_TARGET_ARCH_WASM OR CLR_CMAKE_TARGET_ARCH_WASM64)
     message(FATAL_ERROR "Not implemented for WASM")
 endif()
 
