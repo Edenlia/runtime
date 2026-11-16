@@ -8,7 +8,11 @@ for %%x in (%*) do set /A __argCount+=1
 if %__argCount% lss 4 goto :USAGE
 if %1=="/?" goto :USAGE
 
-set __Os=%5
+set "__Os=%~5"
+if /i "%~4" == "wasm64" if /i not "%__Os%" == "browser" (
+    echo Error: wasm64 currently supports only the browser target.
+    exit /B 1
+)
 set "__repoRoot=%~dp0..\.."
 :: normalize
 for %%i in ("%__repoRoot%") do set "__repoRoot=%%~fi"
@@ -28,7 +32,15 @@ set "EMSDK_PATH=%WASM_TOOL_CACHE_RESULT%"
 
 :CallEmsdkEnv
 set "EMSDK_QUIET=1"
-call "%EMSDK_PATH%\emsdk_env.cmd"
+if exist "%EMSDK_PATH%\emsdk_env.cmd" (
+    call "%EMSDK_PATH%\emsdk_env.cmd"
+) else if exist "%EMSDK_PATH%\emsdk_env.bat" (
+    call "%EMSDK_PATH%\emsdk_env.bat"
+) else (
+    echo Error: No emsdk_env.cmd or emsdk_env.bat exists in "%EMSDK_PATH%".
+    exit /B 1
+)
+if errorlevel 1 exit /B 1
 
 :AfterEmsdkEnv
 
@@ -37,15 +49,18 @@ setlocal enabledelayedexpansion
 set __SourceDir=%1
 set __IntermediatesDir=%2
 set "__IntermediatesDirPath=%~2"
-set "__CompilerInputs=CMAKE_TOOLCHAIN_FILE=!CMAKE_TOOLCHAIN_FILE!;CC=!CC!;CXX=!CXX!;VCToolsInstallDir=!VCToolsInstallDir!"
+set "__CompilerInputs=CMAKE_TOOLCHAIN_FILE=!CMAKE_TOOLCHAIN_FILE!;CC=!CC!;CXX=!CXX!;VCToolsInstallDir=!VCToolsInstallDir!;EM_CONFIG=!EM_CONFIG!;EM_LLVM_ROOT=!EM_LLVM_ROOT!;DOTNET_EMSCRIPTEN_LLVM_ROOT=!DOTNET_EMSCRIPTEN_LLVM_ROOT!"
 set __VSVersion=%3
 set __Arch=%4
 set __CmakeGenerator=Visual Studio
 set __ExtraCmakeParams=
+set __IsWasm=0
+if /i "%__Arch%" == "wasm" set __IsWasm=1
+if /i "%__Arch%" == "wasm64" set __IsWasm=1
 if /i "%__Ninja%" == "1" (
     set __CmakeGenerator=Ninja
 ) else (
-    if /i NOT "%__Arch%" == "wasm" (
+    if "%__IsWasm%" == "0" (
         if /i "%__VSVersion%" == "18.0" (set __CmakeGenerator=%__CmakeGenerator% 18 2026)
         if /i "%__VSVersion%" == "17.0" (set __CmakeGenerator=%__CmakeGenerator% 17 2022)
 
@@ -58,7 +73,7 @@ if /i "%__Ninja%" == "1" (
     )
 )
 
-if /i "%__Arch%" == "wasm" (
+if "%__IsWasm%" == "1" (
     if "%__Os%" == "" (
         echo Error: Please add target OS parameter
         exit /B 1
@@ -67,8 +82,13 @@ if /i "%__Arch%" == "wasm" (
         rem emcmake may be a batch file; call it so that control returns to this script.
         set "CMakeToolPrefix=call emcmake"
         for %%i in (emcmake.exe emcmake.bat) do set "__CompilerInputs=!__CompilerInputs!;%%i=%%~$PATH:i"
-        rem Use WASM-specific tryrun cache to speed up CMake configure
-        set __ExtraCmakeParams="-C %__repoRoot%/eng/native/tryrun.browser.cmake" !__ExtraCmakeParams!
+        if /i "%__Arch%" == "wasm64" (
+            rem Select the pointer ABI before project() performs compiler/size probes.
+            set __ExtraCmakeParams=!__ExtraCmakeParams! "-DCMAKE_C_FLAGS=!CFLAGS! -m64" "-DCMAKE_CXX_FLAGS=!CXXFLAGS! -m64" "-DCMAKE_EXE_LINKER_FLAGS=!LDFLAGS! -m64"
+        ) else (
+            rem The existing feature cache is specific to the wasm32 ABI.
+            set __ExtraCmakeParams="-C %__repoRoot%/eng/native/tryrun.browser.cmake" !__ExtraCmakeParams!
+        )
     )
     if /i "%__Os%" == "wasi" (
         if "%WASI_SDK_PATH%" == "" (

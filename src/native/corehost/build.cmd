@@ -35,6 +35,7 @@ if /i [%1] == [x64]         (set __BuildArch=x64&&shift&goto Arg_Loop)
 if /i [%1] == [amd64]       (set __BuildArch=x64&&shift&goto Arg_Loop)
 if /i [%1] == [arm64]       (set __BuildArch=arm64&&shift&goto Arg_Loop)
 if /i [%1] == [wasm]        (set __BuildArch=wasm&&shift&goto Arg_Loop)
+if /i [%1] == [wasm64]      (set __BuildArch=wasm64&&shift&goto Arg_Loop)
 
 if /i [%1] == [portable]    (set __PortableBuild=1&&shift&goto Arg_Loop)
 if /i [%1] == [targetrid]   (set __TargetRid=%2&&shift&&shift&goto Arg_Loop)

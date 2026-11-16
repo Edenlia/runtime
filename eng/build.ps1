@@ -11,7 +11,7 @@ Param(
   [switch]$coverage,
   [string]$testscope,
   [switch]$testnobuild,
-  [ValidateSet("x86","x64","arm","arm64","wasm")][string[]][Alias('a')]$arch = @([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()),
+  [ValidateSet("x86","x64","arm","arm64","wasm","wasm64")][string[]][Alias('a')]$arch = @([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()),
   [switch]$cross = $false,
   [string][Alias('s')]$subset,
   [ValidateSet("Debug","Release","Checked")][string][Alias('rc')]$runtimeConfiguration,
@@ -32,7 +32,7 @@ Param(
 
 function Get-Help() {
   Write-Host "Common settings:"
-  Write-Host "  -arch (-a)                     Target platform: x86, x64, arm, arm64, or wasm."
+  Write-Host "  -arch (-a)                     Target platform: x86, x64, arm, arm64, wasm, or wasm64."
   Write-Host "                                 Pass a comma-separated list to build for multiple architectures."
   Write-Host "                                 [Default: Your machine's architecture.]"
   Write-Host "  -binaryLog (-bl)               Output binary log."
@@ -181,13 +181,23 @@ if ($os) {
 }
 
 if ($os -eq "browser") {
-  # override default arch for Browser, we only support wasm
-  $arch = "wasm"
+  # Keep the browser's wasm32 default while preserving an explicit wasm64 target.
+  if (-not $PSBoundParameters.ContainsKey("arch")) {
+    $arch = @("wasm")
+  } elseif (@($arch | Where-Object { $_ -ne "wasm" -and $_ -ne "wasm64" }).Count -ne 0) {
+    Write-Error "Browser builds support only wasm or wasm64."
+    exit 1
+  }
 
   if ($msbuild -eq $True) {
     Write-Error "Using the -msbuild option isn't supported when building for Browser on Windows, we need need ninja for Emscripten."
     exit 1
   }
+}
+
+if ($arch -contains "wasm64" -and ($os -ne "browser" -or $runtimeFlavor -eq "Mono")) {
+  Write-Error "wasm64 currently supports only the browser CoreCLR target."
+  exit 1
 }
 
 if ($os -eq "wasi") {
