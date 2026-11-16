@@ -9,6 +9,7 @@
 
   <Import Project="$(RepositoryEngineeringDir)liveBuilds.targets" />
   <Import Project="$(RepositoryEngineeringDir)memorySafetyRules.targets" />
+  <Import Project="$(RepositoryEngineeringDir)wasm\Wasm64Validation.targets" />
 
   <PropertyGroup Condition="'$(UseBootstrapLayout)' == 'true'">
     <!-- Keep in sync with outputs defined in Microsoft.NETCore.Platforms.csproj. -->

@@ -1,4 +1,4 @@
-<Project InitialTargets="FindInvalidSpecifiedSubsetNames;ReportValidSubsetList">
+<Project InitialTargets="FindInvalidSpecifiedSubsetNames;ReportValidSubsetList;ValidateWasm64Subsets">
   <!--
     The imported file supports the '/p:Subset=<desired subset string>' dev build argument.
 
@@ -37,4 +37,11 @@
            Condition="'$(UserRequestedHelp)' == 'true'" />
   </Target>
 
+  <Target Name="ValidateWasm64Subsets" Condition="'$(TargetsWasm64)' == 'true'">
+    <ItemGroup>
+      <_UnsupportedWasm64Subset Include="$([MSBuild]::Unescape($(_subset.Replace('+', ';'))))" Exclude="clr.corelib" />
+    </ItemGroup>
+    <Error Condition="'@(_UnsupportedWasm64Subset)' != ''"
+           Text="The wasm64 build target currently supports only the clr.corelib subset. Unsupported subsets: @(_UnsupportedWasm64Subset, ', ')." />
+  </Target>
 </Project>
