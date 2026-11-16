@@ -47,6 +47,9 @@ namespace Internal.CallingConvention
                 case TargetArchitecture.Wasm32:
                     return Wasm32TransitionBlock.Instance;
 
+                case TargetArchitecture.Wasm64:
+                    return Wasm64TransitionBlock.Instance;
+
                 default:
                     throw new NotImplementedException(arch.ToString());
             }
@@ -67,6 +70,7 @@ namespace Internal.CallingConvention
         public bool IsLoongArch64 => Architecture == TargetArchitecture.LoongArch64;
         public bool IsRiscV64 => Architecture == TargetArchitecture.RiscV64;
         public bool IsWasm32 => Architecture == TargetArchitecture.Wasm32;
+        public bool IsWasm64 => Architecture == TargetArchitecture.Wasm64;
 
         /// <summary>
         /// This property is only overridden in AMD64 Unix variant of the transition block.
@@ -348,7 +352,7 @@ namespace Internal.CallingConvention
                                 break;
                             }
 
-                            if (IsWasm32)
+                            if (IsWasm32 || IsWasm64)
                             {
                                 // Wasm doesn't use a ret buffer for returning structs in the interpreter calling convention, which is the TransitionBlock convention on Wasm platforms.
                                 break;
@@ -710,23 +714,18 @@ namespace Internal.CallingConvention
             }
         }
 
-        private class Wasm32TransitionBlock : TransitionBlock
+        private abstract class WasmTransitionBlock : TransitionBlock
         {
-            public static TransitionBlock Instance = new Wasm32TransitionBlock();
-
-            public override TargetArchitecture Architecture => TargetArchitecture.Wasm32;
-
-            public override int PointerSize => 4;
-
             public override int FloatRegisterSize => 0;
 
             public override int NumArgumentRegisters => 0;
 
             public override int NumCalleeSavedRegisters => 0;
 
-            public override int SizeOfTransitionBlock => 8;
+            // Matches native TransitionBlock: return address and saved stack pointer.
+            public override int SizeOfTransitionBlock => 2 * PointerSize;
 
-            public override int OffsetOfArgumentRegisters => 8;
+            public override int OffsetOfArgumentRegisters => SizeOfTransitionBlock;
 
             public override int OffsetOfFloatArgumentRegisters => 0;
 
@@ -746,6 +745,24 @@ namespace Internal.CallingConvention
                 int stackSlotSize = 8;
                 return ALIGN_UP(parmSize, stackSlotSize);
             }
+        }
+
+        private sealed class Wasm32TransitionBlock : WasmTransitionBlock
+        {
+            public static readonly TransitionBlock Instance = new Wasm32TransitionBlock();
+
+            public override TargetArchitecture Architecture => TargetArchitecture.Wasm32;
+
+            public override int PointerSize => 4;
+        }
+
+        private sealed class Wasm64TransitionBlock : WasmTransitionBlock
+        {
+            public static readonly TransitionBlock Instance = new Wasm64TransitionBlock();
+
+            public override TargetArchitecture Architecture => TargetArchitecture.Wasm64;
+
+            public override int PointerSize => 8;
         }
     }
 }

@@ -120,6 +120,7 @@ src/coreclr/vm/wasm/generate-coreclr-helpers.sh -c Release
 | `-s`, `--scan-path <path>` | Override the default **browser** scan path. |
 | `-w`, `--wasi-scan-path <path>` | Override the default **wasi** scan path. |
 | `-t`, `--target-os <browser\|wasi>` | Regenerate only this flavor (default: both). |
+| `-a`, `--arch <wasm\|wasm64>` | Guest architecture (default: `wasm`). `wasm64` defaults to `browser` and also supports `--target-os wasi`. |
 | `-h`, `--help` | Show usage. |
 
 After running, review and commit any changes to the generated files under
