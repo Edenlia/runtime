@@ -271,8 +271,9 @@ build_native()
         popd
     else
         cmake_command=cmake
-        if [[ "$build_arch" == "wasm" && "$__TargetOS" == "browser" ]]; then
-            cmake_command="emcmake cmake"
+        if [[ ( "$hostArch" == "wasm" || "$hostArch" == "wasm64" ) && "$targetOS" == "browser" ]]; then
+            # emcmake selects the toolchain at configure time. During --build it
+            # appends configure options after --, where Ninja interprets them.
             echo "Executing $cmake_command --build \"$intermediatesDir\" --target $target -- -j $__NumProc"
             $cmake_command --build "$intermediatesDir" --target $target -- -j "$__NumProc"
             exit_code="$?"
@@ -305,7 +306,7 @@ usage()
     echo ""
     echo "Common Options:"
     echo ""
-    echo "BuildArch can be: -arm, -armv6, -armel, -arm64, -loongarch64, -riscv64, -s390x, -ppc64le, x64, x86, -wasm"
+    echo "BuildArch can be: -arm, -armv6, -armel, -arm64, -loongarch64, -riscv64, -s390x, -ppc64le, x64, x86, -wasm, -wasm64"
     echo "BuildType can be: -debug, -checked, -release"
     echo "-arch: target architecture (defaults to running architecture); alternative to the BuildArch flags above."
     echo "-os: target OS (defaults to running OS)"
@@ -526,6 +527,10 @@ while :; do
             __TargetArch=wasm
             ;;
 
+        wasm64|-wasm64)
+            __TargetArch=wasm64
+            ;;
+
         targetrid|-targetrid|outputrid|-outputrid)
             if [[ -n "$2" ]]; then
                 __TargetRid="$2"
@@ -592,6 +597,11 @@ while :; do
     shift
 done
 
+if [[ "$__TargetArch" == "wasm64" && "$__TargetOS" != "browser" ]]; then
+    echo "ERROR: wasm64 currently supports only -os browser."
+    exit 1
+fi
+
 if [[ -z "$__HostArch" ]]; then
     __HostArch=$__TargetArch
 fi
@@ -613,7 +623,7 @@ if [[ "$__PortableBuild" == 0 ]]; then
     __CommonMSBuildArgs="$__CommonMSBuildArgs /p:PortableBuild=false"
 fi
 
-if [[ "$__TargetArch" == wasm ]]; then
+if [[ "$__TargetArch" == wasm || "$__TargetArch" == wasm64 ]]; then
     # nothing to do here
     true
 elif [[ "$__TargetOS" == ios || "$__TargetOS" == iossimulator ]]; then

@@ -13,6 +13,8 @@
 #include "gcheaputilities.h"
 #endif // FEATURE_NATIVEAOT
 
+#include "wasm-asm.h"
+
 #ifdef FEATURE_MULTITHREADING
 #error The current assembly implementation of write barriers assumes single-threaded Wasm
 #endif
@@ -51,23 +53,23 @@ ASM_HELPER_2(void, RhpAssignRef, Object **dst, Object *ref)
         /* *dst = ref */
         "local.get 0\n"
         "local.get 1\n"
-        "i32.store 0\n"
+        WASM_PTR_STORE_STR " 0\n"
         /* if ((ref < ephemeral_low) || (ref >= ephemeral_high)) return */
         "local.get 1\n"
-        "i32.const 0\n i32.load %[g_ephemeral_low]\n"
-        "i32.lt_u\n"
+        WASM_PTR_CONST_STR " 0\n" WASM_PTR_LOAD_STR " %[g_ephemeral_low]\n"
+        WASM_PTR_LT_U_STR "\n"
         "local.get 1\n"
-        "i32.const 0\n i32.load %[g_ephemeral_high]\n"
-        "i32.ge_u\n"
+        WASM_PTR_CONST_STR " 0\n" WASM_PTR_LOAD_STR " %[g_ephemeral_high]\n"
+        WASM_PTR_GE_U_STR "\n"
         "i32.or\n"
         "if\n return\n end_if\n"
         /* dst = &g_card_table[(dst >> card_byte_shift)] */
         "local.get 0\n"
-        "i32.const %[card_byte_shift]\n"
-        "i32.shr_u\n"
-        "i32.const 0\n"
-        "i32.load %[g_card_table]\n"
-        "i32.add\n"
+        WASM_PTR_CONST_STR " %[card_byte_shift]\n"
+        WASM_PTR_SHR_U_STR "\n"
+        WASM_PTR_CONST_STR " 0\n"
+        WASM_PTR_LOAD_STR " %[g_card_table]\n"
+        WASM_PTR_ADD_STR "\n"
         "local.tee 0\n"
         /* if (*dst == 255) return */
         "i32.load8_u 0\n"
@@ -89,32 +91,32 @@ ASM_HELPER_2(void, RhpCheckedAssignRef, Object **dst, Object *ref)
         /* *dst = ref */
         "local.get 0\n"
         "local.get 1\n"
-        "i32.store 0\n"
+        WASM_PTR_STORE_STR " 0\n"
         /* if ((dst < lowest) || (dst >= highest)) return */
         "local.get 0\n"
-        "i32.const 0\n i32.load %[g_lowest_address]\n"
-        "i32.lt_u\n"
+        WASM_PTR_CONST_STR " 0\n" WASM_PTR_LOAD_STR " %[g_lowest_address]\n"
+        WASM_PTR_LT_U_STR "\n"
         "local.get 0\n"
-        "i32.const 0\n i32.load %[g_highest_address]\n"
-        "i32.ge_u\n"
+        WASM_PTR_CONST_STR " 0\n" WASM_PTR_LOAD_STR " %[g_highest_address]\n"
+        WASM_PTR_GE_U_STR "\n"
         "i32.or\n"
         "if\n return\n end_if\n"
         /* if ((ref < ephemeral_low) || (ref >= ephemeral_high)) return */
         "local.get 1\n"
-        "i32.const 0\n i32.load %[g_ephemeral_low]\n"
-        "i32.lt_u\n"
+        WASM_PTR_CONST_STR " 0\n" WASM_PTR_LOAD_STR " %[g_ephemeral_low]\n"
+        WASM_PTR_LT_U_STR "\n"
         "local.get 1\n"
-        "i32.const 0\n i32.load %[g_ephemeral_high]\n"
-        "i32.ge_u\n"
+        WASM_PTR_CONST_STR " 0\n" WASM_PTR_LOAD_STR " %[g_ephemeral_high]\n"
+        WASM_PTR_GE_U_STR "\n"
         "i32.or\n"
         "if\n return\n end_if\n"
         /* dst = &g_card_table[(dst >> card_byte_shift)] */
         "local.get 0\n"
-        "i32.const %[card_byte_shift]\n"
-        "i32.shr_u\n"
-        "i32.const 0\n"
-        "i32.load %[g_card_table]\n"
-        "i32.add\n"
+        WASM_PTR_CONST_STR " %[card_byte_shift]\n"
+        WASM_PTR_SHR_U_STR "\n"
+        WASM_PTR_CONST_STR " 0\n"
+        WASM_PTR_LOAD_STR " %[g_card_table]\n"
+        WASM_PTR_ADD_STR "\n"
         "local.tee 0\n"
         /* if (*dst == 255) return */
         "i32.load8_u 0\n"

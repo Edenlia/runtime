@@ -83,10 +83,16 @@ namespace ILCompiler
 
             // The portable call-helpers generator is currently supported only for Wasm.
             if (_generatePortableCallHelpers is not null
-                && (targetArchitecture != TargetArchitecture.Wasm32 || targetOS is not (TargetOS.Browser or TargetOS.Wasi)))
+                && !((targetArchitecture == TargetArchitecture.Wasm32 && targetOS is (TargetOS.Browser or TargetOS.Wasi))
+                    || (targetArchitecture == TargetArchitecture.Wasm64 && targetOS == TargetOS.Browser)))
             {
                 throw new CommandLineException(SR.GeneratePortableCallHelpersRequiresWasmTarget);
             }
+            // The interpreter can generate portable helpers before wasm64 RyuJIT/codegen exists.
+            // Keep full compilation explicit instead of reaching an unsupported JIT or object writer.
+            if (targetArchitecture == TargetArchitecture.Wasm64 && _generatePortableCallHelpers is null)
+                throw new CommandLineException(SR.Wasm64ReadyToRunNotSupported);
+
             bool targetAllowsRuntimeCodeGeneration = Get(_command.TargetAllowsRuntimeCodeGeneration)
                 ?? GetTargetAllowsRuntimeCodeGeneration(targetOS, targetArchitecture);
             bool targetIsSingleThreaded = Get(_command.TargetSingleThreaded)
@@ -752,13 +758,13 @@ namespace ILCompiler
         private static bool GetTargetAllowsRuntimeCodeGeneration(TargetOS operatingSystem, TargetArchitecture architecture)
         {
             return operatingSystem is not (TargetOS.iOS or TargetOS.iOSSimulator or TargetOS.MacCatalyst or TargetOS.tvOS or TargetOS.tvOSSimulator or TargetOS.Browser or TargetOS.Wasi)
-                && architecture is not TargetArchitecture.Wasm32;
+                && architecture is not (TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64);
         }
 
         // CoreCLR on WebAssembly is built without FEATURE_MULTITHREADING by default.
         private static bool GetTargetIsSingleThreaded(TargetArchitecture architecture)
         {
-            return architecture is TargetArchitecture.Wasm32;
+            return architecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64;
         }
 
         private void CheckManagedCppInputFiles(IEnumerable<string> inputPaths)

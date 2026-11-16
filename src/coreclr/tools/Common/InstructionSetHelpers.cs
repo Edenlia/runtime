@@ -89,7 +89,7 @@ namespace System.CommandLine
                     instructionSetSupportBuilder.AddSupportedInstructionSet("armv8-a");
                 }
             }
-            else if (targetArchitecture == TargetArchitecture.Wasm32)
+            else if (targetArchitecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64)
             {
                 instructionSetSupportBuilder.AddSupportedInstructionSet("base");
                 instructionSetSupportBuilder.AddSupportedInstructionSet("simd128");
@@ -364,7 +364,8 @@ namespace System.CommandLine
         public static InstructionSetSupport GetFixedInstructionSetSupport(InstructionSetSupport instructionSetSupport)
         {
             InstructionSetFlags unsupportedInstructionSets = instructionSetSupport.ExplicitlyUnsupportedFlags;
-            foreach (var instructionSetInfo in InstructionSetFlags.ArchitectureToValidInstructionSets(instructionSetSupport.Architecture))
+            TargetArchitecture instructionSetArchitecture = InstructionSetSupportBuilder.GetInstructionSetArchitecture(instructionSetSupport.Architecture);
+            foreach (var instructionSetInfo in InstructionSetFlags.ArchitectureToValidInstructionSets(instructionSetArchitecture))
             {
                 if (instructionSetInfo.Specifiable &&
                     !instructionSetSupport.IsInstructionSetSupported(instructionSetInfo.InstructionSet))
@@ -372,8 +373,8 @@ namespace System.CommandLine
                     unsupportedInstructionSets.AddInstructionSet(instructionSetInfo.InstructionSet);
                 }
             }
-            unsupportedInstructionSets.ExpandInstructionSetByReverseImplication(instructionSetSupport.Architecture);
-            unsupportedInstructionSets.Set64BitInstructionSetVariants(instructionSetSupport.Architecture);
+            unsupportedInstructionSets.ExpandInstructionSetByReverseImplication(instructionSetArchitecture);
+            unsupportedInstructionSets.Set64BitInstructionSetVariants(instructionSetArchitecture);
 
             if (instructionSetSupport.Architecture is TargetArchitecture.X86 or TargetArchitecture.ARM)
                 unsupportedInstructionSets.Set64BitInstructionSetVariantsUnconditionally(instructionSetSupport.Architecture);

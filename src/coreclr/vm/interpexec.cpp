@@ -676,13 +676,13 @@ void DBG_PrintInterpreterStack()
 
 #ifdef FEATURE_PORTABLE_ENTRYPOINTS
 #ifdef TARGET_WASM
-typedef void* (*HELPER_FTN_P_P)(int*, void*, int32_t);
-typedef void* (*HELPER_FTN_BOX_UNBOX)(int*, MethodTable*, void*, int32_t);
-typedef Object* (*HELPER_FTN_NEWARR)(int*, MethodTable*, intptr_t, int32_t);
-typedef void* (*HELPER_FTN_P_PP)(int*, void*, void*, int32_t);
-typedef void (*HELPER_FTN_V_PPP)(int*, void*, void*, void*, int32_t);
-typedef void* (*HELPER_FTN_P_PPIP)(int*, void*, void*, int32_t, void*, int32_t);
-typedef void (*HELPER_FTN_V_PP)(int*, void*, void*, int32_t);
+typedef void* (*HELPER_FTN_P_P)(uintptr_t*, void*, PCODE);
+typedef void* (*HELPER_FTN_BOX_UNBOX)(uintptr_t*, MethodTable*, void*, PCODE);
+typedef Object* (*HELPER_FTN_NEWARR)(uintptr_t*, MethodTable*, intptr_t, PCODE);
+typedef void* (*HELPER_FTN_P_PP)(uintptr_t*, void*, void*, PCODE);
+typedef void (*HELPER_FTN_V_PPP)(uintptr_t*, void*, void*, void*, PCODE);
+typedef void* (*HELPER_FTN_P_PPIP)(uintptr_t*, void*, void*, int32_t, void*, PCODE);
+typedef void (*HELPER_FTN_V_PP)(uintptr_t*, void*, void*, PCODE);
 
 // These helpers are all noinline, so that when the R2R compiler overwrites values relative to framePointer lower
 // down in the stack, no meaningful state from the C++ code here will be overwritten.
@@ -691,43 +691,43 @@ typedef void (*HELPER_FTN_V_PP)(int*, void*, void*, int32_t);
 // and inline assembly helpers will be more difficult to maintain and debug, so we can cross that bridge if/when we come to it.
 __attribute__((noinline)) void* Call_HELPER_FTN_P_P(HELPER_FTN_P_P helper, void* arg1)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     return helper(&framePointer, arg1, 0);
 }
 
 __attribute__((noinline)) void* Call_HELPER_FTN_BOX_UNBOX(HELPER_FTN_BOX_UNBOX helper, MethodTable* pMT, void* arg1)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     return helper(&framePointer, pMT, arg1, 0);
 }
 
 __attribute__((noinline)) Object* Call_HELPER_FTN_NEWARR(HELPER_FTN_NEWARR helper, MethodTable* pMT, intptr_t arg1)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     return helper(&framePointer, pMT, arg1, 0);
 }
 
 __attribute__((noinline)) void* Call_HELPER_FTN_P_PP(HELPER_FTN_P_PP helper, void* arg1, void* arg2)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     return helper(&framePointer, arg1, arg2, 0);
 }
 
 __attribute__((noinline)) void Call_HELPER_FTN_V_PPP(HELPER_FTN_V_PPP helper, void* arg1, void* arg2, void* arg3)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     helper(&framePointer, arg1, arg2, arg3, 0);
 }
 
 __attribute__((noinline)) void* Call_HELPER_FTN_P_PPIP(HELPER_FTN_P_PPIP helper, void* arg1, void* arg2, int32_t arg3, void* arg4)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     return helper(&framePointer, arg1, arg2, arg3, arg4, 0);
 }
 
 __attribute__((noinline)) void Call_HELPER_FTN_V_PP(HELPER_FTN_V_PP helper, void* arg1, void* arg2)
 {
-    alignas(16) int framePointer = TERMINATE_R2R_STACK_WALK;
+    alignas(16) uintptr_t framePointer = TERMINATE_R2R_STACK_WALK;
     helper(&framePointer, arg1, arg2, 0);
 }
 

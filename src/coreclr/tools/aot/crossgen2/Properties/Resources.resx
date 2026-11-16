@@ -298,7 +298,10 @@
     <value>Name of a statically linked native module P/Invokes may resolve against</value>
   </data>
   <data name="GeneratePortableCallHelpersRequiresWasmTarget" xml:space="preserve">
-    <value>--generate-portable-callhelpers requires --targetarch wasm together with --targetos browser or --targetos wasi</value>
+    <value>--generate-portable-callhelpers requires --targetarch wasm with --targetos browser or wasi, or --targetarch wasm64 with --targetos browser</value>
+  </data>
+  <data name="Wasm64ReadyToRunNotSupported" xml:space="preserve">
+    <value>ReadyToRun compilation for wasm64 is not supported. Only portable call-helper generation is available.</value>
   </data>
   <data name="TargetOSUnsupported" xml:space="preserve">
     <value>Target OS is not supported</value>

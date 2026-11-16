@@ -919,12 +919,18 @@ struct X86GcInfoEncoding {
     static const bool HAS_INTERRUPTIBLE_RANGES = true;
 };
 
-#elif defined(TARGET_WASM) && !defined(TARGET_64BIT)
+#elif defined(TARGET_WASM)
 
 #ifndef TARGET_POINTER_SIZE
-#define TARGET_POINTER_SIZE 4   // equal to sizeof(void*) and the managed pointer size in bytes for this target
+#ifdef TARGET_WASM64
+#define TARGET_POINTER_SIZE 8
+#else
+#define TARGET_POINTER_SIZE 4
+#endif
 #endif
 
+// The slot/code encodings describe bounded offsets, not absolute addresses.
+// Keep the same Wasm encoding while selecting the actual target pointer size.
 #define TargetGcInfoEncoding Wasm32GcInfoEncoding
 
 // TODO-WASM: Investigate normalizing stack slots to save space based on wasm stack alignment

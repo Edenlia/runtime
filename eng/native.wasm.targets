@@ -7,6 +7,8 @@
           Condition="'$(RepositoryEngineeringDir)' != '' and Exists('$(RepositoryEngineeringDir)AcquireEmscriptenSdk.targets')" />
   <Import Project="$(RepositoryEngineeringDir)AcquireWasiSdk.targets"
           Condition="'$(TargetsWasi)' == 'true' and '$(RepositoryEngineeringDir)' != '' and Exists('$(RepositoryEngineeringDir)AcquireWasiSdk.targets')" />
+  <Import Project="$(RepositoryEngineeringDir)wasm/Memory64Icu.props"
+          Condition="'$(TargetsWasm64)' == 'true' and '$(RepositoryEngineeringDir)' != '' and Exists('$(RepositoryEngineeringDir)wasm/Memory64Icu.props')" />
 
   <!-- These packages provide ICU and timezone data paths for the native build (CMake).
        Skip them during app-level relink (IsBrowserWasmProject) since the runtime pack
@@ -23,12 +25,13 @@
     <_RuntimeVariant Condition="'$(WasmEnableThreads)' == 'true'">-threads</_RuntimeVariant>
     <FeatureMultithreading Condition="('$(TargetsBrowser)' != 'true' and '$(TargetsWasi)' != 'true') or '$(WasmEnableThreads)' == 'true'">true</FeatureMultithreading>
 
-    <_IcuDir Condition="'$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)' != '' and '$(TargetsWasm)' == 'true'">$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)/runtimes/$(TargetOS)-$(TargetArchitecture)$(_RuntimeVariant)/native</_IcuDir>
+    <_IcuDir Condition="'$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)' != '' and '$(TargetsWasm)' == 'true' and '$(TargetsWasm64)' != 'true'">$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)/runtimes/$(TargetOS)-$(TargetArchitecture)$(_RuntimeVariant)/native</_IcuDir>
+    <_IcuDir Condition="'$(TargetsWasm64)' == 'true'">$(Memory64IcuDir)</_IcuDir>
     <_TzdDir Condition="'$(PkgSystem_Runtime_TimeZoneData)' != '' and '$(TargetsWasm)' == 'true'">$([MSBuild]::NormalizePath('$(PkgSystem_Runtime_TimeZoneData)', 'contentFiles', 'any', 'any', 'data'))</_TzdDir>
   </PropertyGroup>
 
   <ItemGroup>
-      <NativeCMakeArg Condition="'$(_IcuDir)' != ''" Include="-cmakeargs &quot;-DCMAKE_ICU_DIR=$(_IcuDir)&quot;" />
+      <NativeCMakeArg Condition="'$(_IcuDir)' != '' and '$(TargetsWasm64)' != 'true'" Include="-cmakeargs &quot;-DCMAKE_ICU_DIR=$(_IcuDir)&quot;" />
       <NativeCMakeArg Condition="'$(_TzdDir)' != ''" Include="-cmakeargs &quot;-DCMAKE_TZD_DIR=$(_TzdDir)&quot;" />
       <NativeCMakeArg Condition="'$(RuntimeFlavor)' == 'Mono'" Include="-cmakeargs &quot;-DCLR_CMAKE_RUNTIME_MONO=1&quot;" />
       <NativeCMakeArg Condition="'$(RuntimeFlavor)' == 'CoreCLR'" Include="-cmakeargs &quot;-DCLR_CMAKE_RUNTIME_CORECLR=1&quot;" />
@@ -40,6 +43,7 @@
   <!-- Default memory settings shared by the prebuilt browserhost and app-level relinking. -->
   <PropertyGroup Condition="'$(TargetsBrowser)' == 'true'">
     <BrowserHostInitialHeapSize Condition="'$(BrowserHostInitialHeapSize)' == ''">33554432</BrowserHostInitialHeapSize>
+    <BrowserHostMaximumHeapSize Condition="'$(BrowserHostMaximumHeapSize)' == '' and '$(TargetsWasm64)' == 'true'">8589934592</BrowserHostMaximumHeapSize>
     <BrowserHostMaximumHeapSize Condition="'$(BrowserHostMaximumHeapSize)' == ''">2147483648</BrowserHostMaximumHeapSize>
     <BrowserHostStackSize Condition="'$(BrowserHostStackSize)' == ''">2MB</BrowserHostStackSize>
   </PropertyGroup>
@@ -49,7 +53,44 @@
        features (relaxed SIMD, threads) and optimization/debug/strip options are added by each consumer. -->
   <ItemGroup>
     <_WasmOptBaselineFeatureFlag Include="--enable-exception-handling;--enable-reference-types;--enable-multivalue;--enable-simd;--enable-bulk-memory;--enable-nontrapping-float-to-int" />
+    <_WasmOptBaselineFeatureFlag Condition="'$(TargetsWasm64)' == 'true'" Include="--enable-memory64" />
   </ItemGroup>
+
+  <Target Name="PrepareMemory64EmscriptenLibraries"
+          DependsOnTargets="AcquireEmscriptenSdk"
+          Condition="'$(TargetsWasm64)' == 'true' and '$(IsBrowserWasmProject)' != 'true' and '$(RepositoryEngineeringDir)' != ''">
+    <!-- The -nostdlib CoreCLR link cannot trigger emcc's normal on-demand
+         system-library creation. Prepare only its seven explicit dependencies;
+         -wasmexcept is Emscripten's non-legacy native Wasm exception variant. -->
+    <Exec Command="&quot;$(PythonExecutable)&quot; &quot;$(RepositoryEngineeringDir)wasm/build-memory64-icu.py&quot; prepare-sysroot --emsdk &quot;$(EMSDK_PATH)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;" />
+  </Target>
+
+  <Target Name="PrepareMemory64Icu"
+          BeforeTargets="BuildRuntime;BuildNativeCommon"
+          DependsOnTargets="PrepareMemory64EmscriptenLibraries"
+          Condition="'$(TargetsWasm64)' == 'true' and '$(IsBrowserWasmProject)' != 'true' and '$(RepositoryEngineeringDir)' != ''">
+    <Error Condition="$(CMakeArgs.Contains('CMAKE_ICU_DIR'))"
+           Text="Use Memory64IcuDir instead of CMakeArgs/CMAKE_ICU_DIR for wasm64, so the dependency is verified before native compilation." />
+    <PropertyGroup>
+      <_Memory64IcuOperation>build</_Memory64IcuOperation>
+      <_Memory64IcuOperation Condition="'$(_Memory64IcuWasOverridden)' == 'true'">verify</_Memory64IcuOperation>
+    </PropertyGroup>
+    <!-- This dependency project has no SDK/managed target. Remove guest globals
+         and pass only its explicit host-tool and output inputs to the child. -->
+    <MSBuild Projects="$(RepositoryEngineeringDir)wasm/BuildMemory64Icu.proj"
+             Targets="BuildMemory64Icu"
+             RemoveProperties="TargetOS;TargetArchitecture;Platform;RuntimeIdentifier;RuntimeIdentifiers;TargetFramework;TargetFrameworks;RuntimeFlavor;Subset;BuildSubdirectory"
+             Properties="RepoRoot=$(RepoRoot);ArtifactsBinDir=$(ArtifactsBinDir);ArtifactsObjDir=$(ArtifactsObjDir);WasmToolCacheDir=$(WasmToolCacheDir);BuildArchitecture=$(BuildArchitecture);EMSDK_PATH=$(EMSDK_PATH);PythonExecutable=$(PythonExecutable);Memory64IcuOperation=$(_Memory64IcuOperation);Memory64IcuDir=$(Memory64IcuDir);Memory64IcuWorkDir=$(Memory64IcuWorkDir);Memory64IcuSourceCacheDir=$(Memory64IcuSourceCacheDir);Memory64EmscriptenCacheDir=$(Memory64EmscriptenCacheDir);Memory64IcuBuildJobs=$(Memory64IcuBuildJobs)">
+      <Output TaskParameter="TargetOutputs" ItemName="_PreparedMemory64Icu" />
+    </MSBuild>
+    <Error Condition="'@(_PreparedMemory64Icu)' == ''" Text="The Memory64 ICU dependency did not return a verified output directory." />
+    <PropertyGroup>
+      <_IcuDir>@(_PreparedMemory64Icu)</_IcuDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <NativeCMakeArg Include="-cmakeargs &quot;-DCMAKE_ICU_DIR=$(_IcuDir)&quot;" />
+    </ItemGroup>
+  </Target>
 
   <!-- Remaining settings baked into the prebuilt CoreCLR runtime pack. These are only consumed by
        the CoreCLR app relink registry below, so keep the BrowserHost names distinct from the

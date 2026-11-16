@@ -9,9 +9,10 @@
 #include "utilcode.h"
 
 // preferred alignment for data
-#define DATA_ALIGNMENT 4
+#define DATA_ALIGNMENT TARGET_POINTER_SIZE
 
-#define CODE_SIZE_ALIGN                         4
+// Code heaps append headers containing native pointers after the code bytes.
+#define CODE_SIZE_ALIGN                         TARGET_POINTER_SIZE
 #define LOG2SLOT                                LOG2_PTRSIZE
 
 #define BACK_TO_BACK_JUMP_ALLOCATE_SIZE         8   // # bytes to allocate for a back to back jump instruction

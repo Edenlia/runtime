@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.Build.Traversal" DefaultTargets="Check">
+  <!-- Use the same root props, targets, and subset expansion as Build.proj.
+       Check only evaluates routing: it does not restore or build any ProjectToBuild. -->
+  <Import Project="../../SubsetValidation.targets" />
+  <Target Name="Check" />
+</Project>

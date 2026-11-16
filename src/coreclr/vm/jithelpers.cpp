@@ -2032,7 +2032,7 @@ FCIMPLEND
 //
 //========================================================================
 
-#ifdef HOST_64BIT
+#if defined(HOST_64BIT) && !defined(TARGET_WASM)
 
 /**********************************************************************/
 /* Fills out portions of an InlinedCallFrame for JIT64    */
@@ -2057,7 +2057,7 @@ Thread * JIT_InitPInvokeFrame(InlinedCallFrame *pFrame)
     return pThread;
 }
 
-#endif // HOST_64BIT
+#endif // HOST_64BIT && !TARGET_WASM
 
 EXTERN_C void JIT_PInvokeBegin(InlinedCallFrame* pFrame);
 EXTERN_C void JIT_PInvokeEnd(InlinedCallFrame* pFrame);

@@ -1,0 +1,25 @@
+<Project InitialTargets="ValidateWasm64Target">
+  <!-- Host tools retain their host RID and ReadyToRun publish setting during a target build. -->
+  <Target Name="ValidateWasm64Target">
+    <Error Condition="'$(RuntimeIdentifier)' == 'browser-wasm64' and '$(TargetArchitecture)' != 'wasm64'"
+           Text="RuntimeIdentifier=browser-wasm64 requires TargetArchitecture=wasm64." />
+    <Error Condition="'$(TargetRid)' == 'browser-wasm64' and '$(TargetArchitecture)' != 'wasm64'"
+           Text="TargetRid=browser-wasm64 requires TargetArchitecture=wasm64." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(TargetOS)' != 'browser'"
+           Text="wasm64 currently supports only TargetOS=browser." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and ('$(RuntimeFlavor)' != 'CoreCLR' or '$(UseMonoRuntime)' == 'true' or '$(UseNativeAOTRuntime)' == 'true')"
+           Text="wasm64 currently supports only the CoreCLR runtime." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and ('$(WasmEnableThreads)' == 'true' or '$(FeatureMultithreading)' == 'true')"
+           Text="wasm64 currently supports only single-threaded builds; WasmEnableThreads and FeatureMultithreading must be false." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(RuntimeIdentifier)' != '' and '$(RuntimeIdentifier)' != 'browser-wasm64' and '$(IsInBuildToolProject)' != 'true'"
+           Text="TargetArchitecture=wasm64 requires RuntimeIdentifier=browser-wasm64 when a runtime identifier is specified." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(TargetRid)' != 'browser-wasm64'"
+           Text="TargetArchitecture=wasm64 requires TargetRid=browser-wasm64." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(PublishReadyToRun)' == 'true' and '$(IsInBuildToolProject)' != 'true'"
+           Text="wasm64 ReadyToRun compilation is not supported." />
+    <Error Condition="'$(TargetsWasm64)' == 'true' and '$(Platform)' != '' and '$(Platform)' != 'wasm64' and '$(Platform)' != 'AnyCPU' and '$(Platform)' != 'Any CPU' and '$(IsInBuildToolProject)' != 'true'"
+           Text="TargetArchitecture=wasm64 is incompatible with Platform=$(Platform)." />
+    <Error Condition="'$(Platform)' == 'wasm64' and '$(TargetArchitecture)' != 'wasm64' and '$(IsInBuildToolProject)' != 'true'"
+           Text="Platform=wasm64 requires TargetArchitecture=wasm64." />
+  </Target>
+</Project>

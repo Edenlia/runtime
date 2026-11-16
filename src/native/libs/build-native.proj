@@ -17,7 +17,8 @@
     <_CMakeArgs Condition="'$(CMakeArgs)' != ''"> -cmakeargs "$(CMakeArgs)"</_CMakeArgs>
     <_CMakeArgs Condition="'$(WasmEnableThreads)' == 'true'">$(_CMakeArgs) -cmakeargs "-DCLR_CMAKE_WASM_ENABLE_THREADS=1"</_CMakeArgs>
 
-    <_BuildNativeArgs>$(_BuildNativeArgs)$(_CMakeArgs) @(NativeCMakeArg, ' ')</_BuildNativeArgs>
+    <_BuildNativeArgs>$(_BuildNativeArgs)$(_CMakeArgs)</_BuildNativeArgs>
+    <_BuildNativeArgs Condition="'$(TargetsWasm64)' != 'true'">$(_BuildNativeArgs) @(NativeCMakeArg, ' ')</_BuildNativeArgs>
     <BuildNativeCommonDependsOnTargets>GenerateNativeVersionFile</BuildNativeCommonDependsOnTargets>
     <BuildNativeCommonDependsOnTargets Condition="'$(TargetsWasi)' == 'true'">AcquireWasiSdk;$(BuildNativeCommonDependsOnTargets)</BuildNativeCommonDependsOnTargets>
     <BuildNativeCommonDependsOnTargets Condition="'$(TargetsBrowser)' == 'true'">AcquireEmscriptenSdk;$(BuildNativeCommonDependsOnTargets);GenerateEmccExports</BuildNativeCommonDependsOnTargets>
@@ -29,6 +30,12 @@
 
   <Target Name="BuildNativeCommon"
           DependsOnTargets="$(BuildNativeCommonDependsOnTargets)">
+    <PropertyGroup>
+      <!-- Memory64 preparation adds the verified ICU CMake argument. Expand
+           after that target runs, before either native entry point. -->
+      <_BuildNativeArgs Condition="'$(TargetsWasm64)' == 'true'">$(_BuildNativeArgs) @(NativeCMakeArg, ' ')</_BuildNativeArgs>
+      <_BuildNativeEnvironmentVariables Condition="'$(TargetsWasm64)' == 'true'">EMSDK_PATH=$(EMSDK_PATH);EM_CACHE=$(Memory64EmscriptenCacheDir);EM_FROZEN_CACHE=</_BuildNativeEnvironmentVariables>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(TargetsWasi)' == 'true'">
       <_BuildNativeEnvironmentVariables>WASI_SDK_PATH=$(RuntimeBuildWasiSdkPath)</_BuildNativeEnvironmentVariables>
     </PropertyGroup>

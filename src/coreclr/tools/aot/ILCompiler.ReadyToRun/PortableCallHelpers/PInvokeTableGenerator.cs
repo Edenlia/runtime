@@ -596,7 +596,7 @@ namespace ILCompiler.PortableCallHelpers
         private static string TypeToNameType(TypeDesc type)
         {
             if (!type.IsValueType || type.IsPointer || type.IsByRef || type is FunctionPointerType)
-                return "I32";
+                return type.Context.Target.PointerSize == 4 ? "I32" : "I64";
 
             if (type.IsEnum)
                 return TypeToNameType(type.UnderlyingType);

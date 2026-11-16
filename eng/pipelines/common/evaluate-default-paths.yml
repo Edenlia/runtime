@@ -272,16 +272,30 @@ jobs:
     # The checked-in CoreCLR wasm call helpers (src/coreclr/vm/wasm/{browser,wasi}/callhelpers-*.cpp)
     # are generated from the framework's [UnmanagedCallersOnly] methods, P/Invokes and QCalls, so any
     # change to that managed code can make them stale. Triggers the wasm CoreCLR build legs that run
-    # wasm-coreclr-callhelpers-check.yml.
+    # wasm-coreclr-callhelpers-check.yml, including its browser Linux host tests of both pointer widths.
     - subset: wasm_coreclr_callhelpers
       combined: true
       include:
+      - Directory.Build.props
+      - Directory.Build.targets
+      - eng/build.sh
+      - eng/OSArch.props
+      - eng/Subsets.props
+      - eng/SubsetValidation.targets
+      - eng/native.wasm.targets
+      - eng/native/build-commons.sh
+      - eng/native/configurecompiler.cmake
+      - eng/native/configureplatform.cmake
+      - eng/native/gen-buildsys.sh
+      - eng/wasm/*
+      - eng/pipelines/common/templates/wasm-coreclr-callhelpers-check.yml
       - src/libraries/*/src/*
       - src/coreclr/System.Private.CoreLib/*
       - src/coreclr/tools/aot/ILCompiler.ReadyToRun/*
+      - src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/*
+      - src/coreclr/tools/aot/crossgen2/*
       - src/coreclr/tools/Common/*
       - src/coreclr/vm/wasm/*
-      - eng/wasm/WasmPInvokeModules.props
       exclude:
       - ${{ parameters._const_paths._always_exclude }}
 

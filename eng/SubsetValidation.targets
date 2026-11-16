@@ -1,4 +1,4 @@
-<Project InitialTargets="FindInvalidSpecifiedSubsetNames;ReportValidSubsetList">
+<Project InitialTargets="FindInvalidSpecifiedSubsetNames;ReportValidSubsetList;ValidateWasm64Subsets">
   <!--
     The imported file supports the '/p:Subset=<desired subset string>' dev build argument.
 
@@ -37,4 +37,8 @@
            Condition="'$(UserRequestedHelp)' == 'true'" />
   </Target>
 
+  <Target Name="ValidateWasm64Subsets" Condition="'$(TargetsWasm64)' == 'true'">
+    <Error Condition="$(_subset.Contains('+clr.native+')) or $(_subset.Contains('+clr.jit+')) or $(_subset.Contains('+clr.wasmjit+')) or $(_subset.Contains('+clr.alljits+')) or $(_subset.Contains('+clr.alljitscommunity+')) or $(_subset.Contains('+clr.nativecorelib+')) or $(_subset.Contains('+clr.crossarchtools+')) or $(_subset.Contains('+clr.tools+')) or $(_subset.Contains('+clr.nativeaotlibs+')) or $(_subset.Contains('+clr.nativeaotruntime+'))"
+           Text="wasm64 does not support JIT, ReadyToRun, NativeAOT, or target-specific compiler tool builds. Build the host Crossgen2 with -os browser -arch wasm -subset clr.tools, then select wasm64 on the portable helper generator command line." />
+  </Target>
 </Project>

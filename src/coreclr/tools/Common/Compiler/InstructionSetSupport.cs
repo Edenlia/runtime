@@ -98,7 +98,7 @@ namespace ILCompiler
             {
                 return "";
             }
-            else if (architecture is TargetArchitecture.Wasm32)
+            else if (architecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64)
             {
                 if (potentialType.Namespace != "System.Runtime.Intrinsics.Wasm"u8)
                     return "";
@@ -162,7 +162,7 @@ namespace ILCompiler
             {
                 return SimdVectorLength.None;
             }
-            else if (_targetArchitecture == TargetArchitecture.Wasm32)
+            else if (_targetArchitecture is TargetArchitecture.Wasm32 or TargetArchitecture.Wasm64)
             {
                 return SimdVectorLength.Vector128Bit;
             }
@@ -201,10 +201,16 @@ namespace ILCompiler
             return matrix;
         }
 
+        // Wasm32 and Wasm64 have the same base/SIMD instruction-set descriptors. Keep this
+        // alias confined to ISA tables: Architecture remains the actual guest target, and
+        // pointer, calling-convention, and data-layout decisions must not use this alias.
+        public static TargetArchitecture GetInstructionSetArchitecture(TargetArchitecture architecture)
+            => architecture == TargetArchitecture.Wasm64 ? TargetArchitecture.Wasm32 : architecture;
+
         private static Dictionary<string, InstructionSet> ComputeInstructSetSupportForArch(TargetArchitecture architecture)
         {
             var support = new Dictionary<string, InstructionSet>();
-            foreach (var instructionSet in InstructionSetFlags.ArchitectureToValidInstructionSets(architecture))
+            foreach (var instructionSet in InstructionSetFlags.ArchitectureToValidInstructionSets(GetInstructionSetArchitecture(architecture)))
             {
                 // Only instruction sets with associated R2R enum values are specifiable
                 if (instructionSet.Specifiable)
@@ -220,7 +226,7 @@ namespace ILCompiler
         private static InstructionSetFlags ComputeNonSpecifiableInstructionSetSupportForArch(TargetArchitecture architecture)
         {
             var support = new InstructionSetFlags();
-            foreach (var instructionSet in InstructionSetFlags.ArchitectureToValidInstructionSets(architecture))
+            foreach (var instructionSet in InstructionSetFlags.ArchitectureToValidInstructionSets(GetInstructionSetArchitecture(architecture)))
             {
                 // Only instruction sets with associated R2R enum values are specifiable
                 if (!instructionSet.Specifiable)
@@ -269,7 +275,7 @@ namespace ILCompiler
         public bool AddSupportedInstructionSet(string instructionSet)
         {
             // First, check if it's a "known cpu family" group of instruction sets e.g. "haswell"
-            var sets = InstructionSetFlags.CpuNameToInstructionSets(instructionSet, _architecture);
+            var sets = InstructionSetFlags.CpuNameToInstructionSets(instructionSet, GetInstructionSetArchitecture(_architecture));
             if (sets != null)
             {
                 foreach (string set in sets)
@@ -330,8 +336,8 @@ namespace ILCompiler
                 unsupportedInstructionSets.AddInstructionSet(instructionSetConversion[unsupported]);
             }
 
-            unsupportedInstructionSets.ExpandInstructionSetByReverseImplication(_architecture);
-            unsupportedInstructionSets.Set64BitInstructionSetVariants(_architecture);
+            unsupportedInstructionSets.ExpandInstructionSetByReverseImplication(GetInstructionSetArchitecture(_architecture));
+            unsupportedInstructionSets.Set64BitInstructionSetVariants(GetInstructionSetArchitecture(_architecture));
 
             if ((_architecture == TargetArchitecture.X86) || (_architecture == TargetArchitecture.ARM))
                 unsupportedInstructionSets.Set64BitInstructionSetVariantsUnconditionally(_architecture);
@@ -360,14 +366,14 @@ namespace ILCompiler
             foreach (string supported in _supportedInstructionSets)
             {
                 supportedInstructionSets.AddInstructionSet(instructionSetConversion[supported]);
-                supportedInstructionSets.ExpandInstructionSetByImplication(_architecture);
+                supportedInstructionSets.ExpandInstructionSetByImplication(GetInstructionSetArchitecture(_architecture));
 
                 foreach (string unsupported in _unsupportedInstructionSets)
                 {
                     InstructionSetFlags checkForExplicitUnsupport = new InstructionSetFlags();
                     checkForExplicitUnsupport.AddInstructionSet(instructionSetConversion[unsupported]);
-                    checkForExplicitUnsupport.ExpandInstructionSetByReverseImplication(_architecture);
-                    checkForExplicitUnsupport.Set64BitInstructionSetVariants(_architecture);
+                    checkForExplicitUnsupport.ExpandInstructionSetByReverseImplication(GetInstructionSetArchitecture(_architecture));
+                    checkForExplicitUnsupport.Set64BitInstructionSetVariants(GetInstructionSetArchitecture(_architecture));
 
                     InstructionSetFlags supportedTemp = supportedInstructionSets;
                     supportedTemp.Remove(checkForExplicitUnsupport);

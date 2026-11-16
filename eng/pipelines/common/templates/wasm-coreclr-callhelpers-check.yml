@@ -51,3 +51,47 @@ steps:
       exit 1
     displayName: Check ${{ parameters.osGroup }} CoreCLR call helpers are up to date
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+  # Use the existing wasm32 product and ordinary host compiler for these host tests.
+  # Only the second IL CoreLib is built for wasm64: native wasm64 requires the
+  # separately tracked LLVM memory64 table-assembly fix and is not enabled here.
+  - ${{ if and(eq(parameters.osGroup, 'browser'), eq(parameters.archType, 'wasm')) }}:
+    - bash: |
+        set -euo pipefail
+        cd "$(Build.SourcesDirectory)"
+
+        ./build.sh -ci -os browser -arch wasm64 -c Release -rf CoreCLR -subset clr.corelib
+
+        export DOTNET_HOST_PATH="${DOTNET_INSTALL_DIR:-$PWD/.dotnet}/dotnet"
+        export WASM64_PORTABLE_HELPER_TESTS=1
+        export WASM32_CORELIB_PATH="$PWD/artifacts/bin/coreclr/browser.wasm.Release/IL/System.Private.CoreLib.dll"
+        export WASM64_CORELIB_PATH="$PWD/artifacts/bin/coreclr/browser.wasm64.Release/IL/System.Private.CoreLib.dll"
+        test -x "$DOTNET_HOST_PATH"
+        test -f "$WASM32_CORELIB_PATH"
+        test -f "$WASM64_CORELIB_PATH"
+
+        python3 eng/wasm/tests/test_target_selection.py -v
+        python3 eng/wasm/tests/test_corelib_target.py -v
+
+        results_dir="$PWD/artifacts/TestResults/wasm64-portable-helpers"
+        mkdir -p "$results_dir"
+        rm -f "$results_dir/portable-helpers.trx"
+        ./dotnet.sh test src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/ILCompiler.ReadyToRun.Tests.csproj \
+          -c Release -p:TargetOS=browser -p:TargetArchitecture=wasm -p:RuntimeFlavor=CoreCLR \
+          -p:CoreCLRConfiguration=Release -p:LibrariesConfiguration=Release \
+          -p:ContinuousIntegrationBuild=true \
+          --filter 'FullyQualifiedName~WasmPortableHelperTargetTests' \
+          --logger 'trx;LogFileName=portable-helpers.trx' --results-directory "$results_dir"
+
+        python3 - "$results_dir/portable-helpers.trx" <<'PY'
+        import sys
+        import xml.etree.ElementTree as ET
+
+        counters = ET.parse(sys.argv[1]).find('.//{*}ResultSummary/{*}Counters')
+        expected = {'total': 26, 'executed': 26, 'passed': 26, 'failed': 0, 'notExecuted': 0}
+        if counters is None or any(int(counters.get(name, '-1')) != value for name, value in expected.items()):
+            raise SystemExit(f'Expected 26 passing portable-helper cases with no skips; got {None if counters is None else counters.attrib}')
+        print('All 26 Wasm32/Wasm64 portable-helper, transition and string-factory cases passed without skips.')
+        PY
+      displayName: Check Wasm32 and Wasm64 host lowering and portable helpers
+      condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
