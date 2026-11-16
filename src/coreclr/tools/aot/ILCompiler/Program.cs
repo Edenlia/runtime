@@ -106,6 +106,9 @@ namespace ILCompiler
 
             (TargetArchitecture targetArchitecture, TargetOS targetOS, TargetAbi targetAbi) =
                 Helpers.GetTargetSpec(Get(_command.TargetArchitecture), Get(_command.TargetOS));
+            if (targetArchitecture == TargetArchitecture.Wasm64)
+                throw new CommandLineException("NativeAOT compilation for wasm64 is not supported.");
+
             InstructionSetSupport instructionSetSupport = Helpers.ConfigureInstructionSetSupport(Get(_command.InstructionSet), Get(_command.MaxVectorTBitWidth), isVectorTOptimistic, targetArchitecture, targetOS,
                 "Unrecognized instruction set {0}", "Unsupported combination of instruction sets: {0}/{1}", logger,
                 allowOptimistic: _command.OptimizationMode != OptimizationMode.PreferSize,

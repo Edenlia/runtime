@@ -351,7 +351,7 @@ namespace ILCompiler
             {
                 TargetArchitecture targetArch = Helpers.GetTargetArchitecture(arch);
                 bool first = true;
-                foreach (var instructionSet in Internal.JitInterface.InstructionSetFlags.ArchitectureToValidInstructionSets(targetArch).DistinctBy((instructionSet) => instructionSet.Name, StringComparer.OrdinalIgnoreCase))
+                foreach (var instructionSet in Internal.JitInterface.InstructionSetFlags.ArchitectureToValidInstructionSets(InstructionSetSupportBuilder.GetInstructionSetArchitecture(targetArch)).DistinctBy((instructionSet) => instructionSet.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     // Only instruction sets with are specifiable should be printed to the help text
                     if (instructionSet.Specifiable)

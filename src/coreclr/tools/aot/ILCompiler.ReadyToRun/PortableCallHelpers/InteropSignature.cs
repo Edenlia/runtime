@@ -125,7 +125,7 @@ namespace ILCompiler.PortableCallHelpers
                 throw new LogAsErrorException($"Multi-slot signature token '{token}' is not supported in interop thunks");
         }
 
-        public static string TokenToNativeType(string token)
+        public static string TokenToNativeType(string token, TargetDetails target)
         {
             RejectMultiSlotToken(token);
             return token[0] switch
@@ -135,7 +135,7 @@ namespace ILCompiler.PortableCallHelpers
                 'l' => "int64_t",
                 'f' => "float",
                 'd' => "double",
-                'S' or 'A' or 'T' => "int32_t",
+                'S' or 'A' or 'T' => target.PointerSize == 4 ? "int32_t" : "int64_t",
                 'p' => "PCODE",
                 _ => throw new InvalidSignatureCharException(token[0])
             };
@@ -158,12 +158,13 @@ namespace ILCompiler.PortableCallHelpers
             };
         }
 
-        public static string TokenToArgType(string token)
+        public static string TokenToArgType(string token, TargetDetails target)
         {
             RejectMultiSlotToken(token);
             return token[0] switch
             {
-                'i' or 'T' => "ARG_I32",
+                'i' => "ARG_I32",
+                'T' => target.PointerSize == 4 ? "ARG_I32" : "ARG_I64",
                 'l' => "ARG_I64",
                 'f' => "ARG_F32",
                 'd' => "ARG_F64",

@@ -123,16 +123,16 @@ namespace ILCompiler.PortableCallHelpers
                 pinvokes.Add(entry);
 
             WriteIfDifferent(Path.Combine(options.OutputDirectory, PInvokeFileName), log,
-                w => generator.EmitPInvokeTable(w, context.Target, context.SystemModule, options.PInvokeModules, pinvokes));
+                w => generator.EmitPInvokeTable(w, context.Target, context.SystemModule, options.PInvokeModules, pinvokes), context.Target);
 
             WriteIfDifferent(Path.Combine(options.OutputDirectory, ReversePInvokeFileName), log,
-                w => generator.EmitNativeToInterp(w, callbacks));
+                w => generator.EmitNativeToInterp(w, callbacks), context.Target);
 
             foreach (KeyValuePair<string, MethodDesc> internalCall in internalCallCollector.Signatures)
                 signatures.TryAdd(internalCall.Key, internalCall.Value);
 
             WriteIfDifferent(Path.Combine(options.OutputDirectory, InterpToNativeFileName), log,
-                w => InterpToNativeGenerator.Emit(w, signatures));
+                w => InterpToNativeGenerator.Emit(w, signatures, context.Target), context.Target);
         }
 
         /// <summary>
@@ -140,9 +140,15 @@ namespace ILCompiler.PortableCallHelpers
         /// already there, so that an unchanged file keeps its timestamp and does not retrigger the
         /// native build that consumes it.
         /// </summary>
-        private static void WriteIfDifferent(string path, InteropLogger log, Action<TextWriter> emit)
+        private static void WriteIfDifferent(string path, InteropLogger log, Action<TextWriter> emit, TargetDetails target)
         {
             var buffer = new StringWriter { NewLine = Environment.NewLine };
+            if (target.Architecture == TargetArchitecture.Wasm64)
+            {
+                buffer.WriteLine("// Generated for wasm64; do not link these helpers into a wasm32 runtime.");
+                buffer.WriteLine("static_assert(sizeof(void*) == 8, \"wasm64 call helpers require 64-bit pointers\");");
+                buffer.WriteLine();
+            }
             emit(buffer);
             string content = buffer.ToString();
 

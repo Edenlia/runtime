@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 
+using Internal.JitInterface;
 using Internal.TypeSystem;
 using Internal.TypeSystem.Ecma;
 
@@ -73,14 +74,22 @@ namespace ILCompiler.PortableCallHelpers
                     _entrypoints.Add(new PInvokeInfo(name, "QCall", (EcmaMethod)method, wasmLinkage: false));
                 }
 
-                // String constructors never reach a signature-derived thunk. They are compiled as static
-                // factories ("String Ctor(args)", see WasmLowering.GetStringCtorActualSignature), and the
-                // runtime special-cases them in both directions with hardcoded keys before it consults
-                // this table: GetCookieForCalliSig and GetPortableEntryPointToInterpreterThunk in
-                // src/coreclr/vm/wasm/helpers.cpp. Emitting the declared "void .ctor(this, args)" shape
-                // here would only add entries nothing can look up.
                 if (method.IsConstructor && method.OwningType.IsWellKnownType(WellKnownType.String))
+                {
+                    // String constructors are called as static factories returning String,
+                    // without a receiver. Derive wasm64 keys from the actual parameter types:
+                    // pointer, character/count, and ReadOnlySpan<char> have different shapes.
+                    // Preserve the established wasm32 generated-table contract. The new wasm64
+                    // target explicitly supplies every factory shape instead of relying on
+                    // signatures that happen to be collected from unrelated methods.
+                    if (method.Context.Target.Architecture == TargetArchitecture.Wasm64)
+                    {
+                        MethodSignature factory = WasmLowering.GetStringCtorActualSignature(method.Signature);
+                        string signature = WasmLowering.GetSignature(factory, WasmLowering.GetLoweringFlags(method)).SignatureString;
+                        _signatures.TryAdd(signature, method);
+                    }
                     continue;
+                }
 
                 // A generic has no single signature to generate a thunk from, so the interpreter
                 // would find none at call time - and a release build does not even assert on the
