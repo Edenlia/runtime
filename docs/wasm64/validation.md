@@ -31,6 +31,34 @@ B 删除专项测试后实际重编译并运行既有 128 项，全部通过，0
 命令、输入、输出哈希及 artifact 路径见
 [机器可读记录](evidence/2026-11-16-browser-host-pointer-slots.json)。
 
+## corerun external-assembly 原生边界
+
+以 `f8d91aa99e45eef02b748764ef418df52b4b4541` 为 base，修复
+`libCorerun.js` 的 `ippp` callback signature、原生 allocator 参数、临时/输出
+指针槽和 `int64_t` size。Emscripten 的 `toIndexType` 与 `MEMORY64 == 1` 决定
+最终 memory/table 的 JS API 类型；`MEMORY64=2` 仍使用 8-byte C ABI，
+最终 memory/table globals 使用 i32。wasm64 R2R 在 probe 中明确拒绝，未扩大其支持范围。
+
+精确 Emscripten 6.0.10（`d6c521a7f05449857c76bd99e396895583cf2083`）、
+Node 24.19.0 已实际编译并执行原始 `libCorerun.js` 加 C stub：
+
+| Lane | Base | 修复后 |
+| --- | --- | --- |
+| wasm32，`WASM_BIGINT=0` | PASS | PASS |
+| wasm32，默认 BigInt | PASS | PASS |
+| `-m64` 原生 Memory64/table64 | FAIL：UTF8ToString 收到 BigInt | PASS |
+| `-m64 -sMEMORY64=2` | 同上 | PASS |
+
+修复后检查真实 C/JS callback、已 poison 的输出指针全部字节、64-bit size、
+payload bytes、missing image，以及 wasm32 table-bearing fixture 的原协议路径和
+两种 wasm64 的 R2R 拒绝诊断。fixture 是最小 self-installing version-2 协议模块，
+payload 仅四个已知字节；不是 CLR image，也没有执行托管方法。
+原生 Memory64 fixture 专门匹配当前 probe 的 memory64 import，不代表现有
+`WebcilWasmWrapper` 已能输出它。没有高地址 heap、GC 或完整 runtime 产品验证。
+
+命令、来源和原始日志见
+[corerun probe 记录](evidence/2026-11-16-corerun-pointer-probe.json)。
+
 ## A/B/C/D 历史构建记录
 
 | Lane | 实际被测提交 | 实际结果 | 当前解释 |

@@ -73,6 +73,7 @@ function libCoreRunFactory() {
         $CORERUN__postset: "CORERUN.selfInitialize()",
         $CORERUN__deps: commonDeps,
         BrowserHost_ShutdownDotnet: (exitCode) => _corerun_shutdown(exitCode),
+        BrowserHost_ExternalAssemblyProbe__sig: "ippp",
         BrowserHost_ExternalAssemblyProbe: (pathPtr, outDataStartPtr, outSize) => {
             function asUint8Array(bufferSource) {
                 if (bufferSource instanceof ArrayBuffer) {
@@ -241,9 +242,16 @@ function libCoreRunFactory() {
                 console.error("Webcil payload size is 0; cannot load image");
                 return false;
             }
+#if MEMORY64
+            // The wasm64 compiler does not yet produce ReadyToRun images. Their pointer-typed
+            // exports and table protocol need a separate producer/consumer implementation.
+            if (tableSize > 0) {
+                throw new Error("Wasm64 corerun does not support ReadyToRun Webcil images");
+            }
+#endif
 
             try {
-                wasmTable.grow(tableSize);
+                wasmTable.grow({{{ toIndexType('tableSize') }}});
             } catch (e) {
                 const errorMessage = e instanceof Error ? e.message : String(e);
                 console.error("Failed to grow WebAssembly table for Webcil image:", { wasmPath, errorMessage });
@@ -254,8 +262,8 @@ function libCoreRunFactory() {
             var wasmInstance;
             const sp = stackSave();
             try {
-                const ptrPtr = stackAlloc(4);
-                if (_posix_memalign(ptrPtr, 16, payloadSize)) {
+                const ptrPtr = stackAlloc({{{ POINTER_SIZE }}});
+                if (_posix_memalign({{{ to64('ptrPtr') }}}, {{{ to64('16') }}}, {{{ to64('payloadSize') }}})) {
                     throw new Error("posix_memalign failed for Webcil payload");
                 }
                 if (typeof (wasmExports.__stack_pointer) === "undefined") {
@@ -267,15 +275,16 @@ function libCoreRunFactory() {
                 if (typeof (wasmExports.__async_continuation) === "undefined") {
                     throw new Error("__async_continuation was not preserved by the linker or optimizer");
                 }
-                payloadPtr = HEAPU32[ptrPtr >>> 2 >>> 0];
+                payloadPtr = {{{ makeGetValue('ptrPtr', 0, '*') }}};
                 wasmInstance = new WebAssembly.Instance(wasmModule, {
                     webcil: {
                         memory: wasmMemory,
                         __stack_pointer: wasmExports.__stack_pointer,
                         __coreclr_wasm_rtlrestorecontext_tag: wasmExports.__coreclr_wasm_rtlrestorecontext_tag,
                         __indirect_function_table: wasmTable,
-                        __table_base: new WebAssembly.Global({ value: "i32", mutable: false }, tableStartIndex),
-                        __memory_base: new WebAssembly.Global({ value: "i32", mutable: false }, payloadPtr),
+                        // MEMORY64=2 keeps the 64-bit C ABI but lowers the final memory/table to i32.
+                        __table_base: new WebAssembly.Global({ value: "{{{ MEMORY64 == 1 ? 'i64' : 'i32' }}}", mutable: false }, {{{ toIndexType('tableStartIndex') }}}),
+                        __memory_base: new WebAssembly.Global({ value: "{{{ MEMORY64 == 1 ? 'i64' : 'i32' }}}", mutable: false }, {{{ toIndexType('payloadPtr') }}}),
                         // Runtime-async continuation return value, shared with the runtime module.
                         __async_continuation: wasmExports.__async_continuation
                     }
@@ -304,9 +313,8 @@ function libCoreRunFactory() {
                 wasmInstance.exports.patchWebcilHeader(payloadPtr, payloadSize);
             }
 
-            HEAPU32[outDataStartPtr >>> 2 >>> 0] = payloadPtr;
-            HEAPU32[outSize >>> 2 >>> 0] = payloadSize;
-            HEAPU32[(outSize + 4) >>> 2 >>> 0] = 0;
+            {{{ makeSetValue('outDataStartPtr', 0, 'payloadPtr', '*') }}};
+            {{{ makeSetValue('outSize', 0, 'payloadSize', 'i64') }}};
             return true;
         }
     };

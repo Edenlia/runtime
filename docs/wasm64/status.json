@@ -59,6 +59,14 @@
       "javascript_host_and_rollup": "PASS",
       "guest_execution": "NOT RUN",
       "evidence": "evidence/2026-11-16-browser-host-pointer-slots.json"
+    },
+    {
+      "scope": "corerun external-assembly pointer boundary",
+      "code_status": "IMPLEMENTED",
+      "emscripten_6_0_10_native_stub_lanes": "PASS: wasm32 with and without BigInt, native wasm64, lowered wasm64",
+      "guest_execution": "NOT RUN",
+      "wasm64_r2r": "UNSUPPORTED: explicit probe diagnostic",
+      "evidence": "evidence/2026-11-16-corerun-pointer-probe.json"
     }
   ],
   "milestones": {

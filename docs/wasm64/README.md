@@ -11,6 +11,13 @@ DLL/PDB/ICU 指针槽。它来自历史提交 `32897fcda86e6dce91d2812c0686cd3ad
 这不表示已经执行 CoreCLR guest、高地址内存或完整 browser loader。
 具体证据见 [browser host pointer slots](evidence/2026-11-16-browser-host-pointer-slots.json)。
 
+corerun 的 external-assembly probe 也已改用 Emscripten 的原生指针 signature、
+slot/call/index 宏，并区分原生 Memory64 与 `MEMORY64=2` 的最终 globals。
+在精确 Emscripten 6.0.10 上，四种 C/JS 原生 stub lane 已执行通过；
+这使用最小 WebCIL protocol fixture，尚未执行 CoreCLR guest 或真实 managed image。
+wasm64 R2R image 仍明确拒绝。见
+[corerun probe](evidence/2026-11-16-corerun-pointer-probe.json)。
+
 ## 阅读顺序
 
 1. [原始完整计划](plan/original-cloud-implementation-plan.md)：用户上传文件的逐字节存档，包含所有工作单、命令候选、阶段 gate 和完成标准。

@@ -1,0 +1,45 @@
+{
+  "format_version": 1,
+  "date": "2026-11-16",
+  "base_sha": "f8d91aa99e45eef02b748764ef418df52b4b4541",
+  "scope": "src/coreclr/hosts/corerun/wasm/libCorerun.js external assembly probe",
+  "artifact_root": "UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Runtime/Corerun",
+  "toolchain": {
+    "emscripten_version": "6.0.10",
+    "emscripten_sha": "d6c521a7f05449857c76bd99e396895583cf2083",
+    "emsdk_release_hash": "666337b525e673e769121856d175f6f52b8ead64",
+    "node_version": "24.19.0"
+  },
+  "commands": [
+    "<emsdk>/python/3.13.3_64bit/python.exe <artifact_root>/run_probe.py <worktree> before",
+    "<emsdk>/python/3.13.3_64bit/python.exe <artifact_root>/run_probe.py <worktree> after"
+  ],
+  "command_detail": "Each results.json records the exact emcc arguments. Standalone C stubs link the actual JS library with native Wasm exceptions, real posix_memalign and matching minimal self-installing version-2 protocol fixtures; no CoreCLR runtime is linked.",
+  "results": [
+    { "lane": "wasm32 WASM_BIGINT=0", "base": "PASS", "candidate": "PASS" },
+    { "lane": "wasm32 default BigInt", "base": "PASS", "candidate": "PASS" },
+    { "lane": "wasm64 -m64", "base": "FAIL: UTF8ToString received BigInt", "candidate": "PASS" },
+    { "lane": "wasm64 -m64 -sMEMORY64=2", "base": "FAIL: UTF8ToString received BigInt", "candidate": "PASS" }
+  ],
+  "candidate_working_file_sha256": "69cebb374a4a0e1935070c74236660355d265617fe46d04b9321994bbb617160",
+  "checks": [
+    "Real native-to-JS callback and JS-to-native posix_memalign arguments",
+    "Full poisoned pointer output slot and int64_t size overwritten correctly",
+    "Four payload bytes installed into native heap and read by C",
+    "Missing image returns false",
+    "Existing wasm32 table-bearing protocol fixture path preserved",
+    "Both wasm64 lanes reject table-bearing images with explicit ReadyToRun diagnostic"
+  ],
+  "raw_evidence": ["probe.c", "deps.js", "run_probe.py", "before/results.json", "after/results.json"],
+  "native_calls_executed": true,
+  "coreclr_runtime_linked": false,
+  "guest_executed": false,
+  "browser_executed": false,
+  "high_address_observed": null,
+  "limitations": [
+    "Minimal version-2 protocol fixtures contain four known payload bytes, not a real managed WebCIL image.",
+    "Native Memory64 fixture was constructed for the probe; current WebcilWasmWrapper only emits the memory32 IL wrapper.",
+    "No CLR startup, interpreter guest, GC, high-address heap, real R2R or UE packaging acceptance.",
+    "Emscripten 6.0.10 still has the independently observed table64 assembler issue; this C stub uses direct C-to-object compilation."
+  ]
+}
