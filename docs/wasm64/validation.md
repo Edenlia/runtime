@@ -90,6 +90,39 @@ pointer macros 和 `ippp` 转换存在；这是源码兼容性检查，未执行
 这些检查仍是 C stub，没有链接 CoreCLR、执行托管方法、浏览器或高地址 heap；
 完整 loader/WebCIL/JS interop gate 保持 NOT RUN。
 
+## Browser PAL ABI
+
+`67e37f25af2` 仅增加 RandomBytes 与 GetLocaleInfo 的 Emscripten 原生指针
+签名。原始 64 位生产 bundle 的四个指针入口场景失败，候选在 wasm32、
+native64、lowered64、lowered64 + pthread/WasmFS 四条 Node lane 共 20 项通过。
+Chrome 157 的真实 shared heap 另有五项通过，包括真正 WebCrypto 分批随机数与
+shared-buffer 拒绝负控。wasm32 + WASM_BIGINT=0 的既有 HEAP64 链接失败仍未解决，
+不列为 PASS。没有执行 CoreCLR，也没有观测高地址。
+详见 [独立记录](evidence/2026-11-17-system-native-browser-abi.md)。
+
+## 生产 IL WebCIL Memory64
+
+本次使用实际生产转换器处理真实 managed IL 和 matching wasm64 CoreLib，
+不把手写 protocol fixture 作为生产者。普通 task build 无 warning/error，
+现有 WebcilInWasmSizesTests 类的 32 项通过；SDK 真实配置与 build 转换 target
+的八次调用验证 Mono/CoreCLR 默认值、精确 RID 回退、显式 lowering，以及
+false → true → true（保持输出时间戳）→ false 的增量行为。
+
+生产 wrapper 在 wasm32、native64 和 lowered64 的 Node 24 / Chrome 157
+运行中均通过，每条 lane 包含两份 assembly 的 buffered/streaming 四次加载。
+检查实际 memory/base imports、getWebcilSize 的完整四字节值、16-byte
+allocation 对齐、native memory bounds 与逐字节 payload、8-byte callback
+指针槽、真实 table.grow 的 Number/BigInt 边界，以及错误 profile 的 LinkError、
+单次释放和不注册。Mono v0 与 CoreCLR v1 对两份真实输入的默认输出，都与
+另行构建的未修改 baseline 生产转换器逐字节一致。
+
+公开 `WasmWebcilMemory64` 描述最终 imports，不代表 C ABI。lowered64 必须
+显式 false；独立的 TargetArchitecture guard 保证这仍不能采用 wasm32
+prebuilt R2R。build/publish stamps 与 per-file profile 检查均包含该选择。
+这些是 unshared wrapper/native C stub 的真实执行，未链接 CoreCLR；
+shared-memory wrapper、完整 SDK publish dispatch 与 wasm64 R2R 仍不支持。
+见 [合同](webcil-memory64.md) 与 [receipt](evidence/2026-11-17-webcil-memory64.json)。
+
 ## A/B/C/D 历史构建记录
 
 | Lane | 实际被测提交 | 实际结果 | 当前解释 |
@@ -110,7 +143,27 @@ pointer macros 和 `ippp` 转换存在；这是源码兼容性检查，未执行
 - 原样 backport 到 pinned base 后构建独立 MC，SHA256 `acfd06dbd88edabf65ba37181769d92c76dccfa6e9701e9e2724a4e5a5775025`。
 - D 的 C/C++/link 使用 stock SDK，`.S` 通过外部实验 adapter 使用该 MC；类型检查未关闭。
 - receipts 里的 source repo 是 base对象来源；tested-source snapshot和补丁/二进制哈希用于标识实际测试组件。不能把恢复了旧实验 patch 的工作树冒称用户修复源码。
-- 当前没有构建完整 fixed Clang/SDK，没有证明所有 table64 instructions 均被修复。
+- 上述历史 D 只使用独立 MC，没有构建完整 fixed Clang/SDK，也没有证明所有 table64 instructions 均被修复。
+
+### 本轮普通 Clang 工具链
+
+2026-11-17 的新验收使用精确 Emscripten 6.0.10：
+LLVM `a06d9165905ce89b5ffef2bbb84c886d60a9b8bf` 加用户
+`8620eb7b55e857a5f6e430be624b5a6605e8c53e` 的原样 checker patch，
+构建普通 Release/assertions-on Clang 与 llvm-mc；实际 Clang SHA256
+`6c5ce14d830a38be10991a4d639a881b32d6399e3d59717cf8f9d3ce732590a4`。
+通过 process-local `EM_LLVM_ROOT` 选择独立 overlay，保留可追溯的 stock
+linker/sysroot 与其它工具，不覆盖原 SDK binaries，不使用外部 MC adapter 或
+type-check suppression。
+
+正常 driver 的 integrated assembler 在 wasm32/wasm64 的 named/default-zero
+table 形式接受四个正确输入、拒绝四个错误宽度输入；compiler-generated C →
+assembly → object → module 的 wasm32/native64/lowered64 三条 lane 真实执行通过。
+另有 pthread/WasmFS 的 C/JS data/function-pointer ABI smoke 通过。
+原始记录保持在 task artifact store 的 `UE/FixedProbe` 与
+`Toolchain/fixed-llvm/provenance.json`，不被本次 WebCIL 记录覆盖；
+其工具链身份也列于 [WebCIL receipt](evidence/2026-11-17-webcil-memory64.json)。
+仓库 pin 6.0.2 未变，未声称该 pin 的二进制矩阵或所有 table64 指令均已验收。
 
 ## 可使用的产品入口
 
@@ -129,7 +182,7 @@ stock pinned SDK 缺 table64 修复，不能预期完整 native 命令直接成�
 
 ## 尚未验收
 
-CoreCLR guest execution、真实 native双向调用、GC/EH/异步恢复、高地址/growth/live-set、normal browser host/IL WebCIL、完整JS interop、真实R2R方法执行和安装workload后的应用运行均未在当前checkpoint验收。
+CoreCLR guest execution、guest 内真实 native 双向调用、GC/EH/异步恢复、高地址/growth/live-set、链接 CoreCLR 的 browser host/IL WebCIL、完整 JS interop、真实 R2R 方法执行和安装 workload 后的应用运行均未在当前 checkpoint 验收。上述真实 producer/loader 与 PAL native-stub 检查不代替这些 guest 验收。
 原始完整计划中的全部 baseline lanes也不能由局部native/host记录推定完成。
 
 ## 后续运行摘要模板

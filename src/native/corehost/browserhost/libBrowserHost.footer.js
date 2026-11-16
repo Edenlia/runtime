@@ -77,6 +77,11 @@ function libBrowserHostFactory() {
         executeAssembly: new Function("name", "count", "args",
             "return _BrowserHost_ExecuteAssembly({{{ to64('name') }}}, count, {{{ to64('args') }}});"),
         loadIcuData: new Function("ptr", "return _wasm_load_icu_data({{{ to64('ptr') }}});"),
+        // A lowered wasm64 build retains 8-byte native pointers but imports i32
+        // memory/table indices. Select the final module model at link time.
+        webcilIndexType: "{{{ MEMORY64 == 1 ? 'i64' : 'i32' }}}",
+        toWebcilIndex: new Function("index", "return {{{ toIndexType('index') }}};"),
+        growWebcilTable: new Function("table", "count", "return table.grow({{{ toIndexType('count') }}});"),
     };
     mergeBrowserHost.$browserHostNative__deps = ["malloc", "free", "posix_memalign", ...explicitDeps];
     addToLibrary(mergeBrowserHost);

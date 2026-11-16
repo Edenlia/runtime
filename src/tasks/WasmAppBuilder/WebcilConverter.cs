@@ -22,6 +22,12 @@ public class WebcilConverter
     private readonly NET.WebAssembly.Webcil.WebcilConverter _converter;
 
     private LogAdapter Log { get; }
+
+    public bool Memory64
+    {
+        get => _converter.Memory64;
+        set => _converter.Memory64 = value;
+    }
     private WebcilConverter(NET.WebAssembly.Webcil.WebcilConverter converter, string inputPath, string outputPath, LogAdapter logger)
     {
         _converter = converter;

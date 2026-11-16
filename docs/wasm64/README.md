@@ -1,7 +1,7 @@
 # CoreCLR wasm64 整体进度入口
 
 本目录随 `wasm64/eden-main` 维护完整实施计划、决策、分支关系、验证记录与下一步任务。
-记录日期：2026-11-16。原生构建 checkpoint：`259251bb79268a221f0019edd1ad9d384fa1a3c3`。
+记录日期：2026-11-17。原生构建 checkpoint：`259251bb79268a221f0019edd1ad9d384fa1a3c3`。
 本分支直接继承 D，因此已包含 type-system 与 A/B/C/D 的全部当前实现。
 当前成果是 target/layout/native build checkpoint，整个 wasm64 port 尚未完成。
 
@@ -22,6 +22,24 @@ slot/call/index 宏，并区分原生 Memory64 与 `MEMORY64=2` 的最终 global
 这使用最小 WebCIL protocol fixture，尚未执行 CoreCLR guest 或真实 managed image。
 wasm64 R2R image 仍明确拒绝。见
 [corerun probe](evidence/2026-11-16-corerun-pointer-probe.json)。
+
+2026-11-17 的 `67e37f25af2` 为 Browser PAL 的 RandomBytes/GetLocaleInfo
+增加原生指针签名，Node 的 20 个场景及 Chrome 的 shared-heap 五场景通过；
+其中 lowered64 保留 i64 C 指针。它没有改写 crypto/locale 算法，也没有验证
+CoreCLR guest 或高地址。见 [Browser PAL ABI](evidence/2026-11-17-system-native-browser-abi.md)。
+
+生产 IL WebCIL 转换器与 browser host 现可显式区分最终 Memory32/Memory64：
+原生 wasm64 使用 i64 imports，UE `MEMORY64=2` 显式选择 i32 imports，
+同时保留 8-byte C ABI。真实 IL/CoreLib 的生产输出已在 Node 和 Chrome 的
+buffered/streaming 路径通过；Mono v0/CoreCLR v1 默认输出字节一致，
+SDK 配置与双向增量切换通过。仍是 unshared IL wrapper 与 native C stub
+验证；wasm64 R2R、完整 SDK lane dispatch 和 CoreCLR guest 均未完成。
+合同与证据见 [IL WebCIL](webcil-memory64.md)。
+
+本轮已从精确 SDK 6.0.10 的 LLVM revision 构建普通 fixed Clang/llvm-mc，
+通过正确/错误索引宽度的 integrated-assembler 对照及真实 ABI smoke。
+该 task-local toolchain 不改变仓库的 6.0.2 pin，也不重写历史 D 构建身份；
+具体来源与局限见 [验证记录](validation.md#本轮普通-clang-工具链)。
 
 ## 阅读顺序
 

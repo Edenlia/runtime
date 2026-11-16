@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "updated_at": "2026-11-16",
+  "updated_at": "2026-11-17",
   "tracking_branch": "wasm64/eden-main",
   "implementation_checkpoint": "259251bb79268a221f0019edd1ad9d384fa1a3c3",
   "upstream_base": "2b5ea9af2991abe307beb855729ab52409d6333f",
@@ -74,6 +74,31 @@
       "emscripten_6_0_10_emitted_bundle_native_stubs": "PASS: six lanes including wasm32 early/deferred, native/lowered wasm64 and absent ICU",
       "guest_execution": "NOT RUN",
       "evidence": "evidence/2026-11-16-browser-host-native-boundary.json"
+    },
+    {
+      "scope": "System.Native.Browser native pointer import signatures",
+      "commit": "67e37f25af2",
+      "code_status": "IMPLEMENTED",
+      "node_native_stubs": "PASS: 20 cases across wasm32, native/lowered wasm64 and lowered pthread/WasmFS",
+      "chrome_shared_heap": "PASS: five cases, real WebCrypto and shared-buffer negative control",
+      "wasm32_without_bigint": "KNOWN FAILURE: existing HEAP64 linkage",
+      "guest_execution": "NOT RUN",
+      "high_address_observed": false,
+      "evidence": "evidence/2026-11-17-system-native-browser-abi.json"
+    },
+    {
+      "scope": "Intrinsic unshared IL WebCIL producer and browser host",
+      "code_status": "IMPLEMENTED",
+      "existing_source_linked_test_class": "PASS: 32 cases",
+      "default_byte_compatibility": "PASS: real IL and matching CoreLib, Mono v0 and CoreCLR v1",
+      "sdk_configuration_and_incremental_conversion": "PASS: eight real target invocations, including both profile directions and unchanged-profile skip",
+      "node_and_chrome_native_stubs": "PASS: wasm32, native wasm64 and lowered wasm64; production IL/CoreLib buffered and streaming",
+      "shared_memory_wrapper": "NOT SUPPORTED",
+      "wasm64_r2r": "NOT SUPPORTED: native ABI guard also applies with Memory64=false",
+      "full_sdk_publish_dispatch": "NOT RUN: remaining browser-wasm assumptions",
+      "guest_execution": "NOT RUN",
+      "evidence": "evidence/2026-11-17-webcil-memory64.json",
+      "contract": "webcil-memory64.md"
     }
   ],
   "milestones": {
@@ -85,13 +110,21 @@
     "wasm64_codegen": "NOT RUN",
     "r2r_execution": "NOT RUN",
     "installed_sdk_workload": "NOT RUN",
-    "wasm64_continuous_matrix": "NOT RUN"
+    "wasm64_continuous_matrix": "NOT RUN",
+    "normal_fixed_clang_smoke": "PASS: explicit SDK 6.0.10, ordinary integrated assembler and three ABI lanes",
+    "il_webcil_producer_host_protocol": "PASS: unshared native-stub scope only"
   },
   "llvm": {
     "fix_commit": "8620eb7b55e857a5f6e430be624b5a6605e8c53e",
-    "tested_transport": "Unmodified backport onto pinned base, standalone MC, stock SDK C/C++/link",
-    "full_fixed_clang_built": false,
-    "type_checking_disabled": false
+    "historical_d_transport": "Unmodified backport onto pinned base, standalone MC, stock SDK C/C++/link",
+    "tested_transport": "Ordinary fixed Clang, process-local EM_LLVM_ROOT overlay; stock SDK linker/sysroot",
+    "full_fixed_clang_built": true,
+    "emscripten_tested_version": "6.0.10",
+    "llvm_tested_revision": "a06d9165905ce89b5ffef2bbb84c886d60a9b8bf",
+    "clang_sha256": "6c5ce14d830a38be10991a4d639a881b32d6399e3d59717cf8f9d3ce732590a4",
+    "runtime_sdk_pin_changed": false,
+    "type_checking_disabled": false,
+    "all_table64_instructions_validated": false
   },
   "policy": {
     "new_architecture_specific_test_harnesses_removed": true,
@@ -100,9 +133,10 @@
   },
   "next_steps": [
     "Review A/B/C and native-only D delta",
-    "Validate normal fixed Clang/SDK path",
+    "Build current native runtime with the verified ordinary fixed Clang path",
     "Complete target-aware runtime runner/CORE_ROOT and minimal interpreter/native ABI execution",
     "Joint ABI/GC/browser interpreter checkpoint, including real high addresses",
+    "Shared-memory WebCIL or verified loose-PE hosting for UE; full browser-wasm64 SDK dispatch",
     "JS, JIT/R2R, SDK publishing, existing CI matrix expansion"
   ],
   "evidence_inventory": "evidence/inventory.json"

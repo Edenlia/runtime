@@ -30,6 +30,9 @@ export type EmsAmbientSymbolsType = EmscriptenModuleInternal & {
         initializeDotnet: (count: number, keys: CharPtrPtr, values: CharPtrPtr) => number;
         executeAssembly: (name: number, count: number, args: number) => number;
         loadIcuData: (ptr: VoidPtr) => number;
+        webcilIndexType: "i32" | "i64";
+        toWebcilIndex: (index: number) => number | bigint;
+        growWebcilTable: (table: WebAssembly.Table, count: number) => number | bigint;
     };
 
     dotnetUpdateInternals: (internals?: Partial<InternalExchange>, subscriber?: InternalExchangeSubscriber) => void;

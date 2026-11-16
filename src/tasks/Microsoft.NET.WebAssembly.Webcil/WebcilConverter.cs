@@ -50,6 +50,9 @@ public class WebcilConverter
 
     public bool WrapInWebAssembly { get; set; } = true;
 
+    /// <summary>The final wrapper memory index width, independent of the native pointer ABI.</summary>
+    public bool Memory64 { get; set; }
+
     private WebcilConverter(string inputPath, string outputPath, int webcilVersion)
     {
         if (webcilVersion != 0 && webcilVersion != 1)
@@ -85,7 +88,7 @@ public class WebcilConverter
             using var memoryStream = new MemoryStream(checked((int)inputStream.Length));
             WriteConversionTo(memoryStream, inputStream, peInfo, wcInfo);
             memoryStream.Flush();
-            var wrapper = new WebcilWasmWrapper(memoryStream, selfInstalling: _webcilVersion >= 1);
+            var wrapper = new WebcilWasmWrapper(memoryStream, selfInstalling: _webcilVersion >= 1, memory64: Memory64);
             memoryStream.Seek(0, SeekOrigin.Begin);
             wrapper.WriteWasmWrappedWebcil(outputStream);
         }

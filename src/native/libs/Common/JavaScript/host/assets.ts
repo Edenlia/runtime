@@ -118,7 +118,7 @@ function allocWebcilPayload(payloadSize: number): number {
 function buildWebcilImports(memory: WebAssembly.Memory, payloadPtr: number, tableSize: number): Record<string, WebAssembly.ImportValue> {
     const webcilImports: Record<string, WebAssembly.ImportValue> = {
         memory,
-        __memory_base: new WebAssembly.Global({ value: "i32", mutable: false }, payloadPtr),
+        __memory_base: new WebAssembly.Global({ value: _ems_.browserHostNative.webcilIndexType, mutable: false }, _ems_.browserHostNative.toWebcilIndex(payloadPtr)),
     };
     if (tableSize > 0) {
         const stackPointer = _ems_.wasmExports?.__stack_pointer;
@@ -133,13 +133,12 @@ function buildWebcilImports(memory: WebAssembly.Memory, payloadPtr: number, tabl
         if (!asyncContinuation) {
             throw new Error("__async_continuation was not preserved by the linker or optimizer");
         }
-        const tableStartIndex = _ems_.wasmTable.length;
-        _ems_.wasmTable.grow(tableSize);
+        const tableStartIndex = pointerToNumber(_ems_.browserHostNative.growWebcilTable(_ems_.wasmTable, tableSize));
         webcilImports.__stack_pointer = stackPointer;
         webcilImports.__coreclr_wasm_rtlrestorecontext_tag = rtlRestoreContextTag as unknown as WebAssembly.ImportValue;
         webcilImports.__async_continuation = asyncContinuation as unknown as WebAssembly.ImportValue;
         webcilImports.__indirect_function_table = _ems_.wasmTable;
-        webcilImports.__table_base = new WebAssembly.Global({ value: "i32", mutable: false }, tableStartIndex);
+        webcilImports.__table_base = new WebAssembly.Global({ value: _ems_.browserHostNative.webcilIndexType, mutable: false }, _ems_.browserHostNative.toWebcilIndex(tableStartIndex));
     }
     return webcilImports;
 }

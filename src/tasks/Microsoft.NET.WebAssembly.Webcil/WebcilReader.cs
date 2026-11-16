@@ -486,6 +486,23 @@ public sealed partial class WebcilReader : IDisposable
         return true;
     }
 
+    /// <summary>Reads the final imported memory index width for Webcil wrapper cache validation.</summary>
+    public static bool TryReadWebcilInWasmMemory64(Stream stream, out bool memory64)
+    {
+        memory64 = false;
+        try
+        {
+            using var reader = new WasmModuleInfoReader(stream);
+            bool? value = reader.Read().Memory64;
+            memory64 = value.GetValueOrDefault();
+            return value.HasValue;
+        }
+        catch (Exception ex) when (ex is BadImageFormatException or EndOfStreamException or OverflowException)
+        {
+            return false;
+        }
+    }
+
     private static uint ReadUInt32LE(byte[] bytes, int offset)
         => (uint)(bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24));
 
