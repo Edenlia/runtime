@@ -1,0 +1,74 @@
+{
+  "branch": "wasm64/02-portable-helpers",
+  "base": "72d457a4c6a192e5f46be3f37ca7a9737cc7146a",
+  "scope_files": {
+    "eng/wasm/tests/README-portable-helpers.md": "178b891c7cf6026e73e75c36944b20fe248c2280e83c3b310b01636b20d976b3",
+    "eng/wasm/tests/test_callhelper_targets.py": "3d370f7b004e2df9dbc5c6a8707924090f182ddc4c3562dd831448234012bd97",
+    "src/coreclr/tools/Common/CallingConvention/ArgIterator.cs": "d2da5c322bef9ce58b7a7efb8d20909598d55bc14bb82cabbddd158f39daef11",
+    "src/coreclr/tools/Common/CallingConvention/TransitionBlock.cs": "4a545669ec197110d3e995e17bee49417efa4447401d421e0439a17f57d85e12",
+    "src/coreclr/tools/Common/Compiler/InstructionSetSupport.cs": "1871503d5a798fe165bedaa99a8b3ba91113499a44d8f202632c9fdb3c3c40a7",
+    "src/coreclr/tools/Common/InstructionSetHelpers.cs": "5480418bd3f6bc6e76fe2f8d3598a15d0422a22d65aa8ec411cb19ba434a60b6",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmPortableHelperTargetTests.cs": "05c3cfa905868630e8774c22f7eac5d115e896163a9be8b96f201e83c6dd98ce",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmTestHelpers.cs": "91826cc9442d93dcaecc44e2c1244b5b4850939ba5d8e9d7cb97bbfd879e408e",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/Compiler/ReadyToRunCompilerContext.cs": "c9d291b784b13655de76d6325d8270598cca2b5958828c4a068f9e2a47fa273f",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/PortableCallHelpers/InternalCallSignatureCollector.cs": "b00518c4657c42977a0fe5201745c888bc79ad02b512dd9bcbe710b3b40c4534",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/PortableCallHelpers/InteropSignature.cs": "f2cea56aa42bef11983a376ede7754348552a3cc13673205954637da2da52218",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/PortableCallHelpers/InterpToNativeGenerator.cs": "a5568af459f40da461726fb2a7940c1adfc243f3a8724fb33443de5c4c18cb85",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/PortableCallHelpers/PInvokeCollector.cs": "0822c48ef4ce9c9eb15d4d8e36236e3cefc1b30366d5de6986211d10dfbfb4c8",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/PortableCallHelpers/PInvokeTableGenerator.cs": "1f73718253fe416137656e53af863764e24940429e6efb71ee7b6ee433ff0d03",
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun/PortableCallHelpers/PortableCallHelpersGenerator.cs": "2ffd329b6f0400d8f604a277ac2c7777d8fbcb0b450b248e3d989e396ebf36ee",
+    "src/coreclr/tools/aot/ILCompiler/Program.cs": "5dec158f09377689cfed87c5d76f9c78315469404436ccb5e435b6f5752ce6e5",
+    "src/coreclr/tools/aot/crossgen2/Crossgen2RootCommand.cs": "ad28982533489642b3c0fd675677d8cbbe80bb78313b1430f3dfff2508d87d01",
+    "src/coreclr/tools/aot/crossgen2/Program.cs": "1eed78e7fa8327a9277d16cb0a0f39eef0963f501088316d3027e9144266e744",
+    "src/coreclr/tools/aot/crossgen2/Properties/Resources.resx": "b4613264b51d087e5f068d0483dea51a6820a467a4ae567055f242415cdc0a9d",
+    "src/coreclr/vm/wasm/generate-coreclr-helpers.cmd": "1bb3a809e01a691dd20dacac859650ab4d50bc4ca36019bd14afac9cd5a25a16",
+    "src/coreclr/vm/wasm/generate-coreclr-helpers.md": "ba8321a317ba06c44981c7db7504293c3290629a704c438311dfc25373500996",
+    "src/coreclr/vm/wasm/generate-coreclr-helpers.proj": "0d10ff9b87c173f2d0759a89ca87ec4514e98b8070de2335a439d1053452f920",
+    "src/coreclr/vm/wasm/generate-coreclr-helpers.sh": "9c8b3b5963306c4247b50df2e88475ce44ce94fe8b72d34e078389eac25f5c09"
+  },
+  "source_hashes_match_tested_snapshot": true,
+  "clean_baseline": "/workspace/work/wasm64/evidence/split-portable-helpers/clean72-baseline-manifest.json",
+  "normal_b_cg2_build": {
+    "log": "/workspace/work/wasm64/evidence/split-portable-helpers/b-standard-cg2.log",
+    "result": "passed",
+    "warnings": 0,
+    "errors": 0
+  },
+  "own_b_corelib32_build": {
+    "log": "/workspace/work/wasm64/evidence/split-portable-helpers/b-own-wasm32-corelib.log",
+    "result": "passed",
+    "warnings": 0,
+    "errors": 0
+  },
+  "host_cases": {
+    "WasmArgumentLayoutTests": {
+      "total": 128,
+      "passed": 128
+    },
+    "WasmPortableHelperTargetTests": {
+      "total": 26,
+      "passed": 26
+    }
+  },
+  "host_test_log": "/workspace/work/wasm64/evidence/split-portable-helpers/b-host-tests.log",
+  "host_test_trx": "/workspace/work/wasm64/evidence/split-portable-helpers/b-existing128-new26.trx",
+  "full_generation": {
+    "cases": 13,
+    "passed": 13,
+    "log": "/workspace/work/wasm64/evidence/split-portable-helpers/b-full-generation.log",
+    "fresh_closures": "/workspace/work/wasm64/evidence/split-portable-helpers/fresh-closure-fixtures.json",
+    "note": "Release wasm32 output byte-identical to checked-in files; wasm64 apphost and ordinary DLL output identical; output remains in evidence, not canonical native source."
+  },
+  "external_inputs": "/workspace/work/wasm64/evidence/split-portable-helpers/fixture-inputs.json",
+  "native_tool_inputs": "/workspace/work/wasm64/evidence/split-portable-helpers/baseline-preparation.json",
+  "llvm_dependency": "Managed portable generation does not invoke LLVM or initialize a guest JIT. The same immutable normal wasm32 host ELF tool inputs are used for clean-base and B builds. No native64/C++/guest test is claimed.",
+  "nativeaot_guard": "Guard source included; no additional NativeAOT compiler build/test was run in B (source-frozen after required 154+13 gates).",
+  "no_native_a_icu_ci_sources": true,
+  "no_guest_execution": true,
+  "no_pr_created": true,
+  "push_status": "not pushed; parent owns publication",
+  "commit": "148a4065a580b7384103764803ecf237fbfd30bd",
+  "parent_commit": "72d457a4c6a192e5f46be3f37ca7a9737cc7146a",
+  "source_tree_status": "clean",
+  "source_files_equal_tested_snapshot": true
+}

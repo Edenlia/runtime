@@ -1,0 +1,94 @@
+{
+  "kind": "tested-source-snapshot",
+  "llvm_base_revision": "b7cbe9c6cf3ea97cc5822cf324cbcef06f54a397",
+  "llvm_base_repository": "https://github.com/dotnet/llvm-project.git",
+  "base_object_repository": "/workspace/work/wasm64/tools/llvm-table64-source",
+  "base_working_tree_is_user_source": false,
+  "user_revision": "8620eb7b55e857a5f6e430be624b5a6605e8c53e",
+  "application": "Unmodified user patch applied to SDK LLVM pin; not a build of the entire user branch",
+  "patch": {
+    "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/user-8620.patch",
+    "sha256": "2318fba38d1b4ecb1fe4af370b3e9283d164a70bddb8a8da9a05c92e681e5fb1",
+    "bytes": 3938
+  },
+  "source_files": [
+    {
+      "relative_path": "llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.cpp",
+      "base_git_blob": "47641ca93350d05a7489befdf501208d02d18e06",
+      "base": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/base-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.cpp",
+        "sha256": "fc56f46289e3b2358d0bce79c24983fec74655a6af96a1c1ec4dffea7ff469a4",
+        "bytes": 24859
+      },
+      "tested": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/tested-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.cpp",
+        "sha256": "86e020762c78f37613ed8f72b58bd99ccf2dfb4f057ffa32caea2ddefb1976fe",
+        "bytes": 26049
+      }
+    },
+    {
+      "relative_path": "llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.h",
+      "base_git_blob": "e6fddf98060265f7a51c754999b178fc3b7caa6e",
+      "base": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/base-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.h",
+        "sha256": "3dfcf5003b7124b083df932b8057278d20fc1e3f7bcab2597db7d191c83f1327",
+        "bytes": 4196
+      },
+      "tested": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/tested-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.h",
+        "sha256": "931027187edaf7b0b7cd6255df5064fae4574369716170cb2d5012efe409adcc",
+        "bytes": 4326
+      }
+    }
+  ],
+  "reconstruction_matches_tested_sources": true,
+  "assembler": {
+    "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/bin/llvm-mc",
+    "sha256": "acfd06dbd88edabf65ba37181769d92c76dccfa6e9701e9e2724a4e5a5775025",
+    "bytes": 3559680
+  },
+  "build_log": {
+    "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/build.log",
+    "sha256": "0bd7a24e3148a4029accd5000a111ef8940b366ca9279dccfbd16a72a4994b1d",
+    "bytes": 470
+  },
+  "patch_application": {
+    "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/patch-application.json",
+    "sha256": "e015968de4c045d6bc3923b5d61e8bcab0f2ea5147d8e16697dadbb78c4ae663",
+    "bytes": 328
+  },
+  "build_cache_artifacts": [
+    {
+      "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/user-patch-build/bin/llvm-mc",
+      "sha256": "acfd06dbd88edabf65ba37181769d92c76dccfa6e9701e9e2724a4e5a5775025",
+      "bytes": 3559680
+    },
+    {
+      "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/user-patch-build/lib/libLLVMWebAssemblyAsmParser.a",
+      "sha256": "1e58684ec0074c0852bb1e72e15ed96764133ca6362269e006a058607d2d661f",
+      "bytes": 337178
+    },
+    {
+      "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/user-patch-build/lib/Target/WebAssembly/AsmParser/CMakeFiles/LLVMWebAssemblyAsmParser.dir/WebAssemblyAsmTypeCheck.cpp.o",
+      "sha256": "97ce6b0610feb363087e5b2d4ff68a5261c52fd1f1a464875522e79478fc5aa6",
+      "bytes": 110728
+    },
+    {
+      "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/user-patch-build/lib/Target/WebAssembly/AsmParser/CMakeFiles/LLVMWebAssemblyAsmParser.dir/WebAssemblyAsmParser.cpp.o",
+      "sha256": "515123397880189a1dcbb0decf192fb4571b7810a0b95225d9833a22563d4262",
+      "bytes": 219616
+    }
+  ],
+  "prior_quick_tests": {
+    "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/quick-results.json",
+    "sha256": "4c424848c5aed2a31f2603d3a043a3bbbbc7b1ae1c781ab04e58ac0c7cba941b",
+    "bytes": 9197
+  },
+  "prior_cached_runtime_integration": {
+    "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/runtime-integration/manifest.json",
+    "sha256": "46165ee4947dec0485d511be54481cea10e405769c2c419274eb3778c0a9906c",
+    "bytes": 20505
+  },
+  "normal_fixed_clang_built": false,
+  "old_ours_mc_used": false
+}

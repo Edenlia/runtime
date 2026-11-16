@@ -1,0 +1,927 @@
+{
+  "status": "PASS",
+  "build_lane": "patched",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/work/wasm64/target-build/eng/wasm/tests/check_memory64_products.py",
+    "--emsdk",
+    "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64",
+    "--runtime-archive",
+    "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_static.a",
+    "--runtime-archive",
+    "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_gen_static.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libclrinterpreter.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Globalization.Native/libSystem.Globalization.Native.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.IO.Compression.Native/libSystem.IO.Compression.Native.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.TimeZoneData.Invariant.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.TimeZoneData.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.a",
+    "--native-library",
+    "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native.Browser/libSystem.Native.Browser.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libstubs.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libc.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libdlmalloc.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libclang_rt.builtins-wasmsjlj.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libc++-wasmexcept.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libc++abi-wasmexcept.a",
+    "--native-library",
+    "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libunwind-wasmexcept.a",
+    "--corerun",
+    "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun.wasm",
+    "--kit",
+    "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link",
+    "--icu",
+    "/workspace/work/wasm64/target-build/artifacts/bin/icu/browser-wasm64/Release/native",
+    "--node",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--node-arg=--experimental-wasm-exnref",
+    "--build-lane",
+    "patched",
+    "--toolchain-evidence",
+    "/workspace/work/wasm64/evidence/split-native-integration/release64/producer.json",
+    "--report",
+    "/workspace/work/wasm64/evidence/split-native-integration/release64/products.json"
+  ],
+  "inspector": {
+    "path": "/workspace/work/wasm64/target-build/eng/wasm/tests/check_memory64_products.py",
+    "sha256": "3138a8f0b97c4e2c8866370727b769e6752bc5c206f4ba53ad6d44ed4907f859"
+  },
+  "scope": "native product architecture and module validation; no guest instantiation or execution",
+  "toolchain_evidence": {
+    "path": "/workspace/work/wasm64/evidence/split-native-integration/release64/producer.json",
+    "sha256": "a678ca9559a779f1e4f62a0a574099ed117b152ce8e3c3e6d826fee1f40deed4",
+    "record": {
+      "build_lane": "patched",
+      "build_status": "success",
+      "lane_description": "SDK LLVM b7 + unmodified user 8620 MC via external type-checking ASM adapter",
+      "runtime_repo": "/workspace/work/wasm64/target-build",
+      "runtime_revision": "291ce28441f725fbd020cdea78ebd8eea2237a3b",
+      "runtime_dirty_status": "",
+      "expected_runtime_revision": "291ce28441f725fbd020cdea78ebd8eea2237a3b",
+      "source_stage": "Final D native integration after independent A+B+C merges",
+      "configuration": "Release",
+      "architecture": "wasm64",
+      "build_subdirectory": "user-llvm8620",
+      "command": [
+        "/usr/bin/taskset",
+        "-c",
+        "2,3",
+        "/bin/bash",
+        "/workspace/work/wasm64/evidence/target-build/build-env.sh",
+        "-subset",
+        "clr.runtime+clr.hosts",
+        "-os",
+        "browser",
+        "-arch",
+        "wasm64",
+        "-c",
+        "Release",
+        "-clang19",
+        "/p:BuildSubdirectory=user-llvm8620",
+        "/p:CMakeArgs=-DCMAKE_ASM_COMPILER=/workspace/work/wasm64/evidence/split-native-integration/asm-adapter.py",
+        "/p:Memory64IcuDir=/workspace/work/wasm64/target-build/artifacts/bin/icu/browser-wasm64/Release/native",
+        "/p:Memory64EmscriptenCacheDir=/workspace/work/wasm64/tools/emscripten64-cache",
+        "-bl:/workspace/work/wasm64/evidence/split-native-integration/release64/root.binlog"
+      ],
+      "runtime_root_command": [
+        "/workspace/work/wasm64/target-build/build.sh",
+        "-subset",
+        "clr.runtime+clr.hosts",
+        "-os",
+        "browser",
+        "-arch",
+        "wasm64",
+        "-c",
+        "Release",
+        "-clang19",
+        "/p:BuildSubdirectory=user-llvm8620",
+        "/p:CMakeArgs=-DCMAKE_ASM_COMPILER=/workspace/work/wasm64/evidence/split-native-integration/asm-adapter.py",
+        "/p:Memory64IcuDir=/workspace/work/wasm64/target-build/artifacts/bin/icu/browser-wasm64/Release/native",
+        "/p:Memory64EmscriptenCacheDir=/workspace/work/wasm64/tools/emscripten64-cache",
+        "-bl:/workspace/work/wasm64/evidence/split-native-integration/release64/root.binlog"
+      ],
+      "cwd": "/workspace/work/wasm64/target-build",
+      "environment_overrides": {
+        "EM_CACHE": "/workspace/work/wasm64/tools/emscripten64-cache",
+        "EM_FROZEN_CACHE": "",
+        "EMCC_CORES": "2",
+        "EM_CONFIG": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/emscripten/.emscripten",
+        "DOTNET_CLI_HOME": "/workspace/work/wasm64/tools/dotnet-cli-home",
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+        "DOTNET_CLI_USE_MSBUILD_SERVER": "0",
+        "MSBUILDDISABLENODEREUSE": "1",
+        "NUGET_PACKAGES": "/workspace/work/wasm64/tools/nuget",
+        "XDG_RUNTIME_DIR": "/workspace/work/wasm64/tools/xdg-runtime",
+        "XDG_CACHE_HOME": "/workspace/work/wasm64/tools/xdg-cache",
+        "XDG_DATA_HOME": "/workspace/work/wasm64/tools/xdg-data",
+        "npm_config_cache": "/workspace/work/wasm64/tools/npm-cache",
+        "CLR_READELF": "/usr/bin/readelf",
+        "WASM_ASM_STOCK_SDK": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64",
+        "WASM_ASM_PATCHED_MC": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/bin/llvm-mc",
+        "WASM_ASM_EVIDENCE": "/workspace/work/wasm64/evidence/split-native-integration/release64/asm-jobs"
+      },
+      "environment_variables_removed": [],
+      "producer_script": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/run-root.py",
+        "sha256": "da62699242faeeb44ebe6fa2187121479dddee923b22edec72e8c9061c7b2d7b",
+        "bytes": 13635
+      },
+      "entry_script": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/run-release64.sh",
+        "sha256": "bd2fa707e1fc4d198c77628b0c201702008b12dfc4d282009e9d8ae05d69fe6c",
+        "bytes": 142
+      },
+      "tools": {
+        "compiler": {
+          "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/clang-23",
+          "sha256": "459436ed607726eaae03121dc4c851019f11717b534fd6aac23f8e9cccdd7859",
+          "bytes": 122265176
+        },
+        "emcc": {
+          "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/emscripten/emcc",
+          "sha256": "498eba9b6aacffca1c358ba340fc7b37015d7867cb211c7f2d45784ee9310f03",
+          "bytes": 1045
+        },
+        "stock_clang_driver": {
+          "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/clang",
+          "sha256": "b656bffdcf4500ff84412218399363fce9e008289446b4150d6d2c6c9c1af67f",
+          "bytes": 520
+        },
+        "wasm_ld": {
+          "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/wasm-ld",
+          "sha256": "b7444eb978367b8168ec96c2653fe0ba534eb9f2a7740b98e7fe5d8a2d4aae49",
+          "bytes": 75468168
+        },
+        "host_compiler": {
+          "path": "/workspace/work/wasm64/tools/debian-clang19/root/usr/lib/llvm-19/bin/clang",
+          "sha256": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a",
+          "bytes": 132352
+        },
+        "build_environment": {
+          "path": "/workspace/work/wasm64/evidence/target-build/build-env.sh",
+          "sha256": "32821731f60a2b203e3d827d87a2e8f1e80913d12477ec6e2f917f0b0baafc16",
+          "bytes": 785
+        },
+        "assembler": {
+          "path": "/workspace/work/wasm64/evidence/target-build/llvm-user-fix-8620/bin/llvm-mc",
+          "sha256": "acfd06dbd88edabf65ba37181769d92c76dccfa6e9701e9e2724a4e5a5775025",
+          "bytes": 3559680
+        },
+        "wrapper": {
+          "path": "/workspace/work/wasm64/evidence/split-native-integration/asm-adapter.py",
+          "sha256": "e12711770c5369e208163898952fc349b3c034ad9f73b424195eff016957f715",
+          "bytes": 7101
+        }
+      },
+      "expected_outputs": {
+        "object_directory": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620",
+        "product_directory": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620",
+        "runtime_archives": [
+          "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_static.a",
+          "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_gen_static.a"
+        ],
+        "interpreter_archive": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libclrinterpreter.a",
+        "corerun": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun.wasm",
+        "corerun_js": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun.js",
+        "kit": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link",
+        "native_libraries": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native",
+        "icu": "/workspace/work/wasm64/target-build/artifacts/bin/icu/browser-wasm64/Release/native"
+      },
+      "generated_tables": [
+        {
+          "path": "/workspace/work/wasm64/target-build/src/coreclr/vm/wasm/browser/wasm64/callhelpers-interp-to-managed.cpp",
+          "sha256": "2e5bab80ed9e0fb16fb273b0e7bff05a31417e5d4648cf2585f3e0f46877bd33",
+          "bytes": 77516
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/src/coreclr/vm/wasm/browser/wasm64/callhelpers-pinvoke.cpp",
+          "sha256": "434915262474e8235879777e1b675d9093ec2a27cc7e8a5612fa83b1642479cc",
+          "bytes": 135916
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/src/coreclr/vm/wasm/browser/wasm64/callhelpers-reverse.cpp",
+          "sha256": "ac480ad53d7c2c60646bb4e455023f1e4956b0fe118df49b02c836c1b59c5003",
+          "bytes": 125259
+        }
+      ],
+      "published_native_libraries_built_by_this_command": false,
+      "published_native_libraries_in_validation_scope": false,
+      "log": "/workspace/work/wasm64/evidence/split-native-integration/release64/root.log",
+      "binlog": "/workspace/work/wasm64/evidence/split-native-integration/release64/root.binlog",
+      "normal_fixed_clang_built": false,
+      "sdk_modified_by_lane": false,
+      "type_checking_disabled": false,
+      "guest_execution_claimed": false,
+      "free_bytes_at_preparation": 2944442368,
+      "source_repo": "/workspace/work/wasm64/tools/llvm-table64-source",
+      "source_revision": "b7cbe9c6cf3ea97cc5822cf324cbcef06f54a397",
+      "source_repo_role": "Base object repository only; restored working tree is NOT the user-compiled source",
+      "patch": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/user-8620.patch",
+        "sha256": "2318fba38d1b4ecb1fe4af370b3e9283d164a70bddb8a8da9a05c92e681e5fb1",
+        "bytes": 3938
+      },
+      "user_mc_revision": "8620eb7b55e857a5f6e430be624b5a6605e8c53e",
+      "user_mc_provenance": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/user-mc-provenance.json",
+        "sha256": "2743151b50e2cb1e918c2ab631cb3a350d7f53595368a10a4d68c7862234b989",
+        "bytes": 4661
+      },
+      "user_mc_provenance_independent_verification": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/user-mc-provenance-independent-verification.json",
+        "sha256": "73fc4900ca1e2ba1e8ff057ff532f7e56a3ac689b136d92f28fe7df4809b2c10",
+        "bytes": 3182
+      },
+      "tested_source_snapshot": [
+        {
+          "relative_path": "llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.cpp",
+          "base_git_blob": "47641ca93350d05a7489befdf501208d02d18e06",
+          "base": {
+            "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/base-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.cpp",
+            "sha256": "fc56f46289e3b2358d0bce79c24983fec74655a6af96a1c1ec4dffea7ff469a4",
+            "bytes": 24859
+          },
+          "tested": {
+            "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/tested-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.cpp",
+            "sha256": "86e020762c78f37613ed8f72b58bd99ccf2dfb4f057ffa32caea2ddefb1976fe",
+            "bytes": 26049
+          }
+        },
+        {
+          "relative_path": "llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.h",
+          "base_git_blob": "e6fddf98060265f7a51c754999b178fc3b7caa6e",
+          "base": {
+            "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/base-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.h",
+            "sha256": "3dfcf5003b7124b083df932b8057278d20fc1e3f7bcab2597db7d191c83f1327",
+            "bytes": 4196
+          },
+          "tested": {
+            "path": "/workspace/work/wasm64/evidence/split-native-integration/provenance/tested-source/llvm/lib/Target/WebAssembly/AsmParser/WebAssemblyAsmTypeCheck.h",
+            "sha256": "931027187edaf7b0b7cd6255df5064fae4574369716170cb2d5012efe409adcc",
+            "bytes": 4326
+          }
+        }
+      ],
+      "icu_manifest": {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/icu/browser-wasm64/Release/native/icu-memory64.json",
+        "sha256": "b4702227989f4c1af874e4a4dc07d12a26357860a8b608ec6047500cb2d6a9dd",
+        "bytes": 4436
+      },
+      "started_at_utc": "2026-11-16T09:55:25.822067+00:00",
+      "finished_at_utc": "2026-11-16T10:04:24.804197+00:00",
+      "elapsed_seconds": 538.982,
+      "exit_code": 0,
+      "build_log": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/release64/attempts/20261116T095525Z.log",
+        "sha256": "9443518cc120a478274a3d53a72a860706427ed9b5efeea0c76f064d26b610f9",
+        "bytes": 122462
+      },
+      "binlog_record": {
+        "path": "/workspace/work/wasm64/evidence/split-native-integration/release64/attempts/20261116T095525Z.binlog",
+        "sha256": "f19f961d64a4068d12e0f9fe845a429fcd6c0bede573e1c46b08a48cec3d6340",
+        "bytes": 3183780
+      },
+      "produced_runtime_archives": [
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_static.a",
+          "sha256": "9131212735a38280c8d723bcf3941b5ae65cf42cdcda056b8ba36943f9b6a3f4",
+          "bytes": 66201898
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_gen_static.a",
+          "sha256": "60a2f0cd5d3ce218ecf6b6027cb3d1067f1aa5dbf1db48ca8be503be5daa3c6e",
+          "bytes": 506142
+        }
+      ],
+      "produced_interpreter_archive": {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libclrinterpreter.a",
+        "sha256": "dd841313611212b42e0831b68d7628701e547fed48b4a781c121717409c29b27",
+        "bytes": 2622142
+      },
+      "produced_corerun": {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun.wasm",
+        "sha256": "6eb7cf77a149e421c4233f7252ca4c0377b62ba5ac84e74258e1e39b025f2eea",
+        "bytes": 4616459
+      },
+      "produced_native_libraries": [
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Globalization.Native/libSystem.Globalization.Native.a",
+          "sha256": "c2944ba81d73a893fef1128f512bd420250c2f00406ee40de118444a54445009",
+          "bytes": 218522
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.IO.Compression.Native/libSystem.IO.Compression.Native.a",
+          "sha256": "260c51c206703bbf3fb5c8d0ea126f3e2612568c66c2e9dd3c28c9df2907aabe",
+          "bytes": 11292
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.TimeZoneData.Invariant.a",
+          "sha256": "a275903cad4cf77c174dc969270a8e2337fee2957498259bb80c134f92790b7c",
+          "bytes": 1740
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.TimeZoneData.a",
+          "sha256": "bd61f195453ca58d0c06a8288927500ad5c2bbaa1e98fe21b9cf58c6ca3d22e1",
+          "bytes": 408166
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.a",
+          "sha256": "95a6f548bcfb24efc2135c96029cccf7e86f2ba855d6c6abde84063da35175f0",
+          "bytes": 236342
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native.Browser/libSystem.Native.Browser.a",
+          "sha256": "fb89bad43c20b7d8149536dd5269da6d14ad41652c38238b0394d88d460d96bc",
+          "bytes": 4660
+        }
+      ],
+      "native_build_files": [
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/CMakeCache.txt",
+          "sha256": "cd561fb6772af068e6b462bb8db6eafe355c58e5fa823949a9b3e36c64fd704e",
+          "bytes": 51716
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/compile_commands.json",
+          "sha256": "bbd0b33af7430d1a572112272d3b8cfd220c944787d9b1951b0e3d49a543cc62",
+          "bytes": 3850591
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/build.ninja",
+          "sha256": "a5688dfa063f6959b8405e0adef9b099bd231ecd4266f06a9544dc4df1424b6d",
+          "bytes": 4384767
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/corerun-link.rsp",
+          "sha256": "260140096c4c57202e3d58a904915e20ffc9e2f02c4b4d7346aa9c88fd4584ff",
+          "bytes": 1609
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/corerun-compile.rsp",
+          "sha256": "46beef8ce78a31cb793d3e576183b63326b27b2e6748b0cb0e70a1e7fdbcc87b",
+          "bytes": 197
+        }
+      ],
+      "generated_tables_after": [
+        {
+          "path": "/workspace/work/wasm64/target-build/src/coreclr/vm/wasm/browser/wasm64/callhelpers-interp-to-managed.cpp",
+          "sha256": "2e5bab80ed9e0fb16fb273b0e7bff05a31417e5d4648cf2585f3e0f46877bd33",
+          "bytes": 77516
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/src/coreclr/vm/wasm/browser/wasm64/callhelpers-pinvoke.cpp",
+          "sha256": "434915262474e8235879777e1b675d9093ec2a27cc7e8a5612fa83b1642479cc",
+          "bytes": 135916
+        },
+        {
+          "path": "/workspace/work/wasm64/target-build/src/coreclr/vm/wasm/browser/wasm64/callhelpers-reverse.cpp",
+          "sha256": "ac480ad53d7c2c60646bb4e455023f1e4956b0fe118df49b02c836c1b59c5003",
+          "bytes": 125259
+        }
+      ],
+      "assembly_job_manifests": [
+        {
+          "path": "/workspace/work/wasm64/evidence/split-native-integration/release64/asm-jobs/e3272b5d60812ffaccff/manifest.json",
+          "sha256": "2d6cfe403d1945488d48c41124d9a8eb385753bb2342066ca36e88636af56438",
+          "bytes": 26701
+        }
+      ],
+      "runtime_dirty_status_after": ""
+    }
+  },
+  "inspection_tools": {
+    "clang": {
+      "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/clang",
+      "sha256": "b656bffdcf4500ff84412218399363fce9e008289446b4150d6d2c6c9c1af67f",
+      "version": "clang version 23.1.0 (https://dnceng@dev.azure.com/dnceng/internal/_git/dotnet-llvm-project b7cbe9c6cf3ea97cc5822cf324cbcef06f54a397)\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin"
+    },
+    "llvm-ar": {
+      "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/llvm-ar",
+      "sha256": "bc54a0abc890a886fea0a532146af150e61e34c373d64c175b4a4869001e72a2",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.0\n  Optimized build."
+    },
+    "llvm-readobj": {
+      "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/llvm-readobj",
+      "sha256": "07ed105b48d20cee4e45aaa0638afabc449f90c0f897ccb42d25163cb2d39b08",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.0\n  Optimized build."
+    },
+    "wasm-opt": {
+      "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/wasm-opt",
+      "sha256": "065470a4bc8d2f9f0dcd78fa94e6abffa186cec2f7254fcd2ae6fb5450094610",
+      "version": "wasm-opt version 129"
+    },
+    "wasm-ld": {
+      "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/wasm-ld",
+      "sha256": "b7444eb978367b8168ec96c2653fe0ba534eb9f2a7740b98e7fe5d8a2d4aae49",
+      "version": "LLD 23.1.0 (https://dnceng@dev.azure.com/dnceng/internal/_git/dotnet-llvm-project b7cbe9c6cf3ea97cc5822cf324cbcef06f54a397)"
+    },
+    "clang_binary": {
+      "path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/clang-23",
+      "sha256": "459436ed607726eaae03121dc4c851019f11717b534fd6aac23f8e9cccdd7859",
+      "version": "clang version 23.1.0 (https://dnceng@dev.azure.com/dnceng/internal/_git/dotnet-llvm-project b7cbe9c6cf3ea97cc5822cf324cbcef06f54a397)\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin"
+    }
+  },
+  "runtime_archives": [
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_static.a",
+      "sha256": "9131212735a38280c8d723bcf3941b5ae65cf42cdcda056b8ba36943f9b6a3f4",
+      "bytes": 66201898,
+      "members": 394,
+      "member_types": {
+        "wasm64_objects": 394
+      },
+      "member_digest_sha256": "3393f6c0cedbfb243ec24e071692a4ddfd18f0c40c9f74d709463a51d77a5309",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libcoreclr_gen_static.a",
+      "sha256": "60a2f0cd5d3ce218ecf6b6027cb3d1067f1aa5dbf1db48ca8be503be5daa3c6e",
+      "bytes": 506142,
+      "members": 3,
+      "member_types": {
+        "wasm64_objects": 3
+      },
+      "member_digest_sha256": "c21f56866e5ad6139d9a34036a3f353ed577572d32b6ed93f9a7d38f139c35f9",
+      "bitcode_layouts": []
+    }
+  ],
+  "native_libraries": [
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/libclrinterpreter.a",
+      "sha256": "dd841313611212b42e0831b68d7628701e547fed48b4a781c121717409c29b27",
+      "bytes": 2622142,
+      "members": 28,
+      "member_types": {
+        "wasm64_objects": 28
+      },
+      "member_digest_sha256": "a54e081d23e448ca0f5aa9a0a6e9a36867f9a0bc36ea915e8d13ce215223b351",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Globalization.Native/libSystem.Globalization.Native.a",
+      "sha256": "c2944ba81d73a893fef1128f512bd420250c2f00406ee40de118444a54445009",
+      "bytes": 218522,
+      "members": 10,
+      "member_types": {
+        "wasm64_objects": 10
+      },
+      "member_digest_sha256": "2745b1b22e5f501dbf6e6944895ef37475ffca1f188f53c9120ccfdc7a2477af",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.IO.Compression.Native/libSystem.IO.Compression.Native.a",
+      "sha256": "260c51c206703bbf3fb5c8d0ea126f3e2612568c66c2e9dd3c28c9df2907aabe",
+      "bytes": 11292,
+      "members": 1,
+      "member_types": {
+        "wasm64_objects": 1
+      },
+      "member_digest_sha256": "17c6a4f1a1bc29f06127a31cecd771d1d95bfb826c45457d685de1dd0afb8fd2",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.TimeZoneData.Invariant.a",
+      "sha256": "a275903cad4cf77c174dc969270a8e2337fee2957498259bb80c134f92790b7c",
+      "bytes": 1740,
+      "members": 1,
+      "member_types": {
+        "wasm64_objects": 1
+      },
+      "member_digest_sha256": "34078e3c46f39a9b5c326be88b519c6c6cb6d35ec995a0360f2117ce02fe0641",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.TimeZoneData.a",
+      "sha256": "bd61f195453ca58d0c06a8288927500ad5c2bbaa1e98fe21b9cf58c6ca3d22e1",
+      "bytes": 408166,
+      "members": 1,
+      "member_types": {
+        "wasm64_objects": 1
+      },
+      "member_digest_sha256": "5e23b32b37ac47715fc8c57093b476c95491301dabc9555b45c7e2b4b805c495",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native/libSystem.Native.a",
+      "sha256": "95a6f548bcfb24efc2135c96029cccf7e86f2ba855d6c6abde84063da35175f0",
+      "bytes": 236342,
+      "members": 28,
+      "member_types": {
+        "wasm64_objects": 28
+      },
+      "member_digest_sha256": "b69a6f23d503253297da30906ceaeb50e918e06d7fb52a3890b6f563dcdaf2d8",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/target-build/artifacts/obj/coreclr/browser.wasm64.Release/user-llvm8620/libs-native/System.Native.Browser/libSystem.Native.Browser.a",
+      "sha256": "fb89bad43c20b7d8149536dd5269da6d14ad41652c38238b0394d88d460d96bc",
+      "bytes": 4660,
+      "members": 2,
+      "member_types": {
+        "wasm64_objects": 2
+      },
+      "member_digest_sha256": "bb095a6eeabdfa1891d7f1ae5478ced40bc0c0175022261609bb5890ce539caf",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libstubs.a",
+      "sha256": "b9d5ceba2d5a458a53c5d9f2ad0c27c6e389ce7fff70b4483bbfdbaa75a77cfc",
+      "bytes": 26346,
+      "members": 2,
+      "member_types": {
+        "wasm64_objects": 2
+      },
+      "member_digest_sha256": "bb5c33ad16d7233d64da4c17f5533f3eaf71830a00ce469ac2767fa97d37bca0",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libc.a",
+      "sha256": "71882a498e48e538de83f3259728a97dc170917cb8a88f08c2106a9d158eefac",
+      "bytes": 3558892,
+      "members": 1075,
+      "member_types": {
+        "wasm64_objects": 1075
+      },
+      "member_digest_sha256": "88b26ce0aa71482d81f44557e9243d3fb18446d0e30a34c49ba6838f00c12860",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libdlmalloc.a",
+      "sha256": "335cfee70a724db2ec2b0af2f51339c63189591ec0d6253ac7ffc230156e17be",
+      "bytes": 90402,
+      "members": 2,
+      "member_types": {
+        "wasm64_objects": 2
+      },
+      "member_digest_sha256": "c16121bdcb29c5ff704930fe88186b7dafad9d0477739ac3e7ff5bbf09957218",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libclang_rt.builtins-wasmsjlj.a",
+      "sha256": "53fc3b0bac1fe35a761aea32e46f07981cc6f61956d9461e27d90c76ed3cc2f4",
+      "bytes": 833506,
+      "members": 184,
+      "member_types": {
+        "wasm64_objects": 184
+      },
+      "member_digest_sha256": "54f4a2f0a43e73a5be5471d552b4d0f9d2cc778446b8f6318ddf2db05be00c6d",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libc++-wasmexcept.a",
+      "sha256": "d51d8bbe526357e3cf5db33ba8a3d9285be84b683b9ef24ad58db3f06267fa13",
+      "bytes": 7942202,
+      "members": 57,
+      "member_types": {
+        "wasm64_objects": 57
+      },
+      "member_digest_sha256": "0f787f24a56b5a577953748c3769b72adc024af6dddc7f5fc4cece013d0b55d5",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libc++abi-wasmexcept.a",
+      "sha256": "86bb419b52039d555924582f271633b5b8961eb42c9baa5f5a46d39a2512a691",
+      "bytes": 1171604,
+      "members": 19,
+      "member_types": {
+        "wasm64_objects": 19
+      },
+      "member_digest_sha256": "473d0036b040795b7f7972786bf29650510e0258b822d14d08e1d7befc691f46",
+      "bitcode_layouts": []
+    },
+    {
+      "path": "/workspace/work/wasm64/tools/emscripten64-cache/sysroot/lib/wasm64-emscripten/libunwind-wasmexcept.a",
+      "sha256": "8b791ea0c63e58dc41ce124bc397ddbcc8bc6778206fa73e406d9fb4d1e62939",
+      "bytes": 5344,
+      "members": 1,
+      "member_types": {
+        "wasm64_objects": 1
+      },
+      "member_digest_sha256": "7f2f46c1f9c59f85edc3fb172324ef6987d45df91bf5f8b96e32699cfc263345",
+      "bitcode_layouts": []
+    }
+  ],
+  "kit": {
+    "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link",
+    "architecture": "wasm64",
+    "archives": [
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libSystem.Globalization.Native.a",
+        "sha256": "c2944ba81d73a893fef1128f512bd420250c2f00406ee40de118444a54445009",
+        "bytes": 218522,
+        "members": 10,
+        "member_types": {
+          "wasm64_objects": 10
+        },
+        "member_digest_sha256": "2745b1b22e5f501dbf6e6944895ef37475ffca1f188f53c9120ccfdc7a2477af",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libSystem.IO.Compression.Native.a",
+        "sha256": "260c51c206703bbf3fb5c8d0ea126f3e2612568c66c2e9dd3c28c9df2907aabe",
+        "bytes": 11292,
+        "members": 1,
+        "member_types": {
+          "wasm64_objects": 1
+        },
+        "member_digest_sha256": "17c6a4f1a1bc29f06127a31cecd771d1d95bfb826c45457d685de1dd0afb8fd2",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libSystem.Native.Browser.a",
+        "sha256": "fb89bad43c20b7d8149536dd5269da6d14ad41652c38238b0394d88d460d96bc",
+        "bytes": 4660,
+        "members": 2,
+        "member_types": {
+          "wasm64_objects": 2
+        },
+        "member_digest_sha256": "bb095a6eeabdfa1891d7f1ae5478ced40bc0c0175022261609bb5890ce539caf",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libSystem.Native.TimeZoneData.Invariant.a",
+        "sha256": "a275903cad4cf77c174dc969270a8e2337fee2957498259bb80c134f92790b7c",
+        "bytes": 1740,
+        "members": 1,
+        "member_types": {
+          "wasm64_objects": 1
+        },
+        "member_digest_sha256": "34078e3c46f39a9b5c326be88b519c6c6cb6d35ec995a0360f2117ce02fe0641",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libSystem.Native.a",
+        "sha256": "95a6f548bcfb24efc2135c96029cccf7e86f2ba855d6c6abde84063da35175f0",
+        "bytes": 236342,
+        "members": 28,
+        "member_types": {
+          "wasm64_objects": 28
+        },
+        "member_digest_sha256": "b69a6f23d503253297da30906ceaeb50e918e06d7fb52a3890b6f563dcdaf2d8",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libcoreclr_static.a",
+        "sha256": "9131212735a38280c8d723bcf3941b5ae65cf42cdcda056b8ba36943f9b6a3f4",
+        "bytes": 66201898,
+        "members": 394,
+        "member_types": {
+          "wasm64_objects": 394
+        },
+        "member_digest_sha256": "3393f6c0cedbfb243ec24e071692a4ddfd18f0c40c9f74d709463a51d77a5309",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libcoreclrminipal.a",
+        "sha256": "b4fe26a634611ab15377bbde3597fa9ddd52605e17c6b554c562914ccee86b5c",
+        "bytes": 57580,
+        "members": 4,
+        "member_types": {
+          "wasm64_objects": 4
+        },
+        "member_digest_sha256": "504aebd6446bd69e2ecf30d914f3aa981cd62451381777c3ff56b5c3e9b84acb",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libcoreclrpal.a",
+        "sha256": "21a05e6d7633ad512678eb9b83a20f3c7c8ebc7ace42ae94de950d80b8884f98",
+        "bytes": 872852,
+        "members": 47,
+        "member_types": {
+          "wasm64_objects": 47
+        },
+        "member_digest_sha256": "7c6973ad2fdcf62cf2ca29606d9f9f00085ce8d71365d83e7577c9f3b2aa7738",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libcorerun_static.a",
+        "sha256": "2838f900a26195b9bc53e8d2a426775fb4ec472cf12669de2e554615506ef3db",
+        "bytes": 4985738,
+        "members": 22,
+        "member_types": {
+          "wasm64_objects": 22
+        },
+        "member_digest_sha256": "66dd7508bb987c7053eebb313103d848b0b79879ab78b11e6e5b8c82a8b8e90e",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libeventprovider.a",
+        "sha256": "5fc0d564ff953fcf2a13f952597df8c88470708ee4cecda583518e0520f5c336",
+        "bytes": 306504,
+        "members": 5,
+        "member_types": {
+          "wasm64_objects": 5
+        },
+        "member_digest_sha256": "1e916db3ffcfe6f973b0ef621db6280aa4f3bf8c83ca2e0d5c586d0a40c94ba3",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libicudata.a",
+        "sha256": "ca2a3180476a52d33514c903e22de5bcb36de6d3c9d91172e1772405a5bef1b9",
+        "bytes": 650,
+        "members": 1,
+        "member_types": {
+          "wasm64_objects": 1
+        },
+        "member_digest_sha256": "cf6e9ae0ee61b587bfea87af2b5ef5db9df3e10da98fc15a59c8db4efc88b264",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libicui18n.a",
+        "sha256": "d145390c591c11c34c925b3c86bfb80246027ba64c98ac461f8b226cb9cb3706",
+        "bytes": 3652500,
+        "members": 241,
+        "member_types": {
+          "wasm64_objects": 241
+        },
+        "member_digest_sha256": "914378a49f0815e9ae1e14652712ad2e850c1d9ef7081ed7ba60346b39f3bdc3",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libicuuc.a",
+        "sha256": "8515a8d6b25abf6883f41c3a54e13a98b28f06785f709fae718b67c9e33e01e3",
+        "bytes": 2409106,
+        "members": 199,
+        "member_types": {
+          "wasm64_objects": 199
+        },
+        "member_digest_sha256": "3eaf5a3d5faaf9ef80a371bc5233994c6c34df78b2a02ddacd4895a736a4918e",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libminipal.a",
+        "sha256": "4ceddd736e99f1187de153373c17221de4c7adbf5417ee22f49e4a14517fee90",
+        "bytes": 119900,
+        "members": 21,
+        "member_types": {
+          "wasm64_objects": 21
+        },
+        "member_digest_sha256": "b60bd131b0e7e04a3cdff23cb583495ab9334c0ca357cf31e5df0ac1c4148d51",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libnativeresourcestring.a",
+        "sha256": "a8f10fec2d59f2a31d60abca0666b03527cdb98d3b6b441b6182f75d64647670",
+        "bytes": 27310,
+        "members": 1,
+        "member_types": {
+          "wasm64_objects": 1
+        },
+        "member_digest_sha256": "e140c32e5d94e6f756b0b5e50acd98cdc2ede72d3ac14867ff081b4338db5bef",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libz.a",
+        "sha256": "cb3727253c33a53af0d91477fb5dcd14a008accc7608a9360fbacc04340b6528",
+        "bytes": 462218,
+        "members": 32,
+        "member_types": {
+          "wasm64_objects": 32
+        },
+        "member_digest_sha256": "c896bf8e9913cb60ce826d172da02a9bfc924647b47c56e7df02eaea053c7b93",
+        "bitcode_layouts": []
+      },
+      {
+        "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun-link/libzstd.a",
+        "sha256": "74d497c12f2a70521da54b3671294f40b823e250e0b1f9c5c8dd28ed2764e3ec",
+        "bytes": 3376666,
+        "members": 30,
+        "member_types": {
+          "wasm64_objects": 30
+        },
+        "member_digest_sha256": "3b41c248f49c0a1eaa9870c943e9f0290e2463a6746601287b8ecda6f58d0aea",
+        "bitcode_layouts": []
+      }
+    ]
+  },
+  "icu": {
+    "path": "/workspace/work/wasm64/target-build/artifacts/bin/icu/browser-wasm64/Release/native",
+    "manifest_sha256": "b4702227989f4c1af874e4a4dc07d12a26357860a8b608ec6047500cb2d6a9dd",
+    "producer": {
+      "icu_commit": "c6131fd7b7cebcef44c17f381b2fe325cb331964",
+      "icu_version": "72.1.0.4",
+      "source_archive_sha256": "32e27462769c6c63e5afb719695aa57dec82185c0960da823028264dd6c7b4a8",
+      "recipe_version": 1,
+      "pointer_size": 8,
+      "emcc_version": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.3 (6ea9c28c38cdd40c1032fa04400c9d16230ee180)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "clang_sha256": "b656bffdcf4500ff84412218399363fce9e008289446b4150d6d2c6c9c1af67f",
+      "wasm_ld_sha256": "b7444eb978367b8168ec96c2653fe0ba534eb9f2a7740b98e7fe5d8a2d4aae49"
+    },
+    "fingerprint": "52bd75a8e038ccbfed48204d95831b396410f0dbb17797410f6d502424e84581",
+    "files": {
+      "libicui18n.a": {
+        "sha256": "d145390c591c11c34c925b3c86bfb80246027ba64c98ac461f8b226cb9cb3706",
+        "bytes": 3652500,
+        "wasm64_members": 241
+      },
+      "libicuuc.a": {
+        "sha256": "8515a8d6b25abf6883f41c3a54e13a98b28f06785f709fae718b67c9e33e01e3",
+        "bytes": 2409106,
+        "wasm64_members": 199
+      },
+      "libicudata.a": {
+        "sha256": "ca2a3180476a52d33514c903e22de5bcb36de6d3c9d91172e1772405a5bef1b9",
+        "bytes": 650,
+        "wasm64_members": 1
+      },
+      "icudt.dat": {
+        "sha256": "e417e1ce03864118d68fdf7a00eb0af190fdeef806c570f951ca32f61fa4047f",
+        "bytes": 1646720
+      },
+      "icudt_CJK.dat": {
+        "sha256": "799b97d299edad4c0dac098508cc29c498c5037fccca2feb5b6c7d98467e31b8",
+        "bytes": 1035792
+      },
+      "icudt_EFIGS.dat": {
+        "sha256": "4907316fe6ddc7651750253db4574e582af80ad93ae318210a7af42462d658a4",
+        "bytes": 621712
+      },
+      "icudt_no_CJK.dat": {
+        "sha256": "4fc625972969c725a9f40ab802217e04c031297a98cb3581f5103946a635f6fb",
+        "bytes": 1222208
+      }
+    },
+    "producer_probe_record": {
+      "status": "PASS",
+      "command": [
+        "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/emscripten/em++",
+        "/workspace/work/wasm64/target-build/artifacts/obj/icu/browser-wasm64/52bd75a8e038ccbf/icu-memory64-probe.cpp",
+        "-m64",
+        "-O0",
+        "-fno-exceptions",
+        "-DU_DISABLE_RENAMING=1",
+        "-sWASM_BIGINT=1",
+        "-sASSERTIONS=1",
+        "-sENVIRONMENT=node",
+        "-I/workspace/work/wasm64/target-build/artifacts/obj/icu/browser-wasm64/52bd75a8e038ccbf/browser-wasm64/native/include",
+        "/workspace/work/wasm64/target-build/artifacts/obj/icu/browser-wasm64/52bd75a8e038ccbf/browser-wasm64/native/lib/libicui18n.a",
+        "/workspace/work/wasm64/target-build/artifacts/obj/icu/browser-wasm64/52bd75a8e038ccbf/browser-wasm64/native/lib/libicuuc.a",
+        "/workspace/work/wasm64/target-build/artifacts/obj/icu/browser-wasm64/52bd75a8e038ccbf/browser-wasm64/native/lib/libicudata.a",
+        "-o",
+        "/workspace/work/wasm64/target-build/artifacts/obj/icu/browser-wasm64/52bd75a8e038ccbf/icu-memory64-probe.js"
+      ],
+      "stdout": "ICU 72.1 Memory64 archive probe PASS; pointer=8\n"
+    },
+    "probe_executed_by_this_check": false
+  },
+  "module": {
+    "path": "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun.wasm",
+    "sha256": "6eb7cf77a149e421c4233f7252ca4c0377b62ba5ac84e74258e1e39b025f2eea",
+    "memories": [
+      {
+        "address_bits": 64,
+        "minimum": 2048,
+        "maximum": 131072,
+        "shared": false
+      }
+    ],
+    "tables": [
+      {
+        "address_bits": 64,
+        "minimum": 6252,
+        "maximum": null,
+        "shared": false
+      }
+    ],
+    "node": {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "version": "v24.22.1",
+      "sha256": "61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d",
+      "flags": [
+        "--experimental-wasm-exnref"
+      ],
+      "validation": {
+        "status": "PASS",
+        "sha256": "6eb7cf77a149e421c4233f7252ca4c0377b62ba5ac84e74258e1e39b025f2eea",
+        "imports": 65,
+        "exports": 29
+      }
+    },
+    "wasm_opt": {
+      "command": [
+        "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/bin/wasm-opt",
+        "/workspace/work/wasm64/target-build/artifacts/bin/coreclr/browser.wasm64.Release/user-llvm8620/corerun.wasm",
+        "--all-features",
+        "--vacuum",
+        "-o",
+        "/tmp/memory64-wasm-opt-yhgracu6/validated.wasm"
+      ],
+      "status": "PASS"
+    },
+    "guest_instantiated": false,
+    "guest_executed": false
+  }
+}

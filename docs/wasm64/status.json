@@ -1,0 +1,84 @@
+{
+  "format_version": 1,
+  "updated_at": "2026-11-16",
+  "tracking_branch": "wasm64/eden-main",
+  "implementation_checkpoint": "259251bb79268a221f0019edd1ad9d384fa1a3c3",
+  "upstream_base": "2b5ea9af2991abe307beb855729ab52409d6333f",
+  "common_review_base": "72d457a4c6a192e5f46be3f37ca7a9737cc7146a",
+  "original_plan": {
+    "file": "plan/original-cloud-implementation-plan.md",
+    "sha256": "4c61132ebec0376d4e4b803c27951628e29c9a089276ae1ec5b59330653c6d8e",
+    "role": "Unmodified historical user plan; subsequent decisions recorded in decisions.md"
+  },
+  "branches": {
+    "A": {
+      "branch": "wasm64/01-target-corelib",
+      "sha": "5da8cf731c431605cf3b73d81418673030dc871a",
+      "requires_llvm_fix": false,
+      "code_status": "IMPLEMENTED",
+      "review_status": "PENDING",
+      "files": 10
+    },
+    "B": {
+      "branch": "wasm64/02-portable-helpers",
+      "sha": "be6740da5da33c732a58ca968020a8d208cd49c4",
+      "requires_llvm_fix": false,
+      "code_status": "IMPLEMENTED",
+      "review_status": "PENDING",
+      "files": 19
+    },
+    "C": {
+      "branch": "wasm64/03-memory64-dependencies",
+      "sha": "02c0d1c46e1251c07fa918b1b7002e3ed05699ca",
+      "requires_llvm_fix": false,
+      "code_status": "IMPLEMENTED",
+      "review_status": "PENDING",
+      "files": 4
+    },
+    "D": {
+      "branch": "wasm64/04-native-integration",
+      "sha": "259251bb79268a221f0019edd1ad9d384fa1a3c3",
+      "requires_llvm_fix": true,
+      "code_status": "IMPLEMENTED",
+      "review_status": "PENDING",
+      "delta_files": 40,
+      "dependencies": [
+        "A",
+        "B",
+        "C"
+      ],
+      "review_base": "e1c5ee5b490f132acc22e02d57c03b1b66dfbafd"
+    }
+  },
+  "overall_status": "PARTIAL",
+  "milestones": {
+    "foundation_build": "PARTIAL",
+    "native_abi_execution": "NOT RUN",
+    "browser_interpreter": "NOT RUN",
+    "gc_high_address_growth": "NOT RUN",
+    "js_interop": "NOT RUN",
+    "wasm64_codegen": "NOT RUN",
+    "r2r_execution": "NOT RUN",
+    "installed_sdk_workload": "NOT RUN",
+    "wasm64_continuous_matrix": "NOT RUN"
+  },
+  "llvm": {
+    "fix_commit": "8620eb7b55e857a5f6e430be624b5a6605e8c53e",
+    "tested_transport": "Unmodified backport onto pinned base, standalone MC, stock SDK C/C++/link",
+    "full_fixed_clang_built": false,
+    "type_checking_disabled": false
+  },
+  "policy": {
+    "new_architecture_specific_test_harnesses_removed": true,
+    "existing_matrix_preserved": true,
+    "dedicated_helper_bootstrap_required": false
+  },
+  "next_steps": [
+    "Review A/B/C and native-only D delta",
+    "Validate normal fixed Clang/SDK path",
+    "Complete target-aware runtime runner/CORE_ROOT and minimal interpreter/native ABI execution",
+    "Joint ABI/GC/browser interpreter checkpoint, including real high addresses",
+    "JS, JIT/R2R, SDK publishing, existing CI matrix expansion"
+  ],
+  "evidence_inventory": "evidence/inventory.json"
+}

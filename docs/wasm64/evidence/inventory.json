@@ -1,0 +1,85 @@
+{
+  "format_version": 1,
+  "recorded_at": "2026-11-16",
+  "scope": "Historical receipts only; referenced local files/binaries/logs are not bundled",
+  "files": [
+    {
+      "file": "a-corelib-historical.json",
+      "sha256": "a218f956943c514a6b7435ba2ee06e16651872359129b1570b1037fd7d934b2e",
+      "bytes": 6320,
+      "historical_source": "split-target-corelib/manifest.json"
+    },
+    {
+      "file": "b-generation-historical.json",
+      "sha256": "6eaee83e8a6383783ff6a9c9db9e69ef74b7b2c2ae9632fe8ee16b4acb8d4551",
+      "bytes": 5609,
+      "historical_source": "split-portable-helpers/b-validation-summary.json"
+    },
+    {
+      "file": "b-existing128-amend.json",
+      "sha256": "3c1eca1ee744604de380b6d8a7a85061579e54d32b96efc1f61383ecfce85237",
+      "bytes": 5477,
+      "historical_source": "split-portable-helpers/test-cleanup/b-amend-summary.json"
+    },
+    {
+      "file": "c-dependencies-historical.json",
+      "sha256": "d789ee17d43fe925dcb830b6a836d3b71898c7f59a85b59bce016f7b45204e3c",
+      "bytes": 6623,
+      "historical_source": "split-memory64-dependencies/manifest.json"
+    },
+    {
+      "file": "d-native-producer-historical.json",
+      "sha256": "a678ca9559a779f1e4f62a0a574099ed117b152ce8e3c3e6d826fee1f40deed4",
+      "bytes": 16778,
+      "historical_source": "split-native-integration/release64/producer.json"
+    },
+    {
+      "file": "d-native-products-historical.json",
+      "sha256": "ae662f6d1ad0abe804d6dcf2fb6860f7beaddb939d5a3e40466940f027ed835a",
+      "bytes": 45696,
+      "historical_source": "split-native-integration/release64/products.json"
+    },
+    {
+      "file": "d-asm-control-historical.json",
+      "sha256": "5b4fd6cf550d3eab0a2b39fc9b305e1f6181db69c9e6ac9261b64e07d46e020a",
+      "bytes": 27252,
+      "historical_source": "split-native-integration/release64/asm-control/manifest.json"
+    },
+    {
+      "file": "llvm-user-mc-provenance.json",
+      "sha256": "2743151b50e2cb1e918c2ab631cb3a350d7f53595368a10a4d68c7862234b989",
+      "bytes": 4661,
+      "historical_source": "split-native-integration/provenance/user-mc-provenance.json"
+    },
+    {
+      "file": "llvm-user-mc-independent-verification.json",
+      "sha256": "73fc4900ca1e2ba1e8ff057ff532f7e56a3ac689b136d92f28fe7df4809b2c10",
+      "bytes": 3182,
+      "historical_source": "split-native-integration/user-mc-provenance-independent-verification.json"
+    },
+    {
+      "file": "historical-validation-matrix.json",
+      "sha256": "8fb0049fce2ed25e3f206dc943c1f389e9ca2ef0ecea0cf95246100ba949b438",
+      "bytes": 5023,
+      "historical_source": "split-branches/final-validation.json"
+    },
+    {
+      "file": "history-rewrite.json",
+      "sha256": "65d4a0cfd33520f5d01cec86bedbbd495e983e71e472b765284b85c4ba2ba1b3",
+      "bytes": 2286,
+      "historical_source": "test-pruning/history-rewrite.json"
+    },
+    {
+      "file": "independent-final-audit.json",
+      "sha256": "56acb23bd327aef7628fe0f86ab7d2cfaceef929dfd72e5f0f33aa4296e937f0",
+      "bytes": 5482,
+      "historical_source": "test-pruning/independent-final-audit.json"
+    },
+    {
+      "file": "four-branch-push-verification.json",
+      "sha256": "53692748cd909a64cc3f28c5eda8e5290cabc1d6ef2c3ca9a9cc8516348b61b9",
+      "bytes": 901,
+      "historical_source": "test-pruning/push-verification.json"
+    }
+  ]
+}

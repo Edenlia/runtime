@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "branch": "wasm64/03-memory64-dependencies",
+  "base": "72d457a4c6a192e5f46be3f37ca7a9737cc7146a",
+  "scope": "Independent standalone Memory64 ICU and SDK system-library dependencies; no root wasm64 architecture definitions, runtime build hooks or managed helper changes.",
+  "files_sha256": {
+    "eng/wasm/build-memory64-icu.py": "b64e5f74860528b3c9a3ff4d6384b66f473090f42a8e30e5147d2e803195450d",
+    "eng/wasm/BuildMemory64Icu.proj": "37d9b9c793eb120b3d3b104afecd2db47163a106839c2e1b29d66b6377d241d5",
+    "eng/wasm/Memory64Icu.props": "4c5fd9883261a27035ee285ed369370c24c39d01b3165bb2e6ad6869d34abe74",
+    "eng/wasm/README-memory64-icu.md": "be2d25d572bf7122e3b5a2da2d7833c82e24da5629651b0b25b2396f5453a53f",
+    "eng/wasm/tests/test_memory64_icu.py": "0a25a00d966c4e7ae09f91f1fb74077621ecaf3a6c544ddb16848b80e492e168",
+    "eng/wasm/tests/test_memory64_sysroot.py": "64ac5c07283780dea4417be0def19a4b6f34e7abf2d275f967df643903a1f31a"
+  },
+  "standalone_test_results": {
+    "ICU verifier and standalone MSBuild project": {
+      "status": "PASS",
+      "count": 17,
+      "elapsed_seconds": 12.772,
+      "log": "/workspace/work/wasm64/evidence/split-memory64-dependencies/icu-tests.log"
+    },
+    "Independent sysroot CLI": {
+      "status": "PASS",
+      "count": 5,
+      "elapsed_seconds": 0.976,
+      "log": "/workspace/work/wasm64/evidence/split-memory64-dependencies/sysroot-tests.log"
+    }
+  },
+  "test_count": 22,
+  "standalone_build_entry": {
+    "status": "PASS",
+    "operation": "build",
+    "mode": "Verified cache reuse of genuinely source-built ICU; source compilation not repeated",
+    "log": "/workspace/work/wasm64/evidence/split-memory64-dependencies/standalone-build-reuse.log",
+    "binlog": "/workspace/work/wasm64/evidence/split-memory64-dependencies/standalone-build-reuse.binlog"
+  },
+  "standalone_verify_entry": {
+    "status": "PASS",
+    "real_icu_members": 441,
+    "log": "/workspace/work/wasm64/evidence/split-memory64-dependencies/standalone-real-verify.log",
+    "binlog": "/workspace/work/wasm64/evidence/split-memory64-dependencies/standalone-real-verify.binlog"
+  },
+  "icu_recipe_source_provenance": "/workspace/work/wasm64/evidence/split-memory64-dependencies/recipe-provenance.json",
+  "fresh_icu_link_api_probe": {
+    "status": "PASS",
+    "scope": "New standalone link/API execution against the genuine reused ICU64 archives in C; no repeated ICU source compilation",
+    "probe": {
+      "status": "PASS",
+      "command": [
+        "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64/emscripten/em++",
+        "/workspace/work/wasm64/evidence/split-memory64-dependencies/icu-probe/icu-memory64-probe.cpp",
+        "-m64",
+        "-O0",
+        "-fno-exceptions",
+        "-DU_DISABLE_RENAMING=1",
+        "-sWASM_BIGINT=1",
+        "-sASSERTIONS=1",
+        "-sENVIRONMENT=node",
+        "-I/workspace/work/wasm64/split-memory64-dependencies/artifacts/bin/icu/browser-wasm64/Release/native/include",
+        "/workspace/work/wasm64/split-memory64-dependencies/artifacts/bin/icu/browser-wasm64/Release/native/lib/libicui18n.a",
+        "/workspace/work/wasm64/split-memory64-dependencies/artifacts/bin/icu/browser-wasm64/Release/native/lib/libicuuc.a",
+        "/workspace/work/wasm64/split-memory64-dependencies/artifacts/bin/icu/browser-wasm64/Release/native/lib/libicudata.a",
+        "-o",
+        "/workspace/work/wasm64/evidence/split-memory64-dependencies/icu-probe/icu-memory64-probe.js"
+      ],
+      "stdout": "ICU 72.1 Memory64 archive probe PASS; pointer=8\n"
+    }
+  },
+  "actual_sysroot_cold_warm": {
+    "status": "PASS",
+    "cold_cache_absent_before": true,
+    "source_recipe_same_as_whole": true,
+    "files": {
+      "libstubs.a": {
+        "sha256": "2a9f4cf50f69d99f994db09a6851c369d540ed6640be6f57bc66f751047bbf06",
+        "bytes": 26532,
+        "wasm64_members": 2
+      },
+      "libc.a": {
+        "sha256": "c32ad2055d419773e55b5eeb476963a410a95f191eac7118b3427739c0d0dcc1",
+        "bytes": 3564036,
+        "wasm64_members": 1075
+      },
+      "libdlmalloc.a": {
+        "sha256": "8ee1d92d4552bdf41ffcef643cf2abf98220332ffeaeff9fca253fdd928c0dc7",
+        "bytes": 90556,
+        "wasm64_members": 2
+      },
+      "libclang_rt.builtins-wasmsjlj.a": {
+        "sha256": "561593a09d9fe41b677f1cc2558806362dd4f03639c4dc75053ab33e3f2775ba",
+        "bytes": 837886,
+        "wasm64_members": 184
+      },
+      "libc++-wasmexcept.a": {
+        "sha256": "a0e443b922c9d340d95c4a190c3a7a782eddbfd9ab22f611fc8bb8841e7c7c5b",
+        "bytes": 7958884,
+        "wasm64_members": 57
+      },
+      "libc++abi-wasmexcept.a": {
+        "sha256": "58bce918cf4820920896fde8abc7e0775ed4ab92071ae1c4157dbcdf7c76b807",
+        "bytes": 1174486,
+        "wasm64_members": 19
+      },
+      "libunwind-wasmexcept.a": {
+        "sha256": "d785aafec654c6c806b33f17acdbd499ca7a2e6fa7a1218a3f5d20c08a49f82c",
+        "bytes": 5374,
+        "wasm64_members": 1
+      }
+    },
+    "total_wasm64_members": 1340,
+    "warm_files_identical": true,
+    "cache": "/workspace/work/wasm64/evidence/split-memory64-dependencies/sysroot-cold-cache",
+    "cold_log": "/workspace/work/wasm64/evidence/split-memory64-dependencies/sysroot-cold.log",
+    "warm_log": "/workspace/work/wasm64/evidence/split-memory64-dependencies/sysroot-warm-8620-available.log"
+  },
+  "assembler_independence": {
+    "cold_environment": "llvm-mc on PATH and CMAKE_ASM_COMPILER pointed at an exit97 trap; no invocation marker was produced",
+    "warm_environment": "External 8620 llvm-mc was available on PATH and as CMAKE_ASM_COMPILER; selected SDK compiler/linker remained original",
+    "stock_clang_sha256": "b656bffdcf4500ff84412218399363fce9e008289446b4150d6d2c6c9c1af67f",
+    "stock_wasm_ld_sha256": "b7444eb978367b8168ec96c2653fe0ba534eb9f2a7740b98e7fe5d8a2d4aae49",
+    "sdk_path": "/workspace/work/wasm64/runtime-source/.dotnet/wasm-tools/emscripten/6.0.2-linux-x64",
+    "external_llvm_fix": "8620eb7b55e857a5f6e430be624b5a6605e8c53e",
+    "limitation": "This is not a test of two complete LLVM SDK versions. The external 8620 MC fix is outside this branch and outside the dependency compiler path."
+  },
+  "group_boundaries": {
+    "A_files_changed": false,
+    "D_files_changed": false,
+    "D_tests_excluded": [
+      "test_memory64_icu_integration.py:9 runtime integration tests",
+      "test_memory64_sysroot.py original4 runtime MSBuild hook tests"
+    ],
+    "runtime_override_capture_in_C": false
+  },
+  "disk_free_bytes": 3943313408,
+  "commit": "af73b3b96cf3ddcbcb33f8220ca8b09c554bd454",
+  "git_clean": true
+}

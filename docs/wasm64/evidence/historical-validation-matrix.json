@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "pushed": true,
+  "failed_branches": 0,
+  "base": "72d457a4c6a192e5f46be3f37ca7a9737cc7146a",
+  "D_prerequisite_merge": "5e3c90a6a1dc5803d84d13a0a1dce14d62245f6c",
+  "matrix": [
+    {
+      "group": "A",
+      "ref": "wasm64/01-target-corelib",
+      "commit": "4175b10e2b2bdc5e3e8e4759e10d10aaad6bf628",
+      "status": "PASS",
+      "validation": "Clean wasm32 baseline and four actual CoreLib32/64 Release/Checked products; routing15+properties5+metadata4, wrong-width/missing negatives rejected",
+      "llvm_dependency": "No C/C++/ASM/LLVM compiler invocation; pinned dotnet/MSBuild/C# only",
+      "receipt": "/workspace/work/wasm64/evidence/split-target-corelib/manifest.json"
+    },
+    {
+      "group": "B",
+      "ref": "wasm64/02-portable-helpers",
+      "commit": "148a4065a580b7384103764803ecf237fbfd30bd",
+      "status": "PASS",
+      "validation": "Clean-base and normal B crossgen2 builds; own CoreLib32 build;154 host cases and13 full-generation cases PASS, no skipped",
+      "llvm_dependency": "Managed portable generation does not invoke LLVM or initialize guest JIT; immutable normal wasm32 host ELF tool inputs reused; no user MC dependency",
+      "receipt": "/workspace/work/wasm64/evidence/split-portable-helpers/b-validation-summary.json",
+      "external_A_CoreLib_input": {
+        "path": "/workspace/work/wasm64/split-target-corelib/artifacts/bin/coreclr/browser.wasm64.Release/IL/System.Private.CoreLib.dll",
+        "sha256": "35ea001207febd112c2b71b934744cb8cbef85948631de86e81d4ca694c7d3b9",
+        "producer_branch": "wasm64/01-target-corelib",
+        "producer_commit": "4175b10e2b2bdc5e3e8e4759e10d10aaad6bf628"
+      },
+      "other_external_inputs": "180 original framework DLL fixtures per width and two immutable normal x64 host ELF tool inputs; B builds its own managed compiler and wasm32 CoreLib. See b-input-dependency-verification.json."
+    },
+    {
+      "group": "C",
+      "ref": "wasm64/03-memory64-dependencies",
+      "commit": "af73b3b96cf3ddcbcb33f8220ca8b09c554bd454",
+      "status": "PASS",
+      "validation": "22 independent cases; actual cold sysroot1340 wasm64 objects; verified source-built ICU reuse441 objects and fresh standalone pointer8 API probe",
+      "llvm_dependency": "Original pinned SDK clang/emcc/wasm-ld; external MC is not invoked (cold trap and warm user-MC availability controls); not two complete LLVM SDK versions",
+      "receipt": "/workspace/work/wasm64/evidence/split-memory64-dependencies/manifest.json"
+    },
+    {
+      "group": "D",
+      "ref": "wasm64/04-native-integration",
+      "commit": "291ce28441f725fbd020cdea78ebd8eea2237a3b",
+      "status": "PASS",
+      "configuration": "Release",
+      "llvm_dependency": "Stock pinned b7 compiler/linker + user8620 MC acfd via external adapter; full normal fixed clang not built; base object repo is not user working-tree source",
+      "root_build": "PASS, 0 warnings/errors",
+      "runtime_archives_objects": [
+        2,
+        397
+      ],
+      "interpreter_all_six_side_and_seven_sysroot_archives_objects": [
+        14,
+        1411
+      ],
+      "kit_archives_objects": [
+        17,
+        1039
+      ],
+      "Memory64_table64": "PASS",
+      "Node_WebAssembly_Module": "PASS",
+      "wasm_opt": "PASS",
+      "module_sha256": "6eb7cf77a149e421c4233f7252ca4c0377b62ba5ac84e74258e1e39b025f2eea",
+      "stock_actual_assembly": "Expected rejection, exit1: expected[i32], got[i64]",
+      "user8620_actual_assembly": "PASS, exit0; type checking enabled",
+      "user_MC_sha256": "acfd06dbd88edabf65ba37181769d92c76dccfa6e9701e9e2724a4e5a5775025",
+      "product_report": "/workspace/work/wasm64/evidence/split-native-integration/release64/products.json",
+      "source_tool_object_bindings": "/workspace/work/wasm64/evidence/split-native-integration/release64/source-inputs.json",
+      "assembly_control": "/workspace/work/wasm64/evidence/split-native-integration/release64/asm-control/manifest.json"
+    }
+  ],
+  "remote_verification": "/workspace/work/wasm64/evidence/split-branches/remote-verification.json",
+  "ABC_source_receipt_verification": "/workspace/work/wasm64/evidence/split-native-integration/abc-receipt-verification.json",
+  "B_input_dependency_proof": "/workspace/work/wasm64/evidence/split-native-integration/b-input-dependency-verification.json",
+  "user_MC_source_snapshot_provenance": "/workspace/work/wasm64/evidence/split-native-integration/user-mc-provenance-independent-verification.json",
+  "scope": [
+    "A/B/C are independent direct children of72d; D merges all three.",
+    "C uses the original stock SDK; D uses its stock compiler/linker plus unmodified user8620 MC backport onto pinned b7. Full fixed Clang/SDK was not built.",
+    "C standalone dependency API probes are not CoreCLR guest execution. D Node Module validation does not instantiate or execute the guest.",
+    "D fresh user-MC product acceptance is Release only; old published libs.native and historical other-lane products are excluded."
+  ]
+}

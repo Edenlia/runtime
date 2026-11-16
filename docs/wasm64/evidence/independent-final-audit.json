@@ -1,0 +1,150 @@
+{
+  "status": "PASS",
+  "verified_utc": "2026-11-16T11:11:08.358266+00:00",
+  "base": "72d457a4c6a192e5f46be3f37ca7a9737cc7146a",
+  "old_tips": {
+    "A": "4175b10e2b2bdc5e3e8e4759e10d10aaad6bf628",
+    "B": "148a4065a580b7384103764803ecf237fbfd30bd",
+    "C": "af73b3b96cf3ddcbcb33f8220ca8b09c554bd454",
+    "D": "291ce28441f725fbd020cdea78ebd8eea2237a3b"
+  },
+  "new_tips": {
+    "A": "5da8cf731c431605cf3b73d81418673030dc871a",
+    "B": "be6740da5da33c732a58ca968020a8d208cd49c4",
+    "C": "02c0d1c46e1251c07fa918b1b7002e3ed05699ca",
+    "D": "259251bb79268a221f0019edd1ad9d384fa1a3c3"
+  },
+  "new_D_review_base": "e1c5ee5b490f132acc22e02d57c03b1b66dfbafd",
+  "worktrees": {
+    "A": {
+      "path": "/workspace/work/wasm64/split-target-corelib",
+      "HEAD": "5da8cf731c431605cf3b73d81418673030dc871a",
+      "expected_HEAD": "5da8cf731c431605cf3b73d81418673030dc871a",
+      "clean": true,
+      "status": ""
+    },
+    "B": {
+      "path": "/workspace/work/wasm64/split-portable-helpers",
+      "HEAD": "be6740da5da33c732a58ca968020a8d208cd49c4",
+      "expected_HEAD": "be6740da5da33c732a58ca968020a8d208cd49c4",
+      "clean": true,
+      "status": ""
+    },
+    "C": {
+      "path": "/workspace/work/wasm64/split-memory64-dependencies",
+      "HEAD": "02c0d1c46e1251c07fa918b1b7002e3ed05699ca",
+      "expected_HEAD": "02c0d1c46e1251c07fa918b1b7002e3ed05699ca",
+      "clean": true,
+      "status": ""
+    },
+    "D": {
+      "path": "/workspace/work/wasm64/target-build",
+      "HEAD": "259251bb79268a221f0019edd1ad9d384fa1a3c3",
+      "expected_HEAD": "259251bb79268a221f0019edd1ad9d384fa1a3c3",
+      "clean": true,
+      "status": ""
+    }
+  },
+  "parents": {
+    "A": [
+      "72d457a4c6a192e5f46be3f37ca7a9737cc7146a"
+    ],
+    "B": [
+      "72d457a4c6a192e5f46be3f37ca7a9737cc7146a"
+    ],
+    "C": [
+      "72d457a4c6a192e5f46be3f37ca7a9737cc7146a"
+    ],
+    "D": [
+      "e1c5ee5b490f132acc22e02d57c03b1b66dfbafd"
+    ]
+  },
+  "new_review_base_contains_A_B_C": {
+    "A": true,
+    "B": true,
+    "C": true
+  },
+  "old_tips_are_ancestors_of_new_D": {
+    "A": false,
+    "B": false,
+    "C": false,
+    "D": false
+  },
+  "old_to_new_diffs": {
+    "A": {
+      "eng/wasm/tests/README-corelib-target.md": "D",
+      "eng/wasm/tests/TargetSelection.proj": "D",
+      "eng/wasm/tests/check-corelib-layout.cs": "D",
+      "eng/wasm/tests/test_corelib_target.py": "D",
+      "eng/wasm/tests/test_target_selection.py": "D"
+    },
+    "B": {
+      "eng/wasm/tests/README-portable-helpers.md": "D",
+      "eng/wasm/tests/test_callhelper_targets.py": "D",
+      "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmPortableHelperTargetTests.cs": "D",
+      "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmTestHelpers.cs": "M",
+      "src/coreclr/vm/wasm/generate-coreclr-helpers.md": "M"
+    },
+    "C": {
+      "eng/wasm/README-memory64-icu.md": "M",
+      "eng/wasm/tests/test_memory64_icu.py": "D",
+      "eng/wasm/tests/test_memory64_sysroot.py": "D"
+    },
+    "D": {
+      "docs/design/features/wasm64-bringup.md": "M",
+      "eng/native/tests/wasm-abi.sh": "D",
+      "eng/native/tests/wasm-target.sh": "D",
+      "eng/native/tests/wasm-target/CMakeLists.txt": "D",
+      "eng/native/tests/wasm-target/abi.c": "D",
+      "eng/native/tests/wasm-target/target.c": "D",
+      "eng/native/tests/wasm-target/target.cpp": "D",
+      "eng/pipelines/common/evaluate-default-paths.yml": "M",
+      "eng/pipelines/common/templates/wasm-coreclr-callhelpers-check.yml": "M",
+      "eng/wasm/README-memory64-icu.md": "M",
+      "eng/wasm/tests/README-corelib-target.md": "D",
+      "eng/wasm/tests/README-portable-helpers.md": "D",
+      "eng/wasm/tests/README.md": "D",
+      "eng/wasm/tests/TargetSelection.proj": "D",
+      "eng/wasm/tests/check-corelib-layout.cs": "D",
+      "eng/wasm/tests/check_memory64_products.py": "D",
+      "eng/wasm/tests/test_callhelper_targets.py": "D",
+      "eng/wasm/tests/test_corelib_target.py": "D",
+      "eng/wasm/tests/test_memory64_icu.py": "D",
+      "eng/wasm/tests/test_memory64_icu_integration.py": "D",
+      "eng/wasm/tests/test_memory64_products.py": "D",
+      "eng/wasm/tests/test_memory64_sysroot.py": "D",
+      "eng/wasm/tests/test_memory64_sysroot_integration.py": "D",
+      "eng/wasm/tests/test_target_selection.py": "D",
+      "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmPortableHelperTargetTests.cs": "D",
+      "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmTestHelpers.cs": "M",
+      "src/coreclr/vm/wasm/generate-coreclr-helpers.md": "M"
+    }
+  },
+  "unexpected_differences": {
+    "A": [],
+    "B": [],
+    "C": [],
+    "D": []
+  },
+  "all_other_production_blobs_unchanged": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": true
+  },
+  "helper_and_CI_exact_common_base": {
+    "src/coreclr/tools/aot/ILCompiler.ReadyToRun.Tests/WasmTestHelpers.cs": true,
+    "eng/pipelines/common/templates/wasm-coreclr-callhelpers-check.yml": true,
+    "eng/pipelines/common/evaluate-default-paths.yml": true
+  },
+  "remaining_test_paths_changed_from_common_base": [],
+  "remaining_new_test_files": [],
+  "remaining_removed_test_references": [],
+  "commit_counts": {
+    "all_commits_from_common_base": 7,
+    "native_delta_from_review_base": 1
+  },
+  "common_base_existing_test_matrix": "All test-path blobs in finalD equal common base; no testing paths in base..finalD diff.",
+  "scope": "Read-only source/history audit only; no tests/builds or remote/source mutation.",
+  "failures": []
+}
