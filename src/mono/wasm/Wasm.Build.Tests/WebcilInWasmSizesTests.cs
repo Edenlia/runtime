@@ -165,6 +165,100 @@ public class WebcilInWasmSizesTests
         Assert.NotNull(failureReason);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WebcilConverter_UsesExplicitFinalMemoryModel(bool memory64)
+    {
+        using var directory = new TempDirectory();
+        string outputPath = Path.Combine(directory.Path, "CoreLib.wasm");
+        WebcilConverter converter = WebcilConverter.FromPortableExecutable(typeof(object).Assembly.Location, outputPath, webcilVersion: 1);
+        converter.Memory64 = memory64;
+        converter.ConvertToWebcil();
+
+        WrapperShape shape = ReadWrapperShape(File.ReadAllBytes(outputPath));
+        Assert.Equal(memory64 ? (byte)4 : (byte)0, shape.MemoryFlags);
+        Assert.Equal(memory64 ? (byte)0x7e : (byte)0x7f, shape.MemoryBaseType);
+        Assert.Equal(2, shape.WrapperVersion);
+        using var stream = File.OpenRead(outputPath);
+        Assert.True(WebcilReader.TryReadWebcilInWasmMemory64(stream, out bool actualMemory64));
+        Assert.Equal(memory64, actualMemory64);
+        using var reader = new WebcilReader(stream);
+        MetadataReader metadata = reader.GetMetadataReader();
+        Assert.Equal(typeof(object).Module.ModuleVersionId, metadata.GetGuid(metadata.GetModuleDefinition().Mvid));
+    }
+
+    [Fact]
+    public void Memory64_RejectsPassiveMonoWrapper()
+    {
+        using var payload = new MemoryStream(new byte[4]);
+        Assert.Throws<ArgumentException>(() => new WebcilWasmWrapper(payload, selfInstalling: false, memory64: true));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ConvertDllsToWebcil_ReplacesOppositeMemoryProfile(bool memory64)
+    {
+        using var directory = new TempDirectory();
+        string input = typeof(object).Assembly.Location;
+        string output = Path.Combine(directory.Path, Path.ChangeExtension(Path.GetFileName(input), ".wasm"));
+        WebcilConverter converter = WebcilConverter.FromPortableExecutable(input, output, webcilVersion: 1);
+        converter.Memory64 = !memory64;
+        converter.ConvertToWebcil();
+        File.SetLastWriteTimeUtc(output, DateTime.UtcNow.AddMinutes(1));
+        var candidate = new TaskItem(input);
+        candidate.SetMetadata("RelativePath", Path.GetFileName(input));
+        var task = new ConvertDllsToWebcil {
+            BuildEngine = new TestBuildEngine(), Candidates = [candidate],
+            IntermediateOutputPath = Path.Combine(directory.Path, "intermediate"), OutputPath = directory.Path,
+            IsEnabled = true, WebcilVersion = 1, Memory64 = memory64,
+        };
+        Assert.True(task.Execute());
+        Assert.Equal(new[] { output }, task.FilesToTouch);
+        using var stream = File.OpenRead(output);
+        Assert.True(WebcilReader.TryReadWebcilInWasmMemory64(stream, out bool actualMemory64));
+        Assert.Equal(memory64, actualMemory64);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void ConvertDllsToWebcil_Wasm64DoesNotStageReadyToRun(bool memory64, bool explicitImage)
+    {
+        using var directory = new TempDirectory();
+        string input = typeof(object).Assembly.Location;
+        string prebuilt = Path.Combine(directory.Path, "prebuilt");
+        Directory.CreateDirectory(prebuilt);
+        string prebuiltWasm = Path.Combine(prebuilt, "System.Private.CoreLib.wasm");
+        File.Copy(input, Path.Combine(prebuilt, "System.Private.CoreLib.dll"));
+        File.WriteAllBytes(prebuiltWasm, [0xde, 0xad, 0xbe, 0xef]);
+        var candidate = new TaskItem(input);
+        candidate.SetMetadata("RelativePath", "System.Private.CoreLib.dll");
+        if (explicitImage)
+            candidate.SetMetadata("R2RWebcilPath", prebuiltWasm);
+        var engine = new TestBuildEngine(failOnError: false);
+        var task = new ConvertDllsToWebcil {
+            BuildEngine = engine, Candidates = [candidate],
+            IntermediateOutputPath = Path.Combine(directory.Path, "intermediate"),
+            OutputPath = Path.Combine(directory.Path, "output"), PrebuiltR2RDirectory = prebuilt,
+            IsEnabled = true, WebcilVersion = 1, Memory64 = memory64, TargetArchitecture = "wasm64",
+        };
+        Assert.Equal(!explicitImage, task.Execute());
+        if (explicitImage)
+            Assert.Contains(engine.Errors, message => message.Contains("wasm64 ReadyToRun"));
+        else
+        {
+            using var stream = File.OpenRead(Path.Combine(task.OutputPath, "System.Private.CoreLib.wasm"));
+            Assert.True(WebcilReader.TryReadWebcilInWasmMemory64(stream, out bool actualMemory64));
+            Assert.Equal(memory64, actualMemory64);
+            Assert.True(WebcilReader.TryReadWebcilInWasmSizes(stream, out _, out int tableSize, out string? failureReason), failureReason);
+            Assert.Equal(0, tableSize);
+        }
+    }
+
     [Fact]
     public void DataSegmentTooSmall_Fails()
     {
@@ -233,8 +327,11 @@ public class WebcilInWasmSizesTests
         File.WriteAllBytes(Path.Combine(prebuiltDirectory, assemblyBaseName + ".wasm"), invalidPrebuiltImage);
         string outputPath = Path.Combine(outputDirectory, assemblyBaseName + ".wasm");
         Directory.CreateDirectory(outputDirectory);
-        byte[] existingOutput = BuildWebcilInWasm(payloadSize: 4, tableSize: outputUsesR2R ? 1 : null);
-        File.WriteAllBytes(outputPath, existingOutput);
+        if (outputUsesR2R)
+            File.WriteAllBytes(outputPath, BuildWebcilInWasm(payloadSize: 4, tableSize: 1));
+        else
+            WebcilConverter.FromPortableExecutable(assemblyPath, outputPath).ConvertToWebcil();
+        byte[] existingOutput = File.ReadAllBytes(outputPath);
         File.SetLastWriteTimeUtc(outputPath, DateTime.UtcNow.AddMinutes(1));
         string conversionStamp = Path.Combine(directory.Path, "conversion.stamp");
         if (forceWithStamp)
@@ -272,7 +369,9 @@ public class WebcilInWasmSizesTests
             return;
         }
 
-        Assert.False(existingOutput.SequenceEqual(actualOutput));
+        // Re-converting the same IL after a stamp change is deterministic.
+        if (outputUsesR2R)
+            Assert.False(existingOutput.SequenceEqual(actualOutput));
         using FileStream output = File.OpenRead(outputPath);
         Assert.True(WebcilReader.TryReadWebcilInWasmSizes(output, out _, out int tableSize, out string? failureReason), failureReason);
         Assert.Equal(0, tableSize);
@@ -486,7 +585,9 @@ public class WebcilInWasmSizesTests
         byte[] PayloadOffsetExpr,
         int PayloadLength,
         string[] FunctionExports,
-        string[] GlobalImports);
+        string[] GlobalImports,
+        byte MemoryFlags,
+        byte MemoryBaseType);
 
     // Reads the parts of a converter-produced wrapper that distinguish the passive and self-installing forms.
     private static WrapperShape ReadWrapperShape(byte[] wasm)
@@ -495,6 +596,8 @@ public class WebcilInWasmSizesTests
         byte payloadSegmentMode = 0xff;
         byte[] payloadOffsetExpr = Array.Empty<byte>();
         int payloadLength = -1;
+        byte memoryFlags = 0;
+        byte memoryBaseType = 0;
         var functionExports = new List<string>();
         var globalImports = new List<string>();
         var exportedGlobals = new Dictionary<uint, string>();
@@ -516,6 +619,7 @@ public class WebcilInWasmSizesTests
                         if (kind == 2) // memory: flags, min
                         {
                             byte flags = wasm[offset++];
+                            memoryFlags = flags;
                             ReadULEB(wasm, ref offset);
                             if ((flags & 1) != 0)
                                 ReadULEB(wasm, ref offset);
@@ -523,7 +627,10 @@ public class WebcilInWasmSizesTests
                         else
                         {
                             Assert.Equal((byte)3, kind);
-                            offset += 2; // valtype, mutability
+                            byte valueType = wasm[offset++];
+                            offset++; // mutability
+                            if (name == "__memory_base")
+                                memoryBaseType = valueType;
                             globalImports.Add(name);
                         }
                     }
@@ -577,7 +684,7 @@ public class WebcilInWasmSizesTests
         }
 
         functionExports.Sort(StringComparer.Ordinal);
-        return new WrapperShape(wrapperVersion, payloadSegmentMode, payloadOffsetExpr, payloadLength, functionExports.ToArray(), globalImports.ToArray());
+        return new WrapperShape(wrapperVersion, payloadSegmentMode, payloadOffsetExpr, payloadLength, functionExports.ToArray(), globalImports.ToArray(), memoryFlags, memoryBaseType);
     }
 
     private static string ReadName(byte[] wasm, ref int offset)
@@ -640,8 +747,9 @@ public class WebcilInWasmSizesTests
         public void Dispose() => Directory.Delete(Path, recursive: true);
     }
 
-    private sealed class TestBuildEngine : IBuildEngine
+    private sealed class TestBuildEngine(bool failOnError = true) : IBuildEngine
     {
+        public List<string> Errors { get; } = new();
         public bool ContinueOnError => false;
         public int LineNumberOfTaskNode => 0;
         public int ColumnNumberOfTaskNode => 0;
@@ -654,7 +762,12 @@ public class WebcilInWasmSizesTests
         {
         }
 
-        public void LogErrorEvent(BuildErrorEventArgs e) => Assert.Fail(e.Message ?? "Build error");
+        public void LogErrorEvent(BuildErrorEventArgs e)
+        {
+            Errors.Add(e.Message ?? "Build error");
+            if (failOnError)
+                Assert.Fail(e.Message ?? "Build error");
+        }
 
         public void LogMessageEvent(BuildMessageEventArgs e)
         {

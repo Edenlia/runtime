@@ -12,6 +12,7 @@ internal sealed class WasmModuleInfo
 {
     public uint DefinedFunctionCount { get; internal set; }
     public uint ImportedFunctionCount { get; internal set; }
+    public bool? Memory64 { get; internal set; }
     public IReadOnlyDictionary<string, (byte Kind, uint Index)> Exports => _exports;
     public IReadOnlyList<int?> DefinedI32Functions => _definedI32Functions;
     public IReadOnlyList<(bool Active, int? Offset, long PayloadOffset, uint Size)> DataSegments => _dataSegments;
@@ -127,7 +128,8 @@ internal sealed class WasmModuleInfoReader : WasmModuleReader
                     SkipLimits();
                     break;
                 case 2:
-                    SkipLimits();
+                    uint memoryFlags = SkipLimits();
+                    _info.Memory64 ??= (memoryFlags & 4) != 0;
                     break;
                 case GlobalImport:
                     ReadByte();
@@ -283,12 +285,34 @@ internal sealed class WasmModuleInfoReader : WasmModuleReader
         }
     }
 
-    private void SkipLimits()
+    private uint SkipLimits()
     {
         uint flags = ReadULEB128();
-        ReadULEB128();
+        SkipLimit(flags);
         if ((flags & 1) != 0)
+            SkipLimit(flags);
+        return flags;
+    }
+
+    private void SkipLimit(uint flags)
+    {
+        if ((flags & 4) == 0)
+        {
             ReadULEB128();
+            return;
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            byte value = ReadByte();
+            if ((value & 0x80) == 0)
+            {
+                if (i == 9 && value > 1)
+                    throw new BadImageFormatException("WebAssembly limit exceeds u64.");
+                return;
+            }
+        }
+        throw new BadImageFormatException("WebAssembly limit exceeds u64.");
     }
 
     private string ReadName()

@@ -37,6 +37,12 @@ public class ConvertDllsToWebcil : Task
 
     public int WebcilVersion { get; set; }
 
+    /// <summary>Final module memory index width; wasm64 lowering uses false despite its 64-bit native ABI.</summary>
+    public bool Memory64 { get; set; }
+
+    /// <summary>Native ABI architecture, independent of the final memory index width.</summary>
+    public string? TargetArchitecture { get; set; }
+
     [Output]
     public ITaskItem[] WebcilCandidates { get; set; }
 
@@ -153,10 +159,13 @@ public class ConvertDllsToWebcil : Task
         // stage (copy) it into the webcil output so it flows through the same downstream metadata as a
         // converted assembly, but carries native code. The .dll is kept only as the metadata source.
         string r2rWebcilPath = candidate.GetMetadata("R2RWebcilPath");
+        bool supportsReadyToRun = !Memory64 && !string.Equals(TargetArchitecture, "wasm64", StringComparison.OrdinalIgnoreCase);
+        if (!supportsReadyToRun && !string.IsNullOrEmpty(r2rWebcilPath))
+            throw new NotSupportedException("wasm64 ReadyToRun Webcil images are not supported, including with lowered memory indices.");
         bool forceWebcilConversion = !string.IsNullOrEmpty(ConversionStamp)
             && File.Exists(ConversionStamp)
             && Utils.IsNewerThan(ConversionStamp, finalWebcil);
-        if (string.IsNullOrEmpty(r2rWebcilPath) && !isCulture && !string.IsNullOrEmpty(PrebuiltR2RDirectory))
+        if (supportsReadyToRun && string.IsNullOrEmpty(r2rWebcilPath) && !isCulture && !string.IsNullOrEmpty(PrebuiltR2RDirectory))
         {
             string assemblyName = Path.GetFileNameWithoutExtension(dllFilePath);
 
@@ -209,6 +218,7 @@ public class ConvertDllsToWebcil : Task
             var tmpWebcil = Path.Combine(tmpDir, webcilFileName);
             var logAdapter = new Microsoft.WebAssembly.Build.Tasks.LogAdapter(Log);
             var webcilWriter = Microsoft.WebAssembly.Build.Tasks.WebcilConverter.FromPortableExecutable(inputPath: dllFilePath, outputPath: tmpWebcil, logger: logAdapter, webcilVersion: WebcilVersion);
+            webcilWriter.Memory64 = Memory64;
             webcilWriter.ConvertToWebcil();
 
             if (!Directory.Exists(candidatePath))
@@ -242,14 +252,17 @@ public class ConvertDllsToWebcil : Task
         return webcilItem;
     }
 
-    private static bool OutputHasExpectedWebcilFlavor(string path, bool useR2R)
+    private bool OutputHasExpectedWebcilFlavor(string path, bool useR2R)
     {
         if (!File.Exists(path))
             return false;
 
         using FileStream stream = File.OpenRead(path);
-        return WebcilReader.TryReadWebcilInWasmSizes(stream, out _, out int tableSize, out _)
-            && useR2R == (tableSize > 0);
+        if (!WebcilReader.TryReadWebcilInWasmSizes(stream, out _, out int tableSize, out _)
+            || useR2R != (tableSize > 0))
+            return false;
+
+        return useR2R || (WebcilReader.TryReadWebcilInWasmMemory64(stream, out bool memory64) && Memory64 == memory64);
     }
 
     private bool PrebuiltR2RMatchesCandidate(string candidateDllPath, string prebuiltImagePath, out bool candidateHasILCode)

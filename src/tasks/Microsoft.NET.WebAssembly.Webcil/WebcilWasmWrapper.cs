@@ -57,6 +57,7 @@ public class WebcilWasmWrapper
     private readonly Stream _webcilPayloadStream;
     private readonly uint _webcilPayloadSize;
     private readonly bool _selfInstalling;
+    private readonly bool _memory64;
 
     public WebcilWasmWrapper(Stream webcilPayloadStream)
         : this(webcilPayloadStream, selfInstalling: false)
@@ -64,13 +65,21 @@ public class WebcilWasmWrapper
     }
 
     public WebcilWasmWrapper(Stream webcilPayloadStream, bool selfInstalling)
+        : this(webcilPayloadStream, selfInstalling, memory64: false)
     {
+    }
+
+    public WebcilWasmWrapper(Stream webcilPayloadStream, bool selfInstalling, bool memory64)
+    {
+        if (memory64 && !selfInstalling)
+            throw new ArgumentException("Memory64 requires the self-installing CoreCLR wrapper.", nameof(memory64));
         _webcilPayloadStream = webcilPayloadStream;
         long len = webcilPayloadStream.Length;
         if (len > (long)uint.MaxValue)
             throw new InvalidOperationException("webcil payload too large");
         _webcilPayloadSize = (uint)len;
         _selfInstalling = selfInstalling;
+        _memory64 = memory64;
     }
 
     public void WriteWasmWrappedWebcil(Stream outputStream)
@@ -89,7 +98,9 @@ public class WebcilWasmWrapper
 #else
         byte[]
 #endif
-        WasmWrapperPrefix => _selfInstalling ? s_selfInstallingWasmWrapperPrefix : s_wasmWrapperPrefix;
+        WasmWrapperPrefix => _selfInstalling
+            ? (_memory64 ? s_selfInstallingMemory64WasmWrapperPrefix : s_selfInstallingWasmWrapperPrefix)
+            : s_wasmWrapperPrefix;
 
     //
     // Everything from the above version 0 wat module before the data section
@@ -142,6 +153,22 @@ public class WebcilWasmWrapper
 
     // The version 2 payload segment's offset expression: global.get 0 (the imported __memory_base), end.
     private static readonly byte[] s_selfInstallingPayloadOffsetExpr = { 0x23, 0x00, 0x0b };
+
+    // The same self-installing wrapper with an i64 memory, __memory_base and
+    // getWebcilSize destination. memory.init's data-segment offset/length stay i32.
+    // The existing Memory32 prefix remains unchanged for byte-compatible defaults.
+    private static
+#if NET
+        ReadOnlyMemory<byte>
+#else
+        byte[]
+#endif
+        s_selfInstallingMemory64WasmWrapperPrefix = new byte[] {
+        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x05, 0x01, 0x60, 0x01, 0x7e, 0x00, 0x02, 0x2a, 0x02, 0x06, 0x77, 0x65, 0x62, 0x63, 0x69, 0x6c, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79,
+        0x02, 0x04, 0x01, 0x06, 0x77, 0x65, 0x62, 0x63, 0x69, 0x6c, 0x0d, 0x5f, 0x5f, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x5f, 0x62, 0x61, 0x73, 0x65, 0x03, 0x7e, 0x00, 0x03, 0x02, 0x01, 0x00, 0x06,
+        0x06, 0x01, 0x7f, 0x00, 0x41, 0x02, 0x0b, 0x07, 0x21, 0x02, 0x0d, 0x77, 0x65, 0x62, 0x63, 0x69, 0x6c, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x03, 0x01, 0x0d, 0x67, 0x65, 0x74, 0x57, 0x65,
+        0x62, 0x63, 0x69, 0x6c, 0x53, 0x69, 0x7a, 0x65, 0x00, 0x00, 0x0c, 0x01, 0x02, 0x0a, 0x0e, 0x01, 0x0c, 0x00, 0x20, 0x00, 0x41, 0x00, 0x41, 0x04, 0xfc, 0x08, 0x00, 0x00, 0x0b,
+    };
 
     private void WriteWasmHeader(Stream outputStream)
     {

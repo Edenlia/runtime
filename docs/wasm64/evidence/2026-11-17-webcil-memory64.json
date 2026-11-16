@@ -1,0 +1,340 @@
+{
+  "format_version": 1,
+  "date": "2026-11-17",
+  "base_sha": "ef532fc54ebe7c3b3f2e9314a4ac436b07c044c5",
+  "scope": "Intrinsic unshared IL WebCIL Memory64 producer and emitted browser host; no CLR guest",
+  "artifact_root": "UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Runtime/Webcil",
+  "toolchain": {
+    "dotnet_sdk": "12.0.100-alpha.1.26557.102",
+    "emscripten": "6.0.10",
+    "emscripten_sha": "d6c521a7f05449857c76bd99e396895583cf2083",
+    "llvm_base": "a06d9165905ce89b5ffef2bbb84c886d60a9b8bf",
+    "llvm_patch": "8620eb7b55e857a5f6e430be624b5a6605e8c53e",
+    "clang_sha256": "6c5ce14d830a38be10991a4d639a881b32d6399e3d59717cf8f9d3ce732590a4",
+    "override": "process-local EM_LLVM_ROOT, ordinary Clang integrated assembler; stock linker and sysroot",
+    "node": "24.19.0",
+    "chrome": "157.0.8103.52",
+    "runtime_emscripten_pin_changed": false,
+    "pinned_6_0_2_macro_source": {
+      "file": "../PinnedSource/parseTools-6.0.2.mjs",
+      "sha256": "d94d8bb5392392fc19c2147836723de0581da027d194ed4197b944f4253de1ac",
+      "binary_tests_run": false
+    }
+  },
+  "source_sha256": {
+    "src/mono/nuget/Microsoft.NET.Sdk.WebAssembly.Pack/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets": "872094d0632833c639877e51a31df4d4238e41f5e0d61991b350b0a79ce696e3",
+    "src/mono/wasm/Wasm.Build.Tests/WebcilInWasmSizesTests.cs": "9fd1c14f4ef7774b84d33636ae8627f0d92ef5afcb59c9f30f2c9fbb6ce3aaa8",
+    "src/native/corehost/browserhost/libBrowserHost.footer.js": "d1a7a4b25c51abf88edce874819c0317866460eb11f46ebcf70e0656a1c75195",
+    "src/native/libs/Common/JavaScript/host/assets.ts": "fe2e2e52d88acc52ddc7654844bf62c44e3fd84b18d8c18f4bdcc0a579a0b1d0",
+    "src/native/libs/Common/JavaScript/types/ems-ambient.ts": "d07e8fd009c07103be508afffbbaf4bb5c40329e9617f4caec6828d4ded06280",
+    "src/tasks/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/ConvertDllsToWebCil.cs": "833ac9816c4c53ce46967a3baefd6278ecdeba22371d7160bd8b0a385537955d",
+    "src/tasks/Microsoft.NET.WebAssembly.Webcil/WasmModuleInfoReader.cs": "183c99b1f81131a928b2d5614f9674a42a18779a0cf7b4d41cb1fecc05f2e8c2",
+    "src/tasks/Microsoft.NET.WebAssembly.Webcil/WebcilConverter.cs": "40a3ba6694642b86944d475abedc215f294ef8702543b4a7a7c79c0c097529fe",
+    "src/tasks/Microsoft.NET.WebAssembly.Webcil/WebcilReader.cs": "635f7cda55819066347487364abb2f4af27f27664342491385984d8f95736185",
+    "src/tasks/Microsoft.NET.WebAssembly.Webcil/WebcilWasmWrapper.cs": "d0a2d43ecd853dc8b612c067be9a5edacb27276717ed313565f204f0610dc37f",
+    "src/tasks/WasmAppBuilder/WebcilConverter.cs": "ba615d4e8e9c973d674e50c38a79b58b5ee6ba850ddbc6b8f0dfebfa77104aec"
+  },
+  "input_sha256": {
+    "Inputs/Producer.dll": "e3be4969450ba4d0a88cab39e20d2477346d48405f46edbb11eddab97d2da696",
+    "matching_System.Private.CoreLib.dll": "b1f24685b9022bbae184f3dfea7a602365bf40b7cea63584b371fa132713257a"
+  },
+  "producer_outputs": [
+    {
+      "input": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Inputs\\Producer.dll",
+      "output": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Produced\\Memory32\\Producer.wasm",
+      "memory64": false,
+      "version": 1,
+      "payload": 9808,
+      "table": 0,
+      "assembly": "Producer",
+      "mvid": "840d8022-25f6-473c-9918-d6910bd0468c",
+      "sha256": "092AE014413F01CD4A5267BD53AA9E22DB92B7A812995AEF503753C78275CE17",
+      "producer": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Producer\\bin\\Release\\net12.0\\Microsoft.NET.WebAssembly.Webcil.dll"
+    },
+    {
+      "input": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Inputs\\Producer.dll",
+      "output": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Produced\\Memory64\\Producer.wasm",
+      "memory64": true,
+      "version": 1,
+      "payload": 9808,
+      "table": 0,
+      "assembly": "Producer",
+      "mvid": "840d8022-25f6-473c-9918-d6910bd0468c",
+      "sha256": "0D4D2E681B1A6E07F5091DC61CE5C0582DB6D82C224105AC99447BDA9EC53B95",
+      "producer": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Producer\\bin\\Release\\net12.0\\Microsoft.NET.WebAssembly.Webcil.dll"
+    },
+    {
+      "input": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\artifacts\\bin\\coreclr\\browser.wasm64.Release\\IL\\System.Private.CoreLib.dll",
+      "output": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Produced\\Memory32\\System.Private.CoreLib.wasm",
+      "memory64": false,
+      "version": 1,
+      "payload": 5673552,
+      "table": 0,
+      "assembly": "System.Private.CoreLib",
+      "mvid": "c6613de0-d928-4947-a81d-9c64112f186c",
+      "sha256": "3463DFDDE38E37955D65B91D40503DA76E4216A701AECBCAF411856D254B0FF4",
+      "producer": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Producer\\bin\\Release\\net12.0\\Microsoft.NET.WebAssembly.Webcil.dll"
+    },
+    {
+      "input": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\artifacts\\bin\\coreclr\\browser.wasm64.Release\\IL\\System.Private.CoreLib.dll",
+      "output": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Produced\\Memory64\\System.Private.CoreLib.wasm",
+      "memory64": true,
+      "version": 1,
+      "payload": 5673552,
+      "table": 0,
+      "assembly": "System.Private.CoreLib",
+      "mvid": "c6613de0-d928-4947-a81d-9c64112f186c",
+      "sha256": "20BDFB4A3602CBCB755E62BD77EFCD44DB3ACE284AA4B5E5E5133FAA9C465B6E",
+      "producer": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\Producer\\bin\\Release\\net12.0\\Microsoft.NET.WebAssembly.Webcil.dll"
+    }
+  ],
+  "task_build": {
+    "exit_code": 0,
+    "warnings": 0,
+    "errors": 0,
+    "log": "tasks-build.log"
+  },
+  "tests": {
+    "source": "src/mono/wasm/Wasm.Build.Tests/WebcilInWasmSizesTests.cs",
+    "runner": "Task-local xUnit2.9.3 source-linked existing test class, real built task+converter assemblies",
+    "counters": {
+      "total": "32",
+      "executed": "32",
+      "passed": "32",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trx_sha256": "bc2e01a9ec21cd46a386c3460e295acea71890b9f4178296eea7ca328208297e"
+  },
+  "default_byte_compatibility": [
+    {
+      "input": "Producer",
+      "payload_version": 0,
+      "before_sha256": "c15933789ca4d76fbaa464c6006bc36912f6b3a127184e8f8a73393325ed3cc8",
+      "after_sha256": "c15933789ca4d76fbaa464c6006bc36912f6b3a127184e8f8a73393325ed3cc8",
+      "identical": true
+    },
+    {
+      "input": "Producer",
+      "payload_version": 1,
+      "before_sha256": "092ae014413f01cd4a5267bd53aa9e22db92b7a812995aef503753c78275ce17",
+      "after_sha256": "092ae014413f01cd4a5267bd53aa9e22db92b7a812995aef503753c78275ce17",
+      "identical": true
+    },
+    {
+      "input": "System.Private.CoreLib",
+      "payload_version": 0,
+      "before_sha256": "ece27520b405875859ea567e90a2fbd0887afd69e89e563232fcd6d7088399cc",
+      "after_sha256": "ece27520b405875859ea567e90a2fbd0887afd69e89e563232fcd6d7088399cc",
+      "identical": true
+    },
+    {
+      "input": "System.Private.CoreLib",
+      "payload_version": 1,
+      "before_sha256": "3463dfdde38e37955d65b91d40503da76e4216a701aecbcaf411856d254b0ff4",
+      "after_sha256": "3463dfdde38e37955d65b91d40503da76e4216a701aecbcaf411856d254b0ff4",
+      "identical": true
+    }
+  ],
+  "sdk_configuration_and_incremental_build": {
+    "pass": true,
+    "cases": [
+      {
+        "name": "mono-default",
+        "exit_code": 0,
+        "sha256": "c15933789ca4d76fbaa464c6006bc36912f6b3a127184e8f8a73393325ed3cc8",
+        "mtime": 1794846874907004600,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=0\n_WasmWebcilMemory64=false\n_WasmWebcilTargetArchitecture=\nPublishReadyToRun=\n_WasmBuildPrebuiltR2RDirectory=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "coreclr32-default",
+        "exit_code": 0,
+        "sha256": "092ae014413f01cd4a5267bd53aa9e22db92b7a812995aef503753c78275ce17",
+        "mtime": 1794846879550288600,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=false\n_WasmWebcilTargetArchitecture=\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "native64-default",
+        "exit_code": 0,
+        "sha256": "0d4d2e681b1a6e07f5091dc61ce5c0582db6d82c224105ac99447bda9ec53b95",
+        "mtime": 1794846884140466600,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=true\n_WasmWebcilTargetArchitecture=wasm64\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "native64-targetrid",
+        "exit_code": 0,
+        "sha256": "0d4d2e681b1a6e07f5091dc61ce5c0582db6d82c224105ac99447bda9ec53b95",
+        "mtime": 1794846884140466600,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=true\n_WasmWebcilTargetArchitecture=wasm64\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "lowered64-explicit",
+        "exit_code": 0,
+        "sha256": "092ae014413f01cd4a5267bd53aa9e22db92b7a812995aef503753c78275ce17",
+        "mtime": 1794846893051612600,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=false\n_WasmWebcilTargetArchitecture=wasm64\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "flip64",
+        "exit_code": 0,
+        "sha256": "0d4d2e681b1a6e07f5091dc61ce5c0582db6d82c224105ac99447bda9ec53b95",
+        "mtime": 1794846897650114200,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=true\n_WasmWebcilTargetArchitecture=wasm64\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "same64",
+        "exit_code": 0,
+        "sha256": "0d4d2e681b1a6e07f5091dc61ce5c0582db6d82c224105ac99447bda9ec53b95",
+        "mtime": 1794846897650114200,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=true\n_WasmWebcilTargetArchitecture=wasm64\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      },
+      {
+        "name": "flip32",
+        "exit_code": 0,
+        "sha256": "092ae014413f01cd4a5267bd53aa9e22db92b7a812995aef503753c78275ce17",
+        "mtime": 1794846906160521200,
+        "stamp": "_WasmEnableWebcil=true\n_WasmWebcilVersion=1\n_WasmWebcilMemory64=false\n_WasmWebcilTargetArchitecture=wasm64\nPublishReadyToRun=false\n_WasmBuildPrebuiltR2RDirectory=\nPublishTrimmed=\nPublishReadyToRunComposite=\nPrebuiltR2R=|\nInput=C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\Webcil\\SdkProbe.proj|2026-11-17 00:34:33.1422303\nInput=C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\src\\mono\\nuget\\Microsoft.NET.Sdk.WebAssembly.Pack\\build\\Microsoft.NET.Sdk.WebAssembly.Browser.targets|2026-11-17 00:32:42.4465039\nInput=C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/artifacts/bin/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks/Release/net/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll|2026-11-17 00:23:34.4881548\n"
+      }
+    ],
+    "full_publish_dispatch_tested": false,
+    "publish_task_arguments_and_stamp_reviewed": true
+  },
+  "emitted_host": {
+    "node": [
+      {
+        "lane": "wasm32",
+        "build_exit": 0,
+        "bundle_sha256": "0bf6ed540c014209251e05f7e67fad44e82f865c8284586c7fcc89174ff24314",
+        "run_exit": 0,
+        "stdout": "WEBCIL_PASS {\"width\":4,\"profile\":\"Memory32\",\"cases\":4,\"importsSeen\":4,\"streamingSeen\":2,\"tableIndexType\":\"number\",\"wrongProfileRejected\":true}\n",
+        "stderr": ""
+      },
+      {
+        "lane": "wasm64",
+        "build_exit": 0,
+        "bundle_sha256": "179f1ecbcd3c210f38487eb3444c75ba6ab70200d7aa10c7fd6731e2c1b86ab4",
+        "run_exit": 0,
+        "stdout": "WEBCIL_PASS {\"width\":8,\"profile\":\"Memory64\",\"cases\":4,\"importsSeen\":4,\"streamingSeen\":2,\"tableIndexType\":\"bigint\",\"wrongProfileRejected\":true}\n",
+        "stderr": ""
+      },
+      {
+        "lane": "wasm64-lowered",
+        "build_exit": 0,
+        "bundle_sha256": "179f1ecbcd3c210f38487eb3444c75ba6ab70200d7aa10c7fd6731e2c1b86ab4",
+        "run_exit": 0,
+        "stdout": "WEBCIL_PASS {\"width\":8,\"profile\":\"Memory32\",\"cases\":4,\"importsSeen\":4,\"streamingSeen\":2,\"tableIndexType\":\"number\",\"wrongProfileRejected\":true}\n",
+        "stderr": ""
+      }
+    ],
+    "chrome": [
+      {
+        "lane": "wasm32",
+        "browser_version": "157.0.8103.52",
+        "exit_code": 0,
+        "console": [
+          {
+            "type": "log",
+            "text": "WEBCIL_PASS {\"width\":4,\"profile\":\"Memory32\",\"cases\":4,\"importsSeen\":4,\"streamingSeen\":2,\"tableIndexType\":\"number\",\"wrongProfileRejected\":true}"
+          },
+          {
+            "type": "log",
+            "text": "WEBCIL_EXIT 0"
+          }
+        ],
+        "page_errors": [],
+        "passed": true
+      },
+      {
+        "lane": "wasm64",
+        "browser_version": "157.0.8103.52",
+        "exit_code": 0,
+        "console": [
+          {
+            "type": "log",
+            "text": "WEBCIL_PASS {\"width\":8,\"profile\":\"Memory64\",\"cases\":4,\"importsSeen\":4,\"streamingSeen\":2,\"tableIndexType\":\"bigint\",\"wrongProfileRejected\":true}"
+          },
+          {
+            "type": "log",
+            "text": "WEBCIL_EXIT 0"
+          }
+        ],
+        "page_errors": [],
+        "passed": true
+      },
+      {
+        "lane": "wasm64-lowered",
+        "browser_version": "157.0.8103.52",
+        "exit_code": 0,
+        "console": [
+          {
+            "type": "log",
+            "text": "WEBCIL_PASS {\"width\":8,\"profile\":\"Memory32\",\"cases\":4,\"importsSeen\":4,\"streamingSeen\":2,\"tableIndexType\":\"number\",\"wrongProfileRejected\":true}"
+          },
+          {
+            "type": "log",
+            "text": "WEBCIL_EXIT 0"
+          }
+        ],
+        "page_errors": [],
+        "passed": true
+      }
+    ],
+    "assertions": [
+      "actual production converter, not handwritten wrapper fixture",
+      "real IL+matching CoreLib; metadata MVID validated",
+      "buffered and streaming paths, 16-byte native allocation alignment, exact native payload memcmp",
+      "imported real memory and i32/i64 __memory_base; getWebcilSize four-byte output",
+      "real ExternalAssemblyProbe pointer slots and zeroed miss outputs",
+      "compiler-generated Number/BigInt table.grow adapter",
+      "wrong produced profile causes LinkError, frees allocation once and does not register"
+    ]
+  },
+  "rollup": {
+    "wasm32_exit_code": 0,
+    "wasm64_exit_code": 0,
+    "mode": "Release/minified, runtime CoreCLR, widths4/8, CLI --forceExit to close idle plugin handles"
+  },
+  "eslint": {
+    "exit_code": 0,
+    "files": [
+      "host/assets.ts",
+      "types/ems-ambient.ts",
+      "corehost/browserhost/libBrowserHost.footer.js"
+    ]
+  },
+  "artifact_sha256": {
+    "run-host.py": "48e43ed7cd1d7171dd08369ffcb246aeb9c5918bc567ccba1131315373584907",
+    "run-browser.py": "99375de506af70a9738ea1ad1a526dae74edda1d2fe5979cdba01c822f981d78",
+    "compatibility.py": "89be824b561216ba027d927e62d21a30ce07902bb95bb1836956bab583449701",
+    "sdk-probe.py": "2cfcc342693572015147639d77e7f656114a2d92c3daafbc3c4e0b537cbd3a93",
+    "host-probe.c": "259dc1a06bd58d4d8b93370e42edec42123f7ff1cb4e3b61749c9bfe4cf2dd6b",
+    "host-pre.js": "7bad451c78ee31378b1c3d0946baa9c89b19c26c4ad1f0ee1ad99d543efd8ea2",
+    "host-deps.js": "c33042aea4d4973857ea82d29b94b0268f25fd93c7c2c5d33231355b7456a3f3",
+    "Host\\results.json": "cb4033d883d5074702a6f952795d0e0b77c7a32867e057a060bbce135e03678b",
+    "Host\\browser-results.json": "ece88b3489a57a4479a487193317f3b0f04561a2e28d5c51436b6dd5890fa1a1",
+    "sdk-results.json": "2cf57b07fdde264706c183353c5fa83bcc610ab7f3116bb8de9e6ec968e44bcd",
+    "compatibility-results.json": "dd45018acc3ce53f29fcb85e2aea8ba79956d4125de7ae68f8779e8067ade161"
+  },
+  "guest_executed": false,
+  "compiled_managed_body_observed": false,
+  "high_address_observed": false,
+  "limitations": [
+    "unshared/single-threaded IL wrapper only; no shared-memory UE/pthread WebCIL support",
+    "wasm64 R2R remains explicitly unsupported; lowered final i32 never permits wasm32 native R2R",
+    "no CoreCLR guest, GC/EH, high addresses or managed execution",
+    "whole SDK browser-wasm64 dispatch/runtime-pack paths are not completed by this change",
+    "Emscripten6.0.10 R2R-only wasmTable global rename is outside this IL-only checkpoint; table adapter tested using actual wasmExports.__indirect_function_table",
+    "runtime pin6.0.2 remains unchanged; binary acceptance here uses explicit6.0.10 and fixed ordinary Clang"
+  ]
+}
