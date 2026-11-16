@@ -1,0 +1,31 @@
+<!-- A standalone dependency build: no runtime, target JIT or managed framework build is required. -->
+<Project DefaultTargets="BuildMemory64Icu">
+  <PropertyGroup>
+    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..'))</RepoRoot>
+    <ArtifactsBinDir Condition="'$(ArtifactsBinDir)' == ''">$(RepoRoot)artifacts/bin/</ArtifactsBinDir>
+    <ArtifactsObjDir Condition="'$(ArtifactsObjDir)' == ''">$(RepoRoot)artifacts/obj/</ArtifactsObjDir>
+    <BrowserProjectRoot>$(RepoRoot)src/mono/browser/</BrowserProjectRoot>
+    <WasiProjectRoot>$(RepoRoot)src/mono/wasi/</WasiProjectRoot>
+  </PropertyGroup>
+  <Import Project="../OSArch.props" />
+  <Import Project="WasmToolCache.props" />
+  <Import Project="Memory64Icu.props" />
+  <PropertyGroup>
+    <Memory64IcuOperation Condition="'$(Memory64IcuOperation)' == ''">build</Memory64IcuOperation>
+    <EMSDK_PATH Condition="'$(EMSDK_PATH)' == '' and Exists('$(EmscriptenSdkStampFile)')">$(EmscriptenSdkCacheDir)</EMSDK_PATH>
+  </PropertyGroup>
+  <Target Name="BuildMemory64Icu" Returns="@(_Memory64IcuDependency)">
+    <Error Condition="'$(Memory64IcuOperation)' != 'build' and '$(Memory64IcuOperation)' != 'verify' and '$(Memory64IcuOperation)' != 'fetch'"
+           Text="Memory64IcuOperation must be build, verify or fetch." />
+    <Error Condition="'$(Memory64IcuOperation)' != 'fetch' and !Exists('$(EMSDK_PATH)/emscripten/emcc')"
+           Text="The pinned Emscripten SDK is required. Build the provision.emsdk subset first or set EMSDK_PATH." />
+    <Message Importance="High" Text="Memory64 ICU $(Memory64IcuOperation): $(Memory64IcuDir)" />
+    <Exec Command="&quot;$(PythonExecutable)&quot; &quot;$(MSBuildThisFileDirectory)build-memory64-icu.py&quot; $(Memory64IcuOperation) --repo-root &quot;$(RepoRoot)&quot; --emsdk &quot;$(EMSDK_PATH)&quot; --output &quot;$(Memory64IcuDir)&quot; --work-dir &quot;$(Memory64IcuWorkDir)&quot; --source-cache &quot;$(Memory64IcuSourceCacheDir)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;"
+          WorkingDirectory="$(RepoRoot)" />
+    <ItemGroup>
+      <_Memory64IcuDependency Include="$(Memory64IcuDir)">
+        <EmscriptenCacheDir>$(Memory64EmscriptenCacheDir)</EmscriptenCacheDir>
+      </_Memory64IcuDependency>
+    </ItemGroup>
+  </Target>
+</Project>
