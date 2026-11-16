@@ -35,6 +35,8 @@
       <NativeCMakeArg Condition="'$(_TzdDir)' != ''" Include="-cmakeargs &quot;-DCMAKE_TZD_DIR=$(_TzdDir)&quot;" />
       <NativeCMakeArg Condition="'$(RuntimeFlavor)' == 'Mono'" Include="-cmakeargs &quot;-DCLR_CMAKE_RUNTIME_MONO=1&quot;" />
       <NativeCMakeArg Condition="'$(RuntimeFlavor)' == 'CoreCLR'" Include="-cmakeargs &quot;-DCLR_CMAKE_RUNTIME_CORECLR=1&quot;" />
+      <NativeCMakeArg Condition="'$(TargetsWasm64)' == 'true' and '$(WasmNativePthreads)' != 'true'" Include="-cmakeargs &quot;-DCLR_CMAKE_WASM_NATIVE_PTHREADS=0&quot;" />
+      <NativeCMakeArg Condition="'$(TargetsWasm64)' == 'true' and '$(WasmNativePthreads)' == 'true'" Include="-cmakeargs &quot;-DCLR_CMAKE_WASM_NATIVE_PTHREADS=1&quot;" />
       <NativeCMakeArg Include="-cmakeargs &quot;-DCMAKE_PRODUCT_VERSION=$(ProductVersion)&quot;" />
       <NativeCMakeArg Include="-cmakeargs &quot;-DCMAKE_CONTINUOUS_INTEGRATION_BUILD=$(ContinuousIntegrationBuild)&quot;" />
       <NativeCMakeArg Include="-cmakeargs &quot;-DCMAKE_NET_CORE_APP_CURRENT_VERSION=$(NetCoreAppCurrentVersion)&quot;" />
@@ -67,7 +69,7 @@
       <PythonExecutable Condition="'$(PythonExecutable)' == '' and '$(EMSDK_PYTHON)' != ''">$(EMSDK_PYTHON)</PythonExecutable>
       <PythonExecutable Condition="'$(PythonExecutable)' == '' and Exists('$(EMSDK_PATH)/python/python.exe')">$(EMSDK_PATH)/python/python.exe</PythonExecutable>
       <PythonExecutable Condition="'$(PythonExecutable)' == ''">python</PythonExecutable>
-      <_PrepareMemory64EmscriptenCommand>&quot;$(PythonExecutable)&quot; &quot;$(RepositoryEngineeringDir)wasm/build-memory64-icu.py&quot; prepare-sysroot --emsdk &quot;$(EMSDK_PATH)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;</_PrepareMemory64EmscriptenCommand>
+      <_PrepareMemory64EmscriptenCommand>&quot;$(PythonExecutable)&quot; &quot;$(RepositoryEngineeringDir)wasm/build-memory64-icu.py&quot; prepare-sysroot --emsdk &quot;$(EMSDK_PATH)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;$(_Memory64NativePthreadsArg)</_PrepareMemory64EmscriptenCommand>
       <_PrepareMemory64EmscriptenCommand Condition="'$(HostOS)' == 'windows'">$(_PrepareMemory64EmscriptenCommand.Replace('\', '/'))</_PrepareMemory64EmscriptenCommand>
     </PropertyGroup>
     <Exec Command="$(_PrepareMemory64EmscriptenCommand)" />
@@ -88,7 +90,7 @@
     <MSBuild Projects="$(RepositoryEngineeringDir)wasm/BuildMemory64Icu.proj"
              Targets="BuildMemory64Icu"
              RemoveProperties="TargetOS;TargetArchitecture;Platform;RuntimeIdentifier;RuntimeIdentifiers;TargetFramework;TargetFrameworks;RuntimeFlavor;Subset;BuildSubdirectory"
-             Properties="RepoRoot=$(RepoRoot);ArtifactsBinDir=$(ArtifactsBinDir);ArtifactsObjDir=$(ArtifactsObjDir);WasmToolCacheDir=$(WasmToolCacheDir);BuildArchitecture=$(BuildArchitecture);EMSDK_PATH=$(EMSDK_PATH);PythonExecutable=$(PythonExecutable);Memory64IcuOperation=$(_Memory64IcuOperation);Memory64IcuDir=$(Memory64IcuDir);Memory64IcuWorkDir=$(Memory64IcuWorkDir);Memory64IcuSourceCacheDir=$(Memory64IcuSourceCacheDir);Memory64EmscriptenCacheDir=$(Memory64EmscriptenCacheDir);Memory64IcuBuildJobs=$(Memory64IcuBuildJobs);Memory64IcuMsys2Root=$(Memory64IcuMsys2Root);Memory64IcuMsys2ShortPaths=$(Memory64IcuMsys2ShortPaths)">
+             Properties="RepoRoot=$(RepoRoot);ArtifactsBinDir=$(ArtifactsBinDir);ArtifactsObjDir=$(ArtifactsObjDir);WasmToolCacheDir=$(WasmToolCacheDir);BuildArchitecture=$(BuildArchitecture);EMSDK_PATH=$(EMSDK_PATH);PythonExecutable=$(PythonExecutable);Memory64IcuOperation=$(_Memory64IcuOperation);Memory64IcuDir=$(Memory64IcuDir);Memory64IcuWorkDir=$(Memory64IcuWorkDir);Memory64IcuSourceCacheDir=$(Memory64IcuSourceCacheDir);Memory64EmscriptenCacheDir=$(Memory64EmscriptenCacheDir);Memory64IcuBuildJobs=$(Memory64IcuBuildJobs);Memory64IcuMsys2Root=$(Memory64IcuMsys2Root);Memory64IcuMsys2ShortPaths=$(Memory64IcuMsys2ShortPaths);WasmNativePthreads=$(WasmNativePthreads)">
       <Output TaskParameter="TargetOutputs" ItemName="_PreparedMemory64Icu" />
     </MSBuild>
     <Error Condition="'@(_PreparedMemory64Icu)' == ''" Text="The Memory64 ICU dependency did not return a verified output directory." />
@@ -105,6 +107,7 @@
        the CoreCLR app relink registry below, so keep the BrowserHost names distinct from the
        app-facing properties they are compared against. -->
   <PropertyGroup Condition="'$(TargetsBrowser)' == 'true' and '$(RuntimeFlavor)' == 'CoreCLR'">
+    <BrowserHostNativePthreads Condition="'$(BrowserHostNativePthreads)' == ''">$(WasmNativePthreads)</BrowserHostNativePthreads>
     <BrowserHostInvariantGlobalization Condition="'$(BrowserHostInvariantGlobalization)' == ''">false</BrowserHostInvariantGlobalization>
     <BrowserHostInvariantTimezone Condition="'$(BrowserHostInvariantTimezone)' == ''">false</BrowserHostInvariantTimezone>
     <BrowserHostEnableDiagnostics Condition="'$(BrowserHostEnableDiagnostics)' == ''">false</BrowserHostEnableDiagnostics>

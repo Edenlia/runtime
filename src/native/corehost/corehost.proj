@@ -22,6 +22,14 @@
     <NativeVersionFile Condition="!$([MSBuild]::IsOsPlatform(Windows)) or '$(TargetsMobile)' == 'true'">$(ArtifactsObjDir)_version.c</NativeVersionFile>
   </PropertyGroup>
 
+  <Target Name="_PrepareMemory64CoreHostEnvironment"
+          BeforeTargets="BuildCoreHostOnUnix;BuildCoreHostOnWindows"
+          Condition="'$(TargetsWasm64)' == 'true'">
+    <PropertyGroup>
+      <_CoreHostBuildEnvironmentVariables>EMSDK_PATH=$(EMSDK_PATH);EM_CACHE=$(Memory64EmscriptenCacheDir);EM_FROZEN_CACHE=</_CoreHostBuildEnvironmentVariables>
+    </PropertyGroup>
+  </Target>
+
   <Target Name="CopySingleFileHost" AfterTargets="Build">
 
     <PropertyGroup>

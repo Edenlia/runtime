@@ -21,11 +21,13 @@
       <PythonExecutable Condition="'$(PythonExecutable)' == ''">python</PythonExecutable>
       <_Memory64Msys2Arg Condition="'$(Memory64IcuMsys2Root)' != ''"> --msys2-root &quot;$(Memory64IcuMsys2Root)&quot;</_Memory64Msys2Arg>
       <_Memory64Msys2Arg Condition="'$(Memory64IcuMsys2ShortPaths)' == 'true'">$(_Memory64Msys2Arg) --msys2-short-paths</_Memory64Msys2Arg>
-      <_Memory64IcuCommand>&quot;$(PythonExecutable)&quot; &quot;$(MSBuildThisFileDirectory)build-memory64-icu.py&quot; $(Memory64IcuOperation) --repo-root &quot;$(RepoRoot)&quot; --emsdk &quot;$(EMSDK_PATH)&quot; --output &quot;$(Memory64IcuDir)&quot; --work-dir &quot;$(Memory64IcuWorkDir)&quot; --source-cache &quot;$(Memory64IcuSourceCacheDir)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;$(_Memory64Msys2Arg)</_Memory64IcuCommand>
+      <_Memory64IcuCommand>&quot;$(PythonExecutable)&quot; &quot;$(MSBuildThisFileDirectory)build-memory64-icu.py&quot; $(Memory64IcuOperation) --repo-root &quot;$(RepoRoot)&quot; --emsdk &quot;$(EMSDK_PATH)&quot; --output &quot;$(Memory64IcuDir)&quot; --work-dir &quot;$(Memory64IcuWorkDir)&quot; --source-cache &quot;$(Memory64IcuSourceCacheDir)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;$(_Memory64Msys2Arg)$(_Memory64NativePthreadsArg)</_Memory64IcuCommand>
       <!-- A quoted trailing backslash escapes the quote in native Python's argv.
            Forward slashes preserve every directory argument on Windows. -->
       <_Memory64IcuCommand Condition="'$(HostOS)' == 'windows'">$(_Memory64IcuCommand.Replace('\', '/'))</_Memory64IcuCommand>
     </PropertyGroup>
+    <Error Condition="'$(WasmNativePthreads)' != 'true' and '$(WasmNativePthreads)' != 'false'"
+           Text="WasmNativePthreads must be true or false." />
     <Error Condition="'$(Memory64IcuOperation)' != 'build' and '$(Memory64IcuOperation)' != 'verify' and '$(Memory64IcuOperation)' != 'fetch'"
            Text="Memory64IcuOperation must be build, verify or fetch." />
     <Error Condition="'$(Memory64IcuOperation)' != 'fetch' and !Exists('$(EMSDK_PATH)/emscripten/emcc.py') and !Exists('$(EMSDK_PATH)/upstream/emscripten/emcc.py')"

@@ -1,6 +1,10 @@
 <Project InitialTargets="ValidateWasm64Target">
   <!-- Host tools retain their host RID and ReadyToRun publish setting during a target build. -->
   <Target Name="ValidateWasm64Target">
+    <Error Condition="'$(WasmNativePthreads)' != '' and '$(WasmNativePthreads)' != 'true' and '$(WasmNativePthreads)' != 'false'"
+           Text="WasmNativePthreads must be true or false." />
+    <Error Condition="'$(WasmNativePthreads)' == 'true' and '$(IsInBuildToolProject)' != 'true' and ('$(TargetsWasm64)' != 'true' or '$(TargetOS)' != 'browser' or '$(RuntimeFlavor)' != 'CoreCLR')"
+           Text="WasmNativePthreads currently supports browser/CoreCLR/wasm64 only; it does not enable CLR managed multithreading." />
     <Error Condition="'$(RuntimeIdentifier)' == 'browser-wasm64' and '$(TargetArchitecture)' != 'wasm64'"
            Text="RuntimeIdentifier=browser-wasm64 requires TargetArchitecture=wasm64." />
     <Error Condition="'$(TargetRid)' == 'browser-wasm64' and '$(TargetArchitecture)' != 'wasm64'"
@@ -10,7 +14,7 @@
     <Error Condition="'$(TargetsWasm64)' == 'true' and ('$(RuntimeFlavor)' != 'CoreCLR' or '$(UseMonoRuntime)' == 'true' or '$(UseNativeAOTRuntime)' == 'true')"
            Text="wasm64 currently supports only the CoreCLR runtime." />
     <Error Condition="'$(TargetsWasm64)' == 'true' and ('$(WasmEnableThreads)' == 'true' or '$(FeatureMultithreading)' == 'true')"
-           Text="wasm64 currently supports only single-threaded builds; WasmEnableThreads and FeatureMultithreading must be false." />
+           Text="wasm64 currently supports only one managed runtime thread; WasmEnableThreads and FeatureMultithreading must be false. WasmNativePthreads controls native object compatibility independently." />
     <Error Condition="'$(TargetsWasm64)' == 'true' and '$(RuntimeIdentifier)' != '' and '$(RuntimeIdentifier)' != 'browser-wasm64' and '$(IsInBuildToolProject)' != 'true'"
            Text="TargetArchitecture=wasm64 requires RuntimeIdentifier=browser-wasm64 when a runtime identifier is specified." />
     <Error Condition="'$(TargetsWasm64)' == 'true' and '$(TargetRid)' != 'browser-wasm64'"

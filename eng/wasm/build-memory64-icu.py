@@ -38,7 +38,10 @@ DATA = ("icudt.dat", "icudt_CJK.dat", "icudt_EFIGS.dat", "icudt_no_CJK.dat")
 # Emscripten's -lmalloc alias selects the libdlmalloc archive for this recipe.
 SYSROOT_TARGETS = ("libstubs", "libc", "libdlmalloc", "libclang_rt.builtins-wasmsjlj",
                    "libc++-wasmexcept", "libc++abi-wasmexcept", "libunwind-wasmexcept")
-RECIPE_VERSION = 8
+PTHREAD_SYSROOT_TARGETS = ("libstubs", "libc-mt", "libdlmalloc-mt", "libclang_rt.builtins-wasmsjlj-mt",
+                           "libc++-mt-wasmexcept", "libc++abi-mt-wasmexcept", "libunwind-mt-wasmexcept")
+PTHREAD_SYSROOT_OBJECTS = ("crtbegin-mt",)
+RECIPE_VERSION = 9
 WINDOWS_HOST_ICU_FIX = {
     "upstream_commit": "564c92d666354a8ed0f99cba0f239eba790bd148",
     "upstream_url": "https://github.com/unicode-org/icu/commit/564c92d666354a8ed0f99cba0f239eba790bd148",
@@ -417,19 +420,55 @@ def verify_icu(directory, sdk):
     return result
 
 
+def verify_objects(directory, sdk, names):
+    result = {}
+    for name in names:
+        path = directory / name
+        if not path.is_file() or path.stat().st_size == 0:
+            raise RuntimeError(f"Missing or empty Memory64 startup object: {path}")
+        with path.open("rb") as stream:
+            if stream.read(8) != b"\0asm\x01\0\0\0":
+                raise RuntimeError(f"{path}: expected a raw wasm64 startup object, not an archive or other format.")
+        headers = run([sdk.tool("llvm-readobj"), "--file-header", path], env=sdk.environment)
+        formats = re.findall(r"^Format:\s*(\S+)\s*$", headers, re.MULTILINE)
+        architectures = re.findall(r"^Arch:\s*(\S+)\s*$", headers, re.MULTILINE)
+        if formats != ["WASM"] or architectures != ["wasm64"]:
+            raise RuntimeError(f"{path}: expected one raw wasm64 startup object, found {architectures}.")
+        result[name] = {"sha256": sha256(path), "bytes": path.stat().st_size,
+                        "type": "wasm64 object", "wasm64_objects": 1}
+    return result
+
+
+def verify_icu_profile(directory, native_pthreads):
+    marker = directory / "icu-memory64.json"
+    if not marker.is_file():
+        if native_pthreads:
+            raise RuntimeError("Native pthread ICU dependencies require an icu-memory64.json manifest declaring native_pthreads=true.")
+        return
+    manifest = json.loads(marker.read_text())
+    profile = manifest.get("native_pthreads", False)
+    if profile is not native_pthreads:
+        raise RuntimeError(f"ICU native pthread profile mismatch: requested {native_pthreads}, manifest declares {profile}: {directory}")
+    return manifest
+
+
 def prepare_sysroot(options):
     sdk = EmscriptenSdk(options.emsdk, options.emscripten_cache, options.jobs)
-    command = [*sdk.driver("embuilder"), "--wasm64", "build", *SYSROOT_TARGETS]
+    targets = PTHREAD_SYSROOT_TARGETS if options.native_pthreads else SYSROOT_TARGETS
+    objects = PTHREAD_SYSROOT_OBJECTS if options.native_pthreads else ()
+    command = [*sdk.driver("embuilder"), "--wasm64", "build", *targets, *objects]
     print("Running: " + " ".join(command), flush=True)
     # embuilder owns its cache lock and skips completed targets. The explicit
     # -nostdlib link cannot request these missing variants through emcc itself.
     subprocess.run(command, env=sdk.environment, check=True)
-    libraries = verify_archives(options.emscripten_cache / "sysroot/lib/wasm64-emscripten",
-                                sdk, [name + ".a" for name in SYSROOT_TARGETS])
-    print(json.dumps({"target": "wasm64-emscripten", "files": libraries}, indent=2), flush=True)
+    library_dir = options.emscripten_cache / "sysroot/lib/wasm64-emscripten"
+    libraries = verify_archives(library_dir, sdk, [name + ".a" for name in targets])
+    libraries.update(verify_objects(library_dir, sdk, [name + ".o" for name in objects]))
+    print(json.dumps({"target": "wasm64-emscripten", "native_pthreads": options.native_pthreads,
+                      "files": libraries}, indent=2), flush=True)
 
 
-def link_probe(directory, sdk, work):
+def link_probe(directory, sdk, work, native_pthreads):
     source = work / "icu-memory64-probe.cpp"
     source.write_text('''#include <assert.h>
 #include <stdio.h>
@@ -450,6 +489,7 @@ int main() {
 ''')
     output = work / "icu-memory64-probe.js"
     command = [*sdk.driver("em++"), source, "-m64", "-O0", "-fno-exceptions", "-DU_DISABLE_RENAMING=1",
+               *(["-pthread"] if native_pthreads else []),
                "-sWASM_BIGINT=1", "-sASSERTIONS=1", "-sENVIRONMENT=node", "-I" + str(directory / "include"),
                *[directory / "lib" / name for name in ARCHIVES], "-o", output]
     run(command, env=sdk.environment, log=work / "link-probe-build.log")
@@ -477,6 +517,7 @@ def build_locked(options):
         raise RuntimeError(f"The selected compiler does not report the expected wasm64 guest tuple: {guest_triple}")
     identity = {"icu_commit": ICU_COMMIT, "icu_version": ICU_VERSION, "source_archive_sha256": ICU_ARCHIVE_SHA256,
                 "recipe_version": RECIPE_VERSION, "pointer_size": 8,
+                "native_pthreads": options.native_pthreads,
                 "emcc_version": run([*sdk.driver("emcc"), "--version"], env=sdk.environment),
                 "clang_sha256": sha256(sdk.tool("clang")),
                 "wasm_ld_sha256": sha256(sdk.tool("wasm-ld")),
@@ -517,7 +558,7 @@ def build_locked(options):
     source_adaptations = [prepare_windows_host_source(source), *prepare_windows_guest_source(source)] if os.name == "nt" else []
     stage = work / "browser-wasm64/native"
     command = ["make", "-f", "icu.mk", "all", "TARGET_OS=browser", "TARGET_ARCHITECTURE=wasm64",
-               "WASM_ENABLE_THREADS=false", "ICU_TRACING=false",
+               "WASM_ENABLE_THREADS=" + str(options.native_pthreads).lower(), "ICU_TRACING=false",
                f"HOST_OBJDIR={host.path(work / 'host')}", f"TARGET_OBJDIR={host.path(work / 'target')}", f"TARGET_BINDIR={host.path(stage)}",
                f"ICU_BUILD_JOBS={options.jobs}", f"EMSDK_PATH={host.path(sdk.root)}", "SHELL=/bin/bash"]
     if host.short_paths:
@@ -542,9 +583,10 @@ def build_locked(options):
         shutil.copy2(source / "eng/prebuilts/wasm" / name, stage / "lib" / name)
         (stage / name).unlink(missing_ok=True)
     libraries = verify_icu(stage, sdk)
-    probe = link_probe(stage, sdk, work)
+    probe = link_probe(stage, sdk, work, options.native_pthreads)
     manifest = {**identity, "fingerprint": fingerprint, "source_url": ICU_URL, "target": "browser-wasm64",
-                "target_flags": ["-m64", "-Oz", "-fno-exceptions"], "data_filter": "icudt_wasm",
+                "target_flags": ["-m64", "-Oz", "-fno-exceptions", *(["-pthread"] if options.native_pthreads else [])],
+                "data_filter": "icudt_wasm",
                 "published_data_source": "pinned dotnet/icu eng/prebuilts/wasm; official transport default",
                 "currency_filter": "icu-filters/curr-root.txt", "emsdk_path": str(sdk.root),
                 "emscripten_cache": str(options.emscripten_cache.resolve()), "jobs": options.jobs,
@@ -590,6 +632,8 @@ def main():
     parser.add_argument("--source-cache", type=Path)
     parser.add_argument("--emscripten-cache", type=Path)
     parser.add_argument("--jobs", type=int, default=2)
+    parser.add_argument("--native-pthreads", action="store_true",
+                        help="Build native pthread-compatible objects; this does not enable CLR managed multithreading.")
     parser.add_argument("--host-cc", default="cc")
     parser.add_argument("--host-cxx", default="c++")
     parser.add_argument("--msys2-root", type=Path, default=Path(os.environ["MSYS2_ROOT"]) if os.environ.get("MSYS2_ROOT") else None)
@@ -600,9 +644,11 @@ def main():
         parser.error("--jobs must be positive")
     repo = options.repo_root.resolve()
     options.source_cache = options.source_cache or repo / ".dotnet/wasm-tools/icu/source"
-    options.output = options.output or repo / "artifacts/bin/icu/browser-wasm64/Release/native"
-    options.work_dir = options.work_dir or repo / "artifacts/obj/icu/browser-wasm64"
-    options.emscripten_cache = options.emscripten_cache or Path(os.environ.get("EM_CACHE", str(repo / ".dotnet/wasm-tools/emscripten-memory64")))
+    variant = "browser-wasm64-native-pthreads" if options.native_pthreads else "browser-wasm64"
+    cache_variant = "emscripten-memory64-native-pthreads" if options.native_pthreads else "emscripten-memory64"
+    options.output = options.output or repo / "artifacts/bin/icu" / variant / "Release/native"
+    options.work_dir = options.work_dir or repo / "artifacts/obj/icu" / variant
+    options.emscripten_cache = options.emscripten_cache or Path(os.environ.get("EM_CACHE", str(repo / ".dotnet/wasm-tools" / cache_variant)))
     try:
         if options.operation == "fetch":
             check_runtime_pin(repo)
@@ -611,8 +657,13 @@ def main():
         if options.emsdk is None:
             parser.error("--emsdk or EMSDK_PATH is required")
         if options.operation == "verify":
+            manifest = verify_icu_profile(options.output.resolve(), options.native_pthreads)
             sdk = EmscriptenSdk(options.emsdk, options.emscripten_cache, options.jobs)
-            print(json.dumps({"target": "browser-wasm64", "files": verify_icu(options.output.resolve(), sdk)}, indent=2))
+            files = verify_icu(options.output.resolve(), sdk)
+            if manifest is not None and manifest.get("files") != files:
+                raise RuntimeError(f"ICU files do not match their build manifest: {options.output}")
+            print(json.dumps({"target": "browser-wasm64", "native_pthreads": options.native_pthreads,
+                              "files": files}, indent=2))
         elif options.operation == "prepare-sysroot":
             prepare_sysroot(options)
         else:

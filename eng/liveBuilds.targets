@@ -310,6 +310,10 @@
       <!-- Headers included by the CoreCLR native relink generated sources (see BrowserWasmApp.CoreCLR.targets).
            The browserhost CMakeLists installs them into the host sharedFramework; mirrors the Mono include\wasm handling. -->
       <LibrariesRuntimeFiles Condition="'$(TargetOS)' == 'browser' and '$(RuntimeFlavor)' == 'CoreCLR' and '$(IsTestsCommonProject)' != 'true'"
+                             Include="$(HostSharedFrameworkDir)wasm-props.json"
+                             NativeSubDirectory="src"
+                             IsNative="true" />
+      <LibrariesRuntimeFiles Condition="'$(TargetOS)' == 'browser' and '$(RuntimeFlavor)' == 'CoreCLR' and '$(IsTestsCommonProject)' != 'true'"
                              Include="$(HostSharedFrameworkDir)include\callhelpers.hpp"
                              NativeSubDirectory="include"
                              IsNative="true" />

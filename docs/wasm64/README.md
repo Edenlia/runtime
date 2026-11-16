@@ -47,6 +47,9 @@ SDK 配置与双向增量切换通过。仍是 unshared IL wrapper 与 native C 
 
 ## 阅读顺序
 
+UE 原生 pthread 对象兼容配置及其独立托管线程限制见
+[Native pthread compatibility](native-pthreads.md)。
+
 1. [原始完整计划](plan/original-cloud-implementation-plan.md)：用户上传文件的逐字节存档，包含所有工作单、命令候选、阶段 gate 和完成标准。
 2. [当前决策与计划调整](decisions.md)：解释原始计划中哪些提议已被后续讨论替代。
 3. [完整路线与任务状态](roadmap.md)：原计划九个功能方向、SDK 配套方向及阶段验收状态。

@@ -29,6 +29,8 @@
          is CoreCLR here even though app builds (unlike the runtime repo build) never set it themselves.
          native.wasm.targets uses RuntimeFlavor to gate the CoreCLR-only relink registry. -->
     <RuntimeFlavor Condition="'$(RuntimeFlavor)' == ''">CoreCLR</RuntimeFlavor>
+    <!-- Native shared-memory compatibility does not enable CLR managed threads. -->
+    <WasmNativePthreads Condition="'$(WasmNativePthreads)' == ''">false</WasmNativePthreads>
 
     <!-- Request crossgen2 here: WebAssembly.Pack is not imported before the first restore.
          Only skip an explicit opt-out; otherwise native relinking may be inferred later. -->
@@ -107,6 +109,10 @@
              AssemblyFile="$(WasmAppBuilderTasksAssemblyPath)"
              TaskFactory="TaskHostFactory"
              Condition="'$(WasmAppBuilderTasksAssemblyPath)' != ''" />
+  <UsingTask TaskName="Microsoft.WebAssembly.Build.Tasks.ValidateWasmNativeProfile"
+             AssemblyFile="$(WasmAppBuilderTasksAssemblyPath)"
+             TaskFactory="TaskHostFactory"
+             Condition="'$(WasmAppBuilderTasksAssemblyPath)' != ''" />
 
   <!-- Import shared native.wasm.targets, which defines GenerateEmccExports (exported functions/methods
        and the INCOMING_MODULE_JS_API allowlist) plus the Emscripten SDK, ICU, and the relink registry.
@@ -131,6 +137,7 @@
   <ItemGroup>
     <_WasmOptFeatureFlag Include="@(_WasmOptBaselineFeatureFlag)" />
     <_WasmOptFeatureFlag Include="--enable-relaxed-simd" />
+    <_WasmOptFeatureFlag Include="--enable-threads" Condition="'$(WasmNativePthreads)' == 'true'" />
   </ItemGroup>
 
   <!-- Allow running/debugging from VS -->
@@ -178,6 +185,25 @@
        value differs from what was baked into the runtime pack forces a relink, and an
        explicit WasmBuildNative=false in that situation is an error rather than a silent
        mismatch between the app's configuration and the prebuilt dotnet.native.wasm. -->
+  <Target Name="_CoreCLRValidateNativeProfile"
+          BeforeTargets="_CoreCLRSetWasmBuildNativeDefaults;_CoreCLRPrepareForNativeBuild;_ResolveWasmOutputs"
+          DependsOnTargets="ResolveRuntimePackAssets"
+          Condition="'$(IsBrowserWasmProject)' == 'true' and '$(IsCrossTargetingBuild)' != 'true'">
+    <PropertyGroup>
+      <_CoreCLRNativeProfilePackDir>$(MicrosoftNetCoreAppRuntimePackDir)</_CoreCLRNativeProfilePackDir>
+      <_CoreCLRNativeProfilePackDir Condition="'$(_CoreCLRNativeProfilePackDir)' == ''">%(ResolvedRuntimePack.PackageDirectory)</_CoreCLRNativeProfilePackDir>
+      <_CoreCLRNativeProfileDir>$(MicrosoftNetCoreAppRuntimePackRidNativeDir)</_CoreCLRNativeProfileDir>
+      <_CoreCLRNativeProfileDir Condition="'$(_CoreCLRNativeProfileDir)' == '' and '$(_CoreCLRNativeProfilePackDir)' != ''">$([MSBuild]::NormalizeDirectory('$(_CoreCLRNativeProfilePackDir)', 'runtimes', '$(RuntimeIdentifier)', 'native'))</_CoreCLRNativeProfileDir>
+      <_CoreCLRNativeProfileManifest>$([MSBuild]::NormalizePath('$(_CoreCLRNativeProfileDir)', 'src', 'wasm-props.json'))</_CoreCLRNativeProfileManifest>
+    </PropertyGroup>
+    <!-- Relinking recompiles app helpers, not the runtime pack's native objects.
+         Reject both directions of mismatch even when no relink was requested. -->
+    <ValidateWasmNativeProfile ManifestPath="$(_CoreCLRNativeProfileManifest)"
+                               NativePthreads="$(WasmNativePthreads)">
+      <Output TaskParameter="RuntimeNativePthreads" PropertyName="_RuntimeWasmNativePthreads" />
+    </ValidateWasmNativeProfile>
+  </Target>
+
   <Target Name="_CoreCLRSetWasmBuildNativeDefaults"
           Condition="'$(IsBrowserWasmProject)' == 'true' and '$(IsCrossTargetingBuild)' != 'true'">
     <!-- A property counts as changed only when the project set it to something other than the
@@ -609,6 +635,7 @@
       <_EmccCommonFlags Include="-fwasm-exceptions" />
       <_EmccCommonFlags Include="-sWASM_LEGACY_EXCEPTIONS=0" />
       <_EmccCommonFlags Include="-msimd128" />
+      <_EmccCommonFlags Include="-pthread" Condition="'$(WasmNativePthreads)' == 'true'" />
     </ItemGroup>
 
     <!-- Re-encoding without any pass grows the module, so default to -Oz unless the project's
@@ -975,6 +1002,7 @@
       <_WasmLinkDependencies Include="@(_CoreCLRJsLibrary)" />
       <_WasmLinkDependencies Include="$(_WasmLinkRsp)" />
       <_WasmLinkDependencies Include="$(_WasmOptArgsFile)" />
+      <_WasmLinkDependencies Include="$(_CoreCLRNativeProfileManifest)" Condition="Exists('$(_CoreCLRNativeProfileManifest)')" />
     </ItemGroup>
 
     <WriteLinesToFile Lines="@(_EmccLinkStepArgs)" File="$(_WasmLinkRsp)" Overwrite="true" WriteOnlyWhenDifferent="true" />

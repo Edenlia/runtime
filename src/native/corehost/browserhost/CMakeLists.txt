@@ -31,6 +31,8 @@ target_link_libraries(BrowserHost-Static PRIVATE
 
 install(TARGETS BrowserHost-Static DESTINATION sharedFramework COMPONENT runtime)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/native-profile.cmake)
+
 # Headers included by the CoreCLR native relink generated sources (see BrowserWasmApp.CoreCLR.targets).
 install(FILES ${CLR_REPO_ROOT_DIR}/src/coreclr/vm/wasm/callhelpers.hpp DESTINATION sharedFramework/include COMPONENT runtime)
 install(FILES ${CLR_SRC_NATIVE_DIR}/minipal/entrypoints.h DESTINATION sharedFramework/include/minipal COMPONENT runtime)

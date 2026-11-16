@@ -542,6 +542,15 @@ if(NOT CLR_CMAKE_TARGET_BROWSER AND NOT CLR_CMAKE_TARGET_WASI)
 
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 else()
+    if(CLR_CMAKE_WASM_NATIVE_PTHREADS AND NOT CLR_CROSS_COMPONENTS_BUILD)
+        if(NOT CLR_CMAKE_TARGET_BROWSER OR NOT CLR_CMAKE_HOST_ARCH_WASM64 OR NOT CLR_CMAKE_RUNTIME_CORECLR)
+            message(FATAL_ERROR "CLR_CMAKE_WASM_NATIVE_PTHREADS requires the browser CoreCLR wasm64 native target")
+        endif()
+        # Native pthread ABI/features do not enable CLR managed multithreading.
+        # Keep this distinct from FEATURE_MULTITHREADING and its runtime APIs.
+        add_compile_options(-pthread)
+        add_link_options(-pthread)
+    endif()
     if(CLR_CMAKE_HOST_ARCH_WASM64)
         # Keep all native consumers, including the exported corerun test kit,
         # on the same Emscripten memory ABI.
@@ -564,9 +573,20 @@ else()
             add_link_options(-lc)
             add_link_options(-lmalloc)
             add_link_options(-lclang_rt.builtins)
-            add_link_options(-lc++-wasmexcept)
-            add_link_options(-lc++abi-wasmexcept)
-            add_link_options(-lunwind-wasmexcept)
+            if(CLR_CMAKE_WASM_NATIVE_PTHREADS)
+                # -nostdlib omits the native pthread TLS startup object. Keep
+                # its SDK lookup portable for exported corerun-kit consumers.
+                add_link_options(-l:crtbegin-mt.o)
+                # Qualified EH variants are not ordinary driver aliases, so
+                # select their native-MT archives explicitly.
+                add_link_options(-lc++-mt-wasmexcept)
+                add_link_options(-lc++abi-mt-wasmexcept)
+                add_link_options(-lunwind-mt-wasmexcept)
+            else()
+                add_link_options(-lc++-wasmexcept)
+                add_link_options(-lc++abi-wasmexcept)
+                add_link_options(-lunwind-wasmexcept)
+            endif()
 
             add_compile_options(-fwasm-exceptions)
             add_compile_options(-sWASM_LEGACY_EXCEPTIONS=0)

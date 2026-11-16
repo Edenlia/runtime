@@ -1,12 +1,16 @@
 <Project>
   <PropertyGroup>
+    <!-- Native object compatibility is independent of CLR managed threading. -->
+    <WasmNativePthreads Condition="'$(WasmNativePthreads)' == ''">false</WasmNativePthreads>
+    <_Memory64NativeVariant Condition="'$(WasmNativePthreads)' == 'true'">-native-pthreads</_Memory64NativeVariant>
     <!-- Capture an external dependency before applying the source-build default.
          External paths are verified, never populated or overwritten by this recipe. -->
     <_Memory64IcuWasOverridden Condition="'$(Memory64IcuDir)' != ''">true</_Memory64IcuWasOverridden>
-    <Memory64IcuDir Condition="'$(Memory64IcuDir)' == ''">$([MSBuild]::NormalizeDirectory('$(ArtifactsBinDir)', 'icu', 'browser-wasm64', 'Release', 'native'))</Memory64IcuDir>
-    <Memory64IcuWorkDir Condition="'$(Memory64IcuWorkDir)' == ''">$([MSBuild]::NormalizeDirectory('$(ArtifactsObjDir)', 'icu', 'browser-wasm64'))</Memory64IcuWorkDir>
+    <Memory64IcuDir Condition="'$(Memory64IcuDir)' == ''">$([MSBuild]::NormalizeDirectory('$(ArtifactsBinDir)', 'icu', 'browser-wasm64$(_Memory64NativeVariant)', 'Release', 'native'))</Memory64IcuDir>
+    <Memory64IcuWorkDir Condition="'$(Memory64IcuWorkDir)' == ''">$([MSBuild]::NormalizeDirectory('$(ArtifactsObjDir)', 'icu', 'browser-wasm64$(_Memory64NativeVariant)'))</Memory64IcuWorkDir>
     <Memory64IcuSourceCacheDir Condition="'$(Memory64IcuSourceCacheDir)' == ''">$([MSBuild]::NormalizeDirectory('$(WasmToolCacheDir)', 'icu', 'source'))</Memory64IcuSourceCacheDir>
-    <Memory64EmscriptenCacheDir Condition="'$(Memory64EmscriptenCacheDir)' == ''">$([MSBuild]::NormalizeDirectory('$(WasmToolCacheDir)', 'emscripten-memory64', '$(EmscriptenVersion)-$(WasmToolHostRid)'))</Memory64EmscriptenCacheDir>
+    <Memory64EmscriptenCacheDir Condition="'$(Memory64EmscriptenCacheDir)' == ''">$([MSBuild]::NormalizeDirectory('$(WasmToolCacheDir)', 'emscripten-memory64$(_Memory64NativeVariant)', '$(EmscriptenVersion)-$(WasmToolHostRid)'))</Memory64EmscriptenCacheDir>
+    <_Memory64NativePthreadsArg Condition="'$(WasmNativePthreads)' == 'true'"> --native-pthreads</_Memory64NativePthreadsArg>
     <Memory64IcuBuildJobs Condition="'$(Memory64IcuBuildJobs)' == ''">2</Memory64IcuBuildJobs>
     <Memory64IcuMsys2Root Condition="'$(Memory64IcuMsys2Root)' == ''">$(MSYS2_ROOT)</Memory64IcuMsys2Root>
     <Memory64IcuMsys2ShortPaths Condition="'$(Memory64IcuMsys2ShortPaths)' == ''">false</Memory64IcuMsys2ShortPaths>

@@ -284,6 +284,12 @@ function(corerun_kit_export)
     file(GENERATE OUTPUT "${generatedDirectory}/corerun-compile-user.rsp" CONTENT "${userCompileResponse}"
          TARGET corerun_static)
     file(GENERATE OUTPUT "${generatedDirectory}/target-architecture.txt" CONTENT "${CLR_CMAKE_TARGET_ARCH}\n")
+    set(nativePthreads false)
+    if(CLR_CMAKE_WASM_NATIVE_PTHREADS)
+        set(nativePthreads true)
+    endif()
+    file(GENERATE OUTPUT "${generatedDirectory}/wasm-props.json" CONTENT
+        "{\n  \"Properties\": {\n    \"RuntimeWasmNativePthreads\": \"${nativePthreads}\"\n  }\n}\n")
 
     foreach(library IN LISTS kitLibraries)
         install(FILES "$<TARGET_FILE:${library}>" DESTINATION ${kitDestination} COMPONENT ${KIT_COMPONENT})
@@ -293,6 +299,7 @@ function(corerun_kit_export)
     install(FILES "${generatedDirectory}/corerun-link.rsp" "${generatedDirectory}/corerun-compile.rsp"
                   "${generatedDirectory}/corerun-compile-user.rsp"
                   "${generatedDirectory}/target-architecture.txt"
+                  "${generatedDirectory}/wasm-props.json"
             DESTINATION ${kitDestination} COMPONENT ${KIT_COMPONENT})
 
     # Headers the generated call tables include, plus the compatibility header
