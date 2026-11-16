@@ -36,14 +36,19 @@ working managed/native transitions, GC, exception handling, or browser startup.
 ## Native product architecture and module validation
 
 After building each target/configuration, pass its actual products explicitly.
-The Release example below uses the `patched-llvm-mc` build lane. Set
+The Release example below uses normal output paths for a complete SDK containing
+the [LLVM table-index fix](https://github.com/Edenlia/llvm-project/commit/8620eb7b55e857a5f6e430be624b5a6605e8c53e),
+with the ordinary Clang assembler and no runtime assembly wrapper. This requires
+an actual successful build with that SDK; the focused MC validation alone does
+not supply those products. A locally patched SDK still uses the `patched` label
+and a producer record; `stock` is reserved for an unmodified SDK build. Set
 `WASM64_PRODUCER` to its successful producer JSON record, `WASM_PRODUCT_NODE` to
 the selected Node executable, and `EM_CACHE` to the isolated Memory64 sysroot
 cache used for that build. `EMSDK_PATH` selects the matching SDK.
 
 ```sh
-WASM64_PRODUCT_DIR=artifacts/bin/coreclr/browser.wasm64.Release/patched-llvm-mc
-WASM64_OBJECT_DIR=artifacts/obj/coreclr/browser.wasm64.Release/patched-llvm-mc
+WASM64_PRODUCT_DIR=artifacts/bin/coreclr/browser.wasm64.Release
+WASM64_OBJECT_DIR=artifacts/obj/coreclr/browser.wasm64.Release
 WASM64_NATIVE_DIR=artifacts/bin/native/net12.0-browser-Release-wasm64/sharedFramework
 WASM64_SYSROOT_DIR="$EM_CACHE/sysroot/lib/wasm64-emscripten"
 wasm64_native_arguments=(--native-library "$WASM64_PRODUCT_DIR/libclrinterpreter.a")
@@ -76,6 +81,12 @@ python3 eng/wasm/tests/check_memory64_products.py \
   --toolchain-evidence "$WASM64_PRODUCER" \
   --report artifacts/log/memory64-products-release.json
 ```
+
+For the retained historical external-`llvm-mc` experiment, use
+`artifacts/bin/coreclr/browser.wasm64.Release/patched-llvm-mc` and
+`artifacts/obj/coreclr/browser.wasm64.Release/patched-llvm-mc` instead, together
+with that experiment's original producer record (including its wrapper hash).
+The example's archive and module checks are otherwise the same.
 
 Use the corresponding Checked runtime, object and published-native paths for
 the Checked build, together with its own successful producer record. The source-

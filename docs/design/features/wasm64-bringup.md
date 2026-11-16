@@ -270,15 +270,35 @@ reported Emscripten `6.0.3` and Clang `23.1.0`. A new SDK label alone is not
 evidence of a fix. Record actual compiler versions and revisions as well as
 the repository's version label.
 
-A separately built, patched `llvm-mc` is used only for an experimental validation
-lane. Its explicit assembly-compiler wrapper preprocesses `.S` with the stock
-compiler, preserves the effective target features, and invokes that independent
-MC binary; C/C++ compilation and final linking retain the stock tools.
-The stock SDK is not replaced, and type checking remains enabled. This lane needs
-separate object directories and a producer record containing the LLVM revision,
-patch, compiler/wrapper paths and hashes, commands and known debug-information
-differences. Its results must be labelled patched-toolchain results. They cannot
-establish acceptance of the unmodified pinned toolchain or a deployable runtime.
+The proposed LLVM fix is
+[`8620eb7b55e857a5f6e430be624b5a6605e8c53e`](https://github.com/Edenlia/llvm-project/commit/8620eb7b55e857a5f6e430be624b5a6605e8c53e).
+It checks `call_indirect` and `return_call_indirect` using the selected table's
+address type, including the immediate-zero default-table form. A focused check
+applied that patch without edits to the pinned LLVM source and rebuilt `llvm-mc`.
+Compiler-generated wasm32/wasm64 assembly passed reassembly and independent Node
+and Binaryen validation. Named/default table calls accepted the correct index
+width and rejected the wrong width, with type checking enabled.
+The runtime's actual `dynamichelpers.S` also passed stock preprocessing and
+direct assembly with that MC binary, without invoking the earlier wrapper.
+Replacing only that member in a copy of the existing runtime archive and
+relinking with the stock linker produced the same `corerun.wasm` hash as the
+previously validated Release product. That cached-object integration passed Node
+module and Binaryen validation; it was not a full rebuild or guest execution.
+
+The preferred build path uses an Emscripten SDK whose ordinary Clang integrated
+assembler contains this fix. Use the normal runtime build commands and default
+assembler selection; no runtime assembly wrapper or type-check suppression is
+required for that path. The repository-pinned SDK binary still lacks the fix.
+The focused MC check does not establish a rebuilt Clang/SDK or a complete build
+using that ordinary driver, and does not cover other table64 instructions.
+
+The earlier external-`llvm-mc` experiment remains a historical fallback. Its
+assembly-compiler wrapper preprocesses `.S` with the stock compiler and invokes
+an independently patched MC binary; C/C++ compilation and linking retain the
+stock tools. Keep its separate object directories and producer record, including
+LLVM revision, patch, tool/wrapper hashes, commands and debug-information
+differences. Its existing results remain labelled patched-toolchain results;
+they do not establish acceptance of the unmodified pinned SDK.
 
 ## Verification boundaries
 
