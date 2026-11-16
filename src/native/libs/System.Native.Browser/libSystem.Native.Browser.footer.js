@@ -49,6 +49,11 @@ function libDotnetFactory() {
         mergeDotnet[name] = exports[name];
     }
 
+    // Native pointers remain i64 with MEMORY64=1 and MEMORY64=2. Let Emscripten
+    // adapt them to the Number heap offsets used by the browser implementations.
+    mergeDotnet.SystemJS_RandomBytes__sig = "ipi";
+    mergeDotnet.SystemJS_GetLocaleInfo__sig = "ppipipip";
+
     autoAddDeps(mergeDotnet, "$DOTNET");
     addToLibrary(mergeDotnet);
 }

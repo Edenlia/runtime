@@ -1,0 +1,413 @@
+{
+  "format_version": 1,
+  "date": "2026-11-17",
+  "base_sha": "ef532fc54ebe7c3b3f2e9314a4ac436b07c044c5",
+  "scope": "System.Native.Browser RandomBytes/GetLocaleInfo native pointer ABI; one production footer, two __sig annotations",
+  "artifact_root": "UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Runtime/BrowserNativeABI",
+  "production_source": {
+    "path": "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/src/native/libs/System.Native.Browser/libSystem.Native.Browser.footer.js",
+    "sha256": "e7195a31c62100e8869610976d7bec695d1d4ef81b39272cf96f1be6d350419a"
+  },
+  "c_api_sources": [
+    {
+      "path": "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/src/native/libs/System.Native.Browser/entrypoints.c",
+      "sha256": "59290d714e20efbac1b04a17c1d8b4f454616dfcb5875b4244e4c672e578b2a0"
+    },
+    {
+      "path": "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/src/libraries/Common/src/Interop/Browser/Interop.Locale.CoreCLR.cs",
+      "sha256": "30d36f590765f7dcb48901953540b37361e97b5db84550bb5406eda59a440bf4"
+    }
+  ],
+  "toolchain": {
+    "emscripten": "6.0.10",
+    "node": "24.19.0",
+    "typescript": "5.9.2",
+    "clang": "task-local fixed normal Clang from matching SDK revision, stock SDK linker and libraries",
+    "fixed_llvm_provenance": {
+      "path": "C:/Users/edenlia/Workspace/UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Toolchain/fixed-llvm/provenance.json",
+      "sha256": "0273eaf5542f5df904ddcaa23f221d888ec9a9e10efe8d61db93ad418c181513"
+    },
+    "jsifier": {
+      "path": "C:/Users/edenlia/Workspace/UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Toolchain/emsdk/upstream/emscripten/src/jsifier.mjs",
+      "sha256": "e4f5b9c4e16e341e2db4d1cefd1e3261567baa9e95bd67d66f72278a7b034e97"
+    },
+    "playwright": "1.64.1",
+    "chrome": "157.0.8103.52"
+  },
+  "commands": [
+    "src/native: Configuration=Release ProductVersion=12.0 ContinuousIntegrationBuild=false RuntimeFlavor=CoreCLR WasmPointerSize=4 StaticLibDestination=<artifact_root>/Rollup-wasm32 node node_modules/rollup/dist/bin/rollup -c --forceExit",
+    "same Release Rollup with WasmPointerSize=8 and Rollup-wasm64",
+    "<emsdk-python> <artifact_root>/run_probe.py before",
+    "<emsdk-python> <artifact_root>/run_probe.py after",
+    "<RUN>/UE/BrowserHarness/Scripts/python.exe <artifact_root>/run_browser_probe.py",
+    "src/native: node node_modules/eslint/bin/eslint.js --no-color --max-warnings=0 libs/System.Native.Browser/libSystem.Native.Browser.footer.js"
+  ],
+  "environment_overrides": {
+    "EM_LLVM_ROOT": "<RUN>/Toolchain/fixed-llvm/bin",
+    "EM_CACHE": "<artifact_root>/em-cache",
+    "EMCC_CORES": "2",
+    "browser_cache_frozen": true
+  },
+  "baseline_provenance": "Production Release width4/width8 libraries frozen by concurrent WebCIL task under Runtime/Webcil/Rollup-wasm{32,64}; only the unmodified Browser and Utils libraries are linked here. Exact hashes are in raw before/results.json. Their embedded source Git hash is ef532fc54ebe7c3b3f2e9314a4ac436b07c044c5.",
+  "baseline_results": {
+    "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/before/results.json",
+    "sha256": "00094236ce97fe2ddb54f2178742bf5d5f24945d6973ec22fe8ef358075ecb66"
+  },
+  "candidate_results": {
+    "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/results.json",
+    "sha256": "f2b8c91fff8bf58361f410620cad3583282cdc80c6fbf460a6a94ac750de1418"
+  },
+  "node_cases": [
+    {
+      "lane": "wasm32",
+      "build_exit": 0,
+      "existing_no_bigint_heap64_blocker": false,
+      "scenarios": [
+        {
+          "name": "random",
+          "run_exit": 0
+        },
+        {
+          "name": "locale",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-unicode",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-error",
+          "run_exit": 0
+        },
+        {
+          "name": "utf8",
+          "run_exit": 0
+        }
+      ],
+      "production_libraries": [
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm32\\libSystem.Native.Browser.js",
+          "sha256": "ecd0896f5840a08e159315d535cd77f46fd980f1d3357eca0dae633f2ddf4815"
+        },
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm32\\libSystem.Native.Browser.Utils.js",
+          "sha256": "5032873295e522187825cf1fcfed262cbf8f383f4584769e31b10c83281241af"
+        }
+      ]
+    },
+    {
+      "lane": "wasm32-no-bigint",
+      "build_exit": 1,
+      "existing_no_bigint_heap64_blocker": true,
+      "scenarios": [],
+      "production_libraries": [
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm32\\libSystem.Native.Browser.js",
+          "sha256": "ecd0896f5840a08e159315d535cd77f46fd980f1d3357eca0dae633f2ddf4815"
+        },
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm32\\libSystem.Native.Browser.Utils.js",
+          "sha256": "5032873295e522187825cf1fcfed262cbf8f383f4584769e31b10c83281241af"
+        }
+      ]
+    },
+    {
+      "lane": "wasm64",
+      "build_exit": 0,
+      "existing_no_bigint_heap64_blocker": false,
+      "scenarios": [
+        {
+          "name": "random",
+          "run_exit": 0
+        },
+        {
+          "name": "locale",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-unicode",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-error",
+          "run_exit": 0
+        },
+        {
+          "name": "utf8",
+          "run_exit": 0
+        }
+      ],
+      "production_libraries": [
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm64\\libSystem.Native.Browser.js",
+          "sha256": "ecd0896f5840a08e159315d535cd77f46fd980f1d3357eca0dae633f2ddf4815"
+        },
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm64\\libSystem.Native.Browser.Utils.js",
+          "sha256": "5032873295e522187825cf1fcfed262cbf8f383f4584769e31b10c83281241af"
+        }
+      ]
+    },
+    {
+      "lane": "wasm64-lowered",
+      "build_exit": 0,
+      "existing_no_bigint_heap64_blocker": false,
+      "scenarios": [
+        {
+          "name": "random",
+          "run_exit": 0
+        },
+        {
+          "name": "locale",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-unicode",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-error",
+          "run_exit": 0
+        },
+        {
+          "name": "utf8",
+          "run_exit": 0
+        }
+      ],
+      "production_libraries": [
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm64\\libSystem.Native.Browser.js",
+          "sha256": "ecd0896f5840a08e159315d535cd77f46fd980f1d3357eca0dae633f2ddf4815"
+        },
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm64\\libSystem.Native.Browser.Utils.js",
+          "sha256": "5032873295e522187825cf1fcfed262cbf8f383f4584769e31b10c83281241af"
+        }
+      ]
+    },
+    {
+      "lane": "wasm64-lowered-shared",
+      "build_exit": 0,
+      "existing_no_bigint_heap64_blocker": false,
+      "scenarios": [
+        {
+          "name": "random",
+          "run_exit": 0
+        },
+        {
+          "name": "locale",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-unicode",
+          "run_exit": 0
+        },
+        {
+          "name": "locale-error",
+          "run_exit": 0
+        },
+        {
+          "name": "utf8",
+          "run_exit": 0
+        }
+      ],
+      "production_libraries": [
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm64\\libSystem.Native.Browser.js",
+          "sha256": "ecd0896f5840a08e159315d535cd77f46fd980f1d3357eca0dae633f2ddf4815"
+        },
+        {
+          "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI\\Rollup-wasm64\\libSystem.Native.Browser.Utils.js",
+          "sha256": "5032873295e522187825cf1fcfed262cbf8f383f4584769e31b10c83281241af"
+        }
+      ]
+    }
+  ],
+  "node_functional_passes": 20,
+  "baseline_negative_control": "All 3 wasm64 lanes fail RandomBytes/locale/locale-unicode/locale-error with BigInt TypeError; wasm32 and existing Utils UTF8 allocation pass.",
+  "no_bigint_limit": "wasm32 WASM_BIGINT=0 fails before and after during linking: undefined symbol $HEAP64 from production Utils. This existing limitation is not a functional PASS and is not changed here.",
+  "chrome_results": {
+    "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/chrome/results.json",
+    "sha256": "f4dca6c14826560a2b04f2a72deed6a64c5e9d684bb92925f8a94672a8695275"
+  },
+  "chrome_passes": 5,
+  "chrome_capabilities": {
+    "crossOriginIsolated": true,
+    "heapShared": true,
+    "sharedArrayBuffer": true,
+    "secureContext": true,
+    "exitCode": 0,
+    "cryptoCalls": [
+      {
+        "length": 65536,
+        "shared": false
+      },
+      {
+        "length": 4466,
+        "shared": false
+      },
+      {
+        "length": 1,
+        "shared": true
+      }
+    ],
+    "sharedCryptoRejection": "TypeError: Failed to execute 'getRandomValues' on 'Crypto': The provided ArrayBufferView value must not be shared."
+  },
+  "chrome_errors": [
+    {
+      "scenario": "random",
+      "passed": true,
+      "page_errors": [],
+      "console_errors": [],
+      "exit_code": 0
+    },
+    {
+      "scenario": "locale",
+      "passed": true,
+      "page_errors": [],
+      "console_errors": [],
+      "exit_code": 0
+    },
+    {
+      "scenario": "locale-unicode",
+      "passed": true,
+      "page_errors": [],
+      "console_errors": [],
+      "exit_code": 0
+    },
+    {
+      "scenario": "locale-error",
+      "passed": true,
+      "page_errors": [],
+      "console_errors": [],
+      "exit_code": 0
+    },
+    {
+      "scenario": "utf8",
+      "passed": true,
+      "page_errors": [],
+      "console_errors": [],
+      "exit_code": 0
+    }
+  ],
+  "chrome_runtime_dynamic_code": {
+    "new_function": 0,
+    "eval": 0,
+    "unexpanded_macro": 0
+  },
+  "final_runtime_checks": [
+    {
+      "lane": "wasm32",
+      "js": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm32.js",
+        "sha256": "5829e24acad85ca3deb5141bb02191b8169cce011299f549b8c035fb07cc8cb3"
+      },
+      "wasm": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm32.wasm",
+        "sha256": "73a7cb86d4dff7ae02bba37a91e06362720d112a8b43e0b1919649cc8a053f2a"
+      },
+      "new_function": 0,
+      "eval": 0,
+      "unexpanded_macro": 0,
+      "native_import_signatures": [
+        " (import \"env\" \"SystemJS_RandomBytes\" (func $fimport$0 (param i32 i32) (result i32)))",
+        " (import \"env\" \"SystemJS_GetLocaleInfo\" (func $fimport$1 (param i32 i32 i32 i32 i32 i32 i32) (result i32)))"
+      ]
+    },
+    {
+      "lane": "wasm64",
+      "js": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm64.js",
+        "sha256": "2c6dfcf80eed99951e879ea9ae40873b4ac8e6379a9c723b2f610c092889d49c"
+      },
+      "wasm": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm64.wasm",
+        "sha256": "1e90d79314eab5fd67d977fad5ebca24f69aae739a733a08b11446823921076f"
+      },
+      "new_function": 0,
+      "eval": 0,
+      "unexpanded_macro": 0,
+      "native_import_signatures": [
+        " (import \"env\" \"SystemJS_RandomBytes\" (func $fimport$0 (param i64 i32) (result i32)))",
+        " (import \"env\" \"SystemJS_GetLocaleInfo\" (func $fimport$1 (param i64 i32 i64 i32 i64 i32 i64) (result i64)))"
+      ]
+    },
+    {
+      "lane": "wasm64-lowered",
+      "js": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm64-lowered.js",
+        "sha256": "7426c2277d2def197b1620fffe8ce1488dd4b71c24fda89b87bc295aae3502cd"
+      },
+      "wasm": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm64-lowered.wasm",
+        "sha256": "fff7c3aa7b65782993c789557af9cb0f0c630232eb7d92c1893eea4e9e53b227"
+      },
+      "new_function": 0,
+      "eval": 0,
+      "unexpanded_macro": 0,
+      "native_import_signatures": [
+        " (import \"env\" \"SystemJS_RandomBytes\" (func $fimport$0 (param i64 i32) (result i32)))",
+        " (import \"env\" \"SystemJS_GetLocaleInfo\" (func $fimport$1 (param i64 i32 i64 i32 i64 i32 i64) (result i64)))"
+      ]
+    },
+    {
+      "lane": "wasm64-lowered-shared",
+      "js": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm64-lowered-shared.js",
+        "sha256": "5151a6244f28bf3f4e8b4ca82fec28b6acec029da2886f88c501822e070b5ee6"
+      },
+      "wasm": {
+        "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/after/wasm64-lowered-shared.wasm",
+        "sha256": "1fa96173901edcdff68647763c5fb16e59835f591d12eb21553b02eb9bb5630a"
+      },
+      "new_function": 0,
+      "eval": 0,
+      "unexpanded_macro": 0,
+      "native_import_signatures": [
+        " (import \"env\" \"SystemJS_RandomBytes\" (func $fimport$0 (param i64 i32) (result i32)))",
+        " (import \"env\" \"SystemJS_GetLocaleInfo\" (func $fimport$1 (param i64 i32 i64 i32 i64 i32 i64) (result i64)))"
+      ]
+    }
+  ],
+  "fixture": [
+    {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/probe.c",
+      "sha256": "e3627c621d0b5a6f8d62389cc1a656f96efdbd794f22e828474c9ef44d1bf4c5"
+    },
+    {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/pre.js",
+      "sha256": "c32f37dc80501c451951d57dde11ae81a03d9c017e1806d2ad5911d3fa14952c"
+    },
+    {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/probe-library.js",
+      "sha256": "bf2fb221cb8fbf0aa93ef9fac3b068153cca41e7363ea25a014bbaa3c3f6d582"
+    },
+    {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/run_probe.py",
+      "sha256": "3da281341d3615e505533b6d6362c64393de9465364c516cdd8c52e56dea707b"
+    },
+    {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/browser-pre.js",
+      "sha256": "ff4e370cd451ea3b4a3d58bed442696005f8c4523c5f7955d607aa4bf44be697"
+    },
+    {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Runtime\\BrowserNativeABI/run_browser_probe.py",
+      "sha256": "b9dce0b6a6b94dcd1b1713dbb2111f040d2845f37d94ea14c31c08f3e61cb627"
+    }
+  ],
+  "eslint_changed_file": "PASS exit0",
+  "release_rollup": "Both pointer widths exited0; frozen production Browser and Utils linked unchanged by each C harness.",
+  "allocator_observation": "Unmodified Utils UTF8 allocation already passed wasm64 baseline. Actual emitted malloc export uses makeWrapper_pp -> Number(f(BigInt(a0))). No redundant allocator adapter was added.",
+  "native_calls_executed": true,
+  "browser_executed": true,
+  "coreclr_runtime_linked": false,
+  "guest_executed": false,
+  "high_address_observed": null,
+  "limitations": [
+    "All tested allocations are below 4 GiB. Existing >>>0/string offset truncation is unchanged; this fixes ABI types, not high-address support.",
+    "Standalone C seams satisfy unrelated CLR callbacks. No CoreCLR/managed/GC/finalizer guest, complete dotnet loader, UE packaging or Wasm game execution.",
+    "Chrome lane uses the production RandomBytes algorithm and real WebCrypto. A recording wrapper delegates to real crypto.getRandomValues; no fake crypto implementation.",
+    "Chrome proves an actual SharedArrayBuffer heap and two unshared WebCrypto batches (65536+4466), plus real browser rejection of a separate shared WebCrypto input.",
+    "Executed Emscripten is UE-required6.0.10; runtime pinned6.0.2 binary was not executed."
+  ]
+}
