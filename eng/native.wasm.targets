@@ -17,7 +17,7 @@
        validation failures. -->
   <ItemGroup Condition="'$(IsBrowserWasmProject)' != 'true'">
     <PackageReference Condition="'$(TargetsWasm)' == 'true'" Include="Microsoft.NETCore.Runtime.ICU.Transport" PrivateAssets="all" Version="$(MicrosoftNETCoreRuntimeICUTransportVersion)" GeneratePathProperty="true" />
-    <PackageReference Condition="'$(TargetsWasm)' == 'true'" Include="System.Runtime.TimeZoneData" PrivateAssets="all" Version="$(SystemRuntimeTimeZoneDataVersion)" GeneratePathProperty="true" />
+    <PackageReference Condition="'$(TargetsWasm)' == 'true' or '$(TargetsWasm64)' == 'true'" Include="System.Runtime.TimeZoneData" PrivateAssets="all" Version="$(SystemRuntimeTimeZoneDataVersion)" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -27,7 +27,7 @@
 
     <_IcuDir Condition="'$(TargetsWasm64)' == 'true'">$(Memory64IcuDir)</_IcuDir>
     <_IcuDir Condition="'$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)' != '' and '$(TargetsWasm)' == 'true'">$(PkgMicrosoft_NETCore_Runtime_ICU_Transport)/runtimes/$(TargetOS)-$(TargetArchitecture)$(_RuntimeVariant)/native</_IcuDir>
-    <_TzdDir Condition="'$(PkgSystem_Runtime_TimeZoneData)' != '' and '$(TargetsWasm)' == 'true'">$([MSBuild]::NormalizePath('$(PkgSystem_Runtime_TimeZoneData)', 'contentFiles', 'any', 'any', 'data'))</_TzdDir>
+    <_TzdDir Condition="'$(PkgSystem_Runtime_TimeZoneData)' != '' and ('$(TargetsWasm)' == 'true' or '$(TargetsWasm64)' == 'true')">$([MSBuild]::NormalizePath('$(PkgSystem_Runtime_TimeZoneData)', 'contentFiles', 'any', 'any', 'data'))</_TzdDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,6 +43,7 @@
   <!-- Default memory settings shared by the prebuilt browserhost and app-level relinking. -->
   <PropertyGroup Condition="'$(TargetsBrowser)' == 'true'">
     <BrowserHostInitialHeapSize Condition="'$(BrowserHostInitialHeapSize)' == ''">33554432</BrowserHostInitialHeapSize>
+    <BrowserHostMaximumHeapSize Condition="'$(BrowserHostMaximumHeapSize)' == '' and '$(TargetsWasm64)' == 'true'">8589934592</BrowserHostMaximumHeapSize>
     <BrowserHostMaximumHeapSize Condition="'$(BrowserHostMaximumHeapSize)' == ''">2147483648</BrowserHostMaximumHeapSize>
     <BrowserHostStackSize Condition="'$(BrowserHostStackSize)' == ''">2MB</BrowserHostStackSize>
   </PropertyGroup>
@@ -52,6 +53,7 @@
        features (relaxed SIMD, threads) and optimization/debug/strip options are added by each consumer. -->
   <ItemGroup>
     <_WasmOptBaselineFeatureFlag Include="--enable-exception-handling;--enable-reference-types;--enable-multivalue;--enable-simd;--enable-bulk-memory;--enable-nontrapping-float-to-int" />
+    <_WasmOptBaselineFeatureFlag Condition="'$(TargetsWasm64)' == 'true'" Include="--enable-memory64" />
   </ItemGroup>
 
   <Target Name="PrepareMemory64EmscriptenLibraries"

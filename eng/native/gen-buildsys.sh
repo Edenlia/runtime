@@ -94,7 +94,7 @@ if [[ "$scan_build" == "ON" && -n "$SCAN_BUILD_COMMAND" ]]; then
 fi
 
 cmake_extra_defines_wasm=()
-if [[ "$host_arch" == "wasm" ]]; then
+if [[ "$host_arch" == "wasm" || "$host_arch" == "wasm64" ]]; then
     . "$scriptroot"/../wasm/wasm-tool-cache.sh
     if [[ "$target_os" == "browser" ]]; then
         if [[ -z "$EMSDK_PATH" ]]; then
@@ -107,10 +107,19 @@ if [[ "$host_arch" == "wasm" ]]; then
         fi
         export EMSDK_QUIET=1 && source "$EMSDK_PATH"/emsdk_env.sh
         cmake_command="emcmake $cmake_command"
-        # Use WASM-specific tryrun cache to speed up CMake configure
-        # The -C flag must be early in the command line to be effective
-        cmake_extra_defines="-C $scriptroot/tryrun.browser.cmake $cmake_extra_defines"
-    elif [[ "$target_os" == "wasi" ]]; then
+        if [[ "$host_arch" == "wasm64" ]]; then
+            # The Emscripten toolchain derives pointer size from CMAKE_C_FLAGS.
+            # Select Memory64 before project() runs its compiler/size probes.
+            cmake_extra_defines_wasm+=("-DCMAKE_C_FLAGS=${CFLAGS:-} -m64"
+                                      "-DCMAKE_CXX_FLAGS=${CXXFLAGS:-} -m64"
+                                      "-DCMAKE_EXE_LINKER_FLAGS=${LDFLAGS:-} -m64")
+        else
+            # This feature cache was generated for wasm32. Do not assume its
+            # ABI-dependent results also hold for Memory64.
+            # The -C flag must be early in the command line to be effective.
+            cmake_extra_defines="-C $scriptroot/tryrun.browser.cmake $cmake_extra_defines"
+        fi
+    elif [[ "$target_os" == "wasi" && "$host_arch" == "wasm" ]]; then
         # Like eng/AcquireWasiSdk.targets, only use $WASI_SDK_PATH when it is the expected version,
         # so native code built here links with the runtime built by MSBuild.
         if [[ -n "$WASI_SDK_PATH" ]]; then
@@ -135,7 +144,7 @@ if [[ "$host_arch" == "wasm" ]]; then
         fi
         cmake_extra_defines_wasm=("-DCLR_CMAKE_TARGET_OS=wasi" "-DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-p2.cmake")
     else
-        echo "target_os was not specified"
+        echo "Error: Unsupported WebAssembly target: $target_os-$host_arch." >&2
         exit 1
     fi
 fi
@@ -144,10 +153,10 @@ fi
 # cached compiler even when the toolchain file, CC/CXX or a cmake wrapper such as emcmake now select a
 # different one, for example a new SDK version in the versioned wasm tool cache. Record those inputs
 # next to the cache and reconfigure from scratch when they change.
-compiler_inputs="CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE:-}"$'\n'"CC=${CC:-}"$'\n'"CXX=${CXX:-}"
+compiler_inputs="CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE:-}"$'\n'"CC=${CC:-}"$'\n'"CXX=${CXX:-}"$'\n'"HOST_ARCH=$host_arch"
 for arg in $cmake_extra_defines "${__UnprocessedCMakeArgs[@]}" "${cmake_extra_defines_wasm[@]}"; do
     case "$arg" in
-        -DCMAKE_TOOLCHAIN_FILE=*|-DCMAKE_TOOLCHAIN_FILE:*=*) compiler_inputs+=$'\n'"$arg" ;;
+        -DCMAKE_TOOLCHAIN_FILE=*|-DCMAKE_TOOLCHAIN_FILE:*=*|-DCMAKE_C_FLAGS=*|-DCMAKE_CXX_FLAGS=*|-DCMAKE_EXE_LINKER_FLAGS=*) compiler_inputs+=$'\n'"$arg" ;;
     esac
 done
 # The compiler's version, which changes when the compiler behind an unchanged path is replaced, e.g. by an

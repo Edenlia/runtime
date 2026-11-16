@@ -525,6 +525,12 @@ if(NOT CLR_CMAKE_TARGET_BROWSER AND NOT CLR_CMAKE_TARGET_WASI)
 
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 else()
+    if(CLR_CMAKE_HOST_ARCH_WASM64)
+        # Keep all native consumers, including the exported corerun test kit,
+        # on the same Emscripten memory ABI.
+        add_compile_options(-m64)
+        add_link_options(-m64)
+    endif()
     if(CLR_CMAKE_RUNTIME_CORECLR)
         if(NOT CLR_CROSS_COMPONENTS_BUILD)
             # CoreCLR does not use throwing exception object destructors.

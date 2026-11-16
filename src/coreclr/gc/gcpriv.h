@@ -149,7 +149,9 @@ inline void FATAL_GC_ERROR()
 //    https://github.com/dotnet/runtime/issues/104211
 // Apple non-macOS platforms (such as iOS, tvOS, and Mac Catalyst) disallow
 // the large virtual address space reservations that GC regions require.
-#if defined (HOST_64BIT) && !defined (BUILD_AS_STANDALONE) && !defined(__sun) && (!defined(HOST_APPLE) || defined(HOST_OSX))
+// Wasm reserves and clears real linear memory rather than sparse virtual address space.
+// Keep its segment policy when pointers become 64-bit; regions need a separate memory-policy evaluation.
+#if defined (HOST_64BIT) && !(defined(HOST_WASM) || defined(HOST_WASM64)) && !defined (BUILD_AS_STANDALONE) && !defined(__sun) && (!defined(HOST_APPLE) || defined(HOST_OSX))
 #define USE_REGIONS
 #endif //HOST_64BIT && !BUILD_AS_STANDALONE && !__sun && (!HOST_APPLE || HOST_OSX)
 

@@ -2550,7 +2550,7 @@ HeapList* LoaderCodeHeap::CreateCodeHeap(CodeHeapRequestInfo *pInfo, LoaderHeap 
     DWORD dwSizeAcquiredFromInitialBlock = 0;
 
     size_t allocationSize = pCodeHeap->m_LoaderHeap.AllocMem_TotalSize(initialRequestSize);
-#if defined(TARGET_64BIT)
+#if defined(TARGET_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     if (!pInfo->IsInterpreted())
     {
         allocationSize += pCodeHeap->m_LoaderHeap.AllocMem_TotalSize(JUMP_ALLOCATE_SIZE);
@@ -2603,7 +2603,7 @@ HeapList* LoaderCodeHeap::CreateCodeHeap(CodeHeapRequestInfo *pInfo, LoaderHeap 
     HeapList *pHp = new HeapList;
     pHp->isOptimizedCode = false;
 
-#if defined(TARGET_64BIT)
+#if defined(TARGET_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     if (pInfo->IsInterpreted())
     {
         pHp->CLRPersonalityRoutine = NULL;
@@ -2615,6 +2615,11 @@ HeapList* LoaderCodeHeap::CreateCodeHeap(CodeHeapRequestInfo *pInfo, LoaderHeap 
         pHp->CLRPersonalityRoutine = (BYTE *)pCodeHeap->m_LoaderHeap.AllocMemForCode_NoThrow(0, JUMP_ALLOCATE_SIZE, sizeof(void*), 0);
     }
 #else
+#if defined(TARGET_64BIT)
+    // Wasm EH has no native personality jump thunk. GetModuleBase still reads
+    // this field on 64-bit targets, so initialize it for Wasm code heaps too.
+    pHp->CLRPersonalityRoutine = NULL;
+#endif
     // Ensure that the heap has a reserved block of memory and so the GetReservedBytesFree()
     // and GetAllocPtr() calls below return nonzero values.
     pCodeHeap->m_LoaderHeap.ReservePages(1);
@@ -2637,7 +2642,7 @@ HeapList* LoaderCodeHeap::CreateCodeHeap(CodeHeapRequestInfo *pInfo, LoaderHeap 
     pHp->mapBase         = ROUND_DOWN_TO_PAGE(pHp->startAddress);  // round down to next lower page align
     size_t nibbleMapSize = HEAP2MAPSIZE(ROUND_UP_TO_PAGE(heapSize));
     pHp->pHdrMap         = (DWORD*)(void*)pJitMetaHeap->AllocMem(S_SIZE_T(nibbleMapSize));
-#if defined(TARGET_64BIT)
+#if defined(TARGET_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     if (pHp->CLRPersonalityRoutine != NULL)
     {
         ExecutableWriterHolder<BYTE> personalityRoutineWriterHolder(pHp->CLRPersonalityRoutine, 12);
@@ -2789,7 +2794,7 @@ HeapList* EECodeGenManager::NewCodeHeap(CodeHeapRequestInfo *pInfo, DomainCodeHe
 
     size_t reserveSize = initialRequestSize;
 
-#if defined(TARGET_64BIT)
+#if defined(TARGET_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     if (!pInfo->IsInterpreted())
     {
         reserveSize += JUMP_ALLOCATE_SIZE;
@@ -6195,7 +6200,7 @@ void ExecutionManager::Unload(LoaderAllocator *pLoaderAllocator)
 #endif // FEATURE_INTERPRETER
 }
 
-#ifdef HOST_64BIT
+#if defined(HOST_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
 // This method is used by the JIT and the runtime for PreStubs. It will return
 // the address of a short jump thunk that will jump to the 'target' address.
 // It is only needed when the target architecture has a perferred call instruction
@@ -6506,7 +6511,7 @@ DONE:
 
     return (PCODE)jumpStub;
 }
-#endif // HOST_64BIT
+#endif // HOST_64BIT && !TARGET_WASM
 #endif // !DACCESS_COMPILE
 
 static void GetFuncletStartOffsetsHelper(PCODE pCodeStart, SIZE_T size, SIZE_T ofsAdj,

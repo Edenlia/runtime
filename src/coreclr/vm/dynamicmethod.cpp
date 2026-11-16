@@ -388,7 +388,7 @@ HeapList* HostCodeHeap::InitializeHeapList(CodeHeapRequestInfo *pInfo)
     // Add TrackAllocation, HeapList and very conservative padding to make sure we have enough for the allocation
     ReserveBlockSize += sizeof(TrackAllocation) + HOST_CODEHEAP_SIZE_ALIGN + 0x100;
 
-#if defined(TARGET_64BIT)
+#if defined(TARGET_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     ReserveBlockSize += JUMP_ALLOCATE_SIZE;
 #endif
 
@@ -422,6 +422,10 @@ HeapList* HostCodeHeap::InitializeHeapList(CodeHeapRequestInfo *pInfo)
     TrackAllocation *pTracker = NULL;
 
 #if defined(TARGET_64BIT)
+#if defined(TARGET_WASM) || defined(TARGET_WASM64)
+    // Wasm EH uses exception tags rather than a native personality jump thunk.
+    pHp->CLRPersonalityRoutine = NULL;
+#else
 #ifdef FEATURE_INTERPRETER
     if (pInfo->IsInterpreted())
     {
@@ -439,6 +443,7 @@ HeapList* HostCodeHeap::InitializeHeapList(CodeHeapRequestInfo *pInfo)
 
         pHp->CLRPersonalityRoutine = (BYTE *)(pTracker + 1);
     }
+#endif // TARGET_WASM
 #endif
 
     pHp->hpNext = NULL;
@@ -458,7 +463,7 @@ HeapList* HostCodeHeap::InitializeHeapList(CodeHeapRequestInfo *pInfo)
 
     pHp->maxCodeHeapSize = m_TotalBytesAvailable - (pTracker ? pTracker->size : 0);
 
-#if defined(TARGET_64BIT)
+#if defined(TARGET_64BIT) && !(defined(TARGET_WASM) || defined(TARGET_WASM64))
     if (pHp->CLRPersonalityRoutine != NULL)
     {
         ExecutableWriterHolder<BYTE> personalityRoutineWriterHolder(pHp->CLRPersonalityRoutine, 12);

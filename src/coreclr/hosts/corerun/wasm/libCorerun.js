@@ -73,6 +73,7 @@ function libCoreRunFactory() {
         $CORERUN__postset: "CORERUN.selfInitialize()",
         $CORERUN__deps: commonDeps,
         BrowserHost_ShutdownDotnet: (exitCode) => _corerun_shutdown(exitCode),
+        BrowserHost_ExternalAssemblyProbe__sig: "ippp",
         BrowserHost_ExternalAssemblyProbe: (pathPtr, outDataStartPtr, outSize) => {
             function asUint8Array(bufferSource) {
                 if (bufferSource instanceof ArrayBuffer) {
@@ -216,6 +217,9 @@ function libCoreRunFactory() {
             } catch (e) {
                 return false;
             }
+#if MEMORY64
+            throw new Error("Wasm64 corerun currently loads raw IL assemblies. WebCIL modules require a matching loader ABI.");
+#endif
             let wasmModule;
             try {
                 wasmModule = new WebAssembly.Module(wasmBytes);

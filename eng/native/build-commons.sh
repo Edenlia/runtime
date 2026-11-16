@@ -305,7 +305,7 @@ usage()
     echo ""
     echo "Common Options:"
     echo ""
-    echo "BuildArch can be: -arm, -armv6, -armel, -arm64, -loongarch64, -riscv64, -s390x, -ppc64le, x64, x86, -wasm"
+    echo "BuildArch can be: -arm, -armv6, -armel, -arm64, -loongarch64, -riscv64, -s390x, -ppc64le, x64, x86, -wasm, -wasm64"
     echo "BuildType can be: -debug, -checked, -release"
     echo "-arch: target architecture (defaults to running architecture); alternative to the BuildArch flags above."
     echo "-os: target OS (defaults to running OS)"
@@ -526,6 +526,10 @@ while :; do
             __TargetArch=wasm
             ;;
 
+        wasm64|-wasm64)
+            __TargetArch=wasm64
+            ;;
+
         targetrid|-targetrid|outputrid|-outputrid)
             if [[ -n "$2" ]]; then
                 __TargetRid="$2"
@@ -613,7 +617,7 @@ if [[ "$__PortableBuild" == 0 ]]; then
     __CommonMSBuildArgs="$__CommonMSBuildArgs /p:PortableBuild=false"
 fi
 
-if [[ "$__TargetArch" == wasm ]]; then
+if [[ "$__TargetArch" == wasm || "$__TargetArch" == wasm64 ]]; then
     # nothing to do here
     true
 elif [[ "$__TargetOS" == ios || "$__TargetOS" == iossimulator ]]; then

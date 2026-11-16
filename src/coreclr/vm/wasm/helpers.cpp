@@ -5,6 +5,7 @@
 #include <interpretershared.h>
 #include <interpexec.h>
 #include "callhelpers.hpp"
+#include "wasm-asm.h"
 #include "stringthunkhash.h"
 #include "pregeneratedstringthunks.h"
 #include "callingconvention.h"
@@ -160,9 +161,9 @@ void InlinedCallFrame::UpdateRegDisplay_Impl(const PREGDISPLAY pRD, bool updateF
     }
     else
     {
-        pRD->pCurrentContext->InterpreterIP = *(DWORD *)&m_pCallerReturnAddress;
-        pRD->pCurrentContext->InterpreterSP = *(DWORD *)&m_pCallSiteSP;
-        pRD->pCurrentContext->InterpreterFP = *(DWORD *)&m_pCalleeSavedFP;
+        pRD->pCurrentContext->InterpreterIP = (TADDR)m_pCallerReturnAddress;
+        pRD->pCurrentContext->InterpreterSP = (TADDR)m_pCallSiteSP;
+        pRD->pCurrentContext->InterpreterFP = (TADDR)m_pCalleeSavedFP;
     }
 
     SyncRegDisplayToCurrentContext(pRD);
@@ -224,16 +225,16 @@ __attribute__((naked)) void ThrowRtlRestoreContextTag()
 // value. Exported so every R2R webcil imports this same global (see libCorerun.js).
 // Single-threaded today; like __stack_pointer it becomes per-thread once wasm threads land.
 asm(".globl __async_continuation\n"
-    ".globaltype __async_continuation, i32\n"
+    ".globaltype __async_continuation, " WASM_PTR_TYPE_STR "\n"
     "__async_continuation:\n");
 
-extern "C" __attribute__((naked)) uint32_t RuntimeAsync_LoadAsyncContinuation()
+extern "C" __attribute__((naked)) uintptr_t RuntimeAsync_LoadAsyncContinuation()
 {
     asm("global.get __async_continuation\n"
         "return\n" ::);
 }
 
-extern "C" __attribute__((naked)) void RuntimeAsync_StoreAsyncContinuation(uint32_t value)
+extern "C" __attribute__((naked)) void RuntimeAsync_StoreAsyncContinuation(uintptr_t value)
 {
     asm("local.get 0\n"
         "global.set __async_continuation\n"
@@ -294,23 +295,23 @@ static __attribute__((naked)) UINT_PTR CallFuncletWithThrowable(UINT_PTR pFuncle
     asm ("global.get      __stack_pointer\n" // Capture original value of stack pointer
          "local.get       3\n"               // Get pFuncletCallerSP address to store the new stack pointer for the caller of the funclet
          "global.get      __stack_pointer\n" // Setup the frame chain, by allocating a new frame and adjusting the stack pointer to point to it. The frame size adjusts in units of 16 bytes.
-         "i32.const       16\n"
-         "i32.sub \n"
-         "i32.store       0\n"               // Store the updated stack pointer into pFuncletCallerSP
+         WASM_PTR_CONST_STR "       16\n"
+         WASM_PTR_SUB_STR " \n"
+         WASM_PTR_STORE_STR "       0\n"               // Store the updated stack pointer into pFuncletCallerSP
          "local.get       3\n"               // Get pFuncletCallerSP address to load the value we just stored
-         "i32.load        0\n"               // Load the stack pointer for the caller of the funclet and store it in the new frame
+         WASM_PTR_LOAD_STR "        0\n"               // Load the stack pointer for the caller of the funclet and store it in the new frame
          "local.tee       3\n"               // Tee the stack pointer into a local so that we can use it again.
 
          "global.set      __stack_pointer\n" // Update the global stack pointer
          "local.get       3\n"               // Get the stack pointer
-         "i32.const       " WASM_STRINGIFY(TERMINATE_R2R_STACK_WALK) "\n"
-         "i32.store       0\n"               // And save a terminator to the stack frame.
+         WASM_PTR_CONST_STR "       " WASM_STRINGIFY(TERMINATE_R2R_STACK_WALK) "\n"
+         WASM_PTR_STORE_STR "       0\n"               // And save a terminator to the stack frame.
 
          "local.get       3\n"               // Get the stack pointer
          "local.get       1\n"               // Get the frame pointer argument for the original function
          "local.get       2\n"               // Get the exception object for the funclet
          "local.get       0\n"               // Get the funclet address to call
-         "call_indirect    __indirect_function_table, (i32, i32, i32) -> (i32)\n"
+         "call_indirect    __indirect_function_table, (" WASM_PTR_TYPE_STR ", " WASM_PTR_TYPE_STR ", " WASM_PTR_TYPE_STR ") -> (" WASM_PTR_TYPE_STR ")\n"
          "local.set       0\n"               // Capture the return into a local so that we can return it after restoring the original stack pointer
          "global.set      __stack_pointer\n" // Restore the original stack pointer before returning to the caller of the funclet
          "local.get       0\n"               // Return the value from the funclet call
@@ -323,24 +324,24 @@ static __attribute__((naked)) UINT_PTR CallFuncletWithoutThrowable(UINT_PTR pFun
     asm ("global.get      __stack_pointer\n" // Capture original value of stack pointer
          "local.get       2\n"               // Get pFuncletCallerSP address to store the new stack pointer for the caller of the funclet
          "global.get      __stack_pointer\n" // Setup the frame chain, by allocating a new frame and adjusting the stack pointer to point to it. The frame size adjusts in units of 16 bytes.
-         "i32.const       16\n"
-         "i32.sub \n"
-         "i32.store       0\n"               // Store the updated stack pointer into pFuncletCallerSP
+         WASM_PTR_CONST_STR "       16\n"
+         WASM_PTR_SUB_STR " \n"
+         WASM_PTR_STORE_STR "       0\n"               // Store the updated stack pointer into pFuncletCallerSP
          "local.get       2\n"               // Get pFuncletCallerSP address to load the value we just stored
-         "i32.load        0\n"               // Load the stack pointer for the caller of the funclet and store it in the new frame
+         WASM_PTR_LOAD_STR "        0\n"               // Load the stack pointer for the caller of the funclet and store it in the new frame
          "local.tee       2\n"               // Tee the stack pointer into a local so that we can use it again.
 
          "global.set      __stack_pointer\n" // Update the global stack pointer
          "local.get       2\n"               // Get the stack pointer
-         "i32.const       " WASM_STRINGIFY(TERMINATE_R2R_STACK_WALK) "\n"
-         "i32.store       0\n"               // And save a terminator to the stack frame.
+         WASM_PTR_CONST_STR "       " WASM_STRINGIFY(TERMINATE_R2R_STACK_WALK) "\n"
+         WASM_PTR_STORE_STR "       0\n"               // And save a terminator to the stack frame.
 
          "local.get       2\n"               // Get the stack pointer
          "local.get       1\n"               // Get the frame pointer argument for the original function
          "local.get       0\n"               // Get the funclet address to call
-         "call_indirect    __indirect_function_table, (i32, i32) -> ()\n"
+         "call_indirect    __indirect_function_table, (" WASM_PTR_TYPE_STR ", " WASM_PTR_TYPE_STR ") -> ()\n"
          "global.set      __stack_pointer\n" // Restore the original stack pointer before returning to the caller of the funclet
-         "i32.const       0\n"
+         WASM_PTR_CONST_STR "       0\n"
          "return\n"
           ::);
 }
@@ -508,7 +509,7 @@ EXTERN_C FCDECL0(void, RhpGcPoll);
 EXTERN_C __attribute__((naked)) void F_CALL_CONV RhpGcPoll(uintptr_t callersStackPointer, PCODE portableEntryPointContext)
 {
     asm(
-        "i32.const 0\n"
+        WASM_PTR_CONST_STR " 0\n"
         "i32.load %[g_TrapReturningThreads]\n"
         "if\n"
         "  global.get __stack_pointer\n"
@@ -1838,11 +1839,11 @@ static TADDR GetWasmFramePointerFromStackPointer_Internal(TADDR sp)
     }
     else
     {
-        if (*(int32_t*)(sp + WASM_STACKFRAME_FUNCTION_INDEX_OFFSET) == STACK_WALK_INDIRECT_TO_FRAMEPOINTER)
+        if (*(UINT_PTR*)(sp + WASM_STACKFRAME_FUNCTION_INDEX_OFFSET) == STACK_WALK_INDIRECT_TO_FRAMEPOINTER)
         {
             sp = *(TADDR*)(sp + WASM_STACKFRAME_INDIRECT_TO_FRAMEPOINTER_OFFSET);
         }
-        if (*(int32_t*)(sp + WASM_STACKFRAME_FUNCTION_INDEX_OFFSET) == TERMINATE_R2R_STACK_WALK)
+        if (*(UINT_PTR*)(sp + WASM_STACKFRAME_FUNCTION_INDEX_OFFSET) == TERMINATE_R2R_STACK_WALK)
         {
             return 0;
         }
@@ -1943,12 +1944,12 @@ TADDR GetWasmFramePointerFromStackPointer(TADDR sp, PCODE controlPC)
 PEXCEPTION_ROUTINE
 RtlVirtualUnwind (
     _In_ DWORD HandlerType,
-    _In_ DWORD ImageBase,
-    _In_ DWORD ControlPc,
+    _In_ ULONG_PTR ImageBase,
+    _In_ ULONG_PTR ControlPc,
     _In_ PRUNTIME_FUNCTION FunctionEntry,
     __inout PT_CONTEXT ContextRecord,
     _Out_ PVOID *HandlerData,
-    _Out_ PDWORD EstablisherFrame,
+    _Out_ PULONG_PTR EstablisherFrame,
     __inout_opt PT_KNONVOLATILE_CONTEXT_POINTERS ContextPointers
     )
 {

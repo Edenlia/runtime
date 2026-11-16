@@ -555,6 +555,7 @@ namespace pal
         x64,
         x86,
         wasm,
+        wasm64,
 
         __last // Sentinel value
     };

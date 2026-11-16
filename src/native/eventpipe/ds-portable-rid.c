@@ -52,6 +52,8 @@
 #define PORTABLE_RID_ARCH "riscv64"
 #elif defined(TARGET_S390X)
 #define PORTABLE_RID_ARCH "s390x"
+#elif defined(TARGET_WASM64)
+#define PORTABLE_RID_ARCH "wasm64"
 #elif defined(TARGET_WASM)
 #define PORTABLE_RID_ARCH "wasm"
 #elif defined(TARGET_X86)
