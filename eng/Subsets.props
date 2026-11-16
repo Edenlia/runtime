@@ -64,8 +64,8 @@
 
     <!-- In the Win-x86 BuildPass2 job in the VMR, we want to build the cross-OS DACs and pack them. -->
     <DefaultSubsets Condition="'$(DotNetBuildPass)' == '2' and '$(TargetOS)' == 'windows' and '$(TargetArchitecture)' == 'x86'">crossdacpack</DefaultSubsets>
-    <!-- Only IL CoreLib is supported by the initial wasm64 build target. -->
-    <DefaultSubsets Condition="'$(TargetsWasm64)' == 'true'">clr.corelib</DefaultSubsets>
+    <!-- The wasm64 bring-up builds the native runtime and IL CoreLib, without code generation or SDK packs. -->
+    <DefaultSubsets Condition="'$(TargetsWasm64)' == 'true'">provision.emsdk+clr.runtime+clr.hosts+clr.corelib+libs.native</DefaultSubsets>
   </PropertyGroup>
 
   <!-- Init _subset here to allow RuntimeFlavor to be set as early as possible -->
@@ -90,7 +90,7 @@
     <DefaultCoreClrSubsets Condition="'$(TargetsWasi)' == 'true'">clr.native+clr.corelib+clr.tools+clr.nativecorelib+clr.packages+clr.nativeaotlibs+clr.crossarchtools+host.native+libs.native</DefaultCoreClrSubsets>
     <!-- Even on platforms that do not support the CoreCLR runtime, we still want to build ilasm/ildasm. -->
     <DefaultCoreClrSubsets Condition="'$(RuntimeFlavor)' != 'CoreCLR'">clr.iltools+clr.packages</DefaultCoreClrSubsets>
-    <DefaultCoreClrSubsets Condition="'$(TargetsWasm64)' == 'true' and '$(RuntimeFlavor)' == 'CoreCLR'">clr.corelib</DefaultCoreClrSubsets>
+    <DefaultCoreClrSubsets Condition="'$(TargetsWasm64)' == 'true' and '$(RuntimeFlavor)' == 'CoreCLR'">provision.emsdk+clr.runtime+clr.hosts+clr.corelib+libs.native</DefaultCoreClrSubsets>
 
     <DefaultNativeAotSubsets>clr.jit+clr.tools+clr.nativeaotlibs+clr.nativeaotruntime</DefaultNativeAotSubsets>
 

@@ -979,6 +979,9 @@ elseif(CLR_CMAKE_TARGET_ARCH_WASM)
         set(WASM_THUNK_SUBDIR wasi)
     else()
         set(WASM_THUNK_SUBDIR browser)
+        if(CLR_CMAKE_TARGET_ARCH_WASM64)
+            set(WASM_THUNK_SUBDIR browser/wasm64)
+        endif()
     endif()
     set(VM_SOURCES_WKS_GEN
         ${ARCH_SOURCES_DIR}/${WASM_THUNK_SUBDIR}/callhelpers-interp-to-managed.cpp

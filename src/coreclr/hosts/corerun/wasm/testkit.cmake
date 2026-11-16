@@ -1,7 +1,7 @@
 # Licensed to the .NET Foundation under one or more agreements.
 # The .NET Foundation licenses this file to you under the MIT license.
 
-# Corerun test link kit (browser-wasm and wasi-wasm).
+# Corerun test link kit (browser-wasm, browser-wasm64 and wasi-wasm).
 #
 # WASM has no dynamic library loading, so a runtime test that P/Invokes into its
 # own native library cannot run against the prebuilt corerun -- the test's
@@ -270,6 +270,9 @@ function(corerun_kit_export)
     # NativeFileReference must not inherit those typedefs/macros, which would collide
     # with arbitrary user code.
     set(compileResponse "${userCompileResponse}")
+    if (CLR_CMAKE_TARGET_ARCH_WASM64)
+        string(APPEND compileResponse "-DTARGET_WASM\n-DTARGET_WASM64\n-DTARGET_64BIT\n-DTARGET_POINTER_SIZE=8\n")
+    endif()
     string(APPEND compileResponse "-I\"include\"\n")
     string(APPEND compileResponse "-include\n\"include/coreclr_compat.h\"\n")
 
@@ -280,6 +283,7 @@ function(corerun_kit_export)
          TARGET corerun_static)
     file(GENERATE OUTPUT "${generatedDirectory}/corerun-compile-user.rsp" CONTENT "${userCompileResponse}"
          TARGET corerun_static)
+    file(GENERATE OUTPUT "${generatedDirectory}/target-architecture.txt" CONTENT "${CLR_CMAKE_TARGET_ARCH}\n")
 
     foreach(library IN LISTS kitLibraries)
         install(FILES "$<TARGET_FILE:${library}>" DESTINATION ${kitDestination} COMPONENT ${KIT_COMPONENT})
@@ -288,6 +292,7 @@ function(corerun_kit_export)
     install(FILES ${KIT_JS_LIBRARIES} ${KIT_EXTERN_POST_JS} ${KIT_EXTRA_FILES} DESTINATION ${kitDestination} COMPONENT ${KIT_COMPONENT})
     install(FILES "${generatedDirectory}/corerun-link.rsp" "${generatedDirectory}/corerun-compile.rsp"
                   "${generatedDirectory}/corerun-compile-user.rsp"
+                  "${generatedDirectory}/target-architecture.txt"
             DESTINATION ${kitDestination} COMPONENT ${KIT_COMPONENT})
 
     # Headers the generated call tables include, plus the compatibility header

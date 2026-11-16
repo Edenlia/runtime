@@ -38,10 +38,7 @@
   </Target>
 
   <Target Name="ValidateWasm64Subsets" Condition="'$(TargetsWasm64)' == 'true'">
-    <ItemGroup>
-      <_UnsupportedWasm64Subset Include="$([MSBuild]::Unescape($(_subset.Replace('+', ';'))))" Exclude="clr.corelib" />
-    </ItemGroup>
-    <Error Condition="'@(_UnsupportedWasm64Subset)' != ''"
-           Text="The wasm64 build target currently supports only the clr.corelib subset. Unsupported subsets: @(_UnsupportedWasm64Subset, ', ')." />
+    <Error Condition="$(_subset.Contains('+clr.native+')) or $(_subset.Contains('+clr.jit+')) or $(_subset.Contains('+clr.wasmjit+')) or $(_subset.Contains('+clr.alljits+')) or $(_subset.Contains('+clr.alljitscommunity+')) or $(_subset.Contains('+clr.nativecorelib+')) or $(_subset.Contains('+clr.crossarchtools+')) or $(_subset.Contains('+clr.tools+')) or $(_subset.Contains('+clr.nativeaotlibs+')) or $(_subset.Contains('+clr.nativeaotruntime+'))"
+           Text="wasm64 does not support JIT, ReadyToRun, NativeAOT, or target-specific compiler tool builds. Build the host Crossgen2 with -os browser -arch wasm -subset clr.tools, then select wasm64 on the portable helper generator command line." />
   </Target>
 </Project>
