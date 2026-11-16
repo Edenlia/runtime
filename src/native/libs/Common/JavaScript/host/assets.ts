@@ -16,7 +16,7 @@ export function registerPdbBytes(bytes: Uint8Array, virtualPath: string, shortNa
     const sp = _ems_.stackSave();
     try {
         const ptrPtr = _ems_.stackAlloc(sizeOfPtr);
-        if (_ems_._posix_memalign(ptrPtr as any, 16, bytes.length)) {
+        if (_ems_.browserHostNative.posix_memalign(ptrPtr as any, 16, bytes.length)) {
             throw new Error("posix_memalign failed for PDB");
         }
 
@@ -35,7 +35,7 @@ export function registerDllBytes(bytes: Uint8Array, virtualPath: string, shortNa
     const sp = _ems_.stackSave();
     try {
         const ptrPtr = _ems_.stackAlloc(sizeOfPtr);
-        if (_ems_._posix_memalign(ptrPtr as any, 16, bytes.length)) {
+        if (_ems_.browserHostNative.posix_memalign(ptrPtr as any, 16, bytes.length)) {
             throw new Error("posix_memalign failed");
         }
 
@@ -77,7 +77,7 @@ export async function instantiateWebcilModule(webcilPromise: Promise<Response>, 
         // Instantiation failed after the payload buffer was allocated; free it to avoid leaking
         // unmanaged memory. (A grown R2R table cannot be shrunk back, but a failed R2R instantiate is fatal.)
         if (payloadPtr !== 0) {
-            _ems_._free(payloadPtr as any);
+            _ems_.browserHostNative.free(payloadPtr as any);
         }
         throw err;
     }
@@ -97,7 +97,7 @@ function allocWebcilPayload(payloadSize: number): number {
     const sp = _ems_.stackSave();
     try {
         const ptrPtr = _ems_.stackAlloc(sizeOfPtr);
-        if (_ems_._posix_memalign(ptrPtr as any, 16, payloadSize)) {
+        if (_ems_.browserHostNative.posix_memalign(ptrPtr as any, 16, payloadSize)) {
             throw new Error("posix_memalign failed for Webcil payload");
         }
         return readPointer(ptrPtr);
@@ -197,14 +197,14 @@ export function loadIcuData(bytes: Uint8Array) {
     const sp = _ems_.stackSave();
     try {
         const ptrPtr = _ems_.stackAlloc(sizeOfPtr);
-        if (_ems_._posix_memalign(ptrPtr as any, 16, bytes.length)) {
+        if (_ems_.browserHostNative.posix_memalign(ptrPtr as any, 16, bytes.length)) {
             throw new Error("posix_memalign failed for ICU data");
         }
 
         const ptr = readPointer(ptrPtr);
         _ems_.HEAPU8.set(bytes, ptr);
 
-        const result = _ems_._wasm_load_icu_data(ptr as unknown as VoidPtr);
+        const result = _ems_.browserHostNative.loadIcuData(ptr as unknown as VoidPtr);
         if (!result) {
             throw new Error("Failed to initialize ICU data");
         }

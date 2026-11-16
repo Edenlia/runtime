@@ -67,6 +67,13 @@
       "guest_execution": "NOT RUN",
       "wasm64_r2r": "UNSUPPORTED: explicit probe diagnostic",
       "evidence": "evidence/2026-11-16-corerun-pointer-probe.json"
+    },
+    {
+      "scope": "shared browser host native call and callback boundary",
+      "code_status": "IMPLEMENTED",
+      "emscripten_6_0_10_emitted_bundle_native_stubs": "PASS: six lanes including wasm32 early/deferred, native/lowered wasm64 and absent ICU",
+      "guest_execution": "NOT RUN",
+      "evidence": "evidence/2026-11-16-browser-host-native-boundary.json"
     }
   ],
   "milestones": {

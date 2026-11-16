@@ -16,7 +16,7 @@ const RUNTIME_IDENTIFIER = "RUNTIME_IDENTIFIER";
 
 export function initializeCoreCLR(): number {
     const loaderConfig = _ems_.dotnetApi.getConfig();
-    const hostContractPtr = _ems_._BrowserHost_CreateHostContract();
+    const hostContractPtr = _ems_.browserHostNative.createHostContract();
     const runtimeConfigProperties = new Map<string, string>();
     if (loaderConfig.runtimeConfig?.runtimeOptions?.configProperties) {
         for (const [key, value] of Object.entries(loaderConfig.runtimeConfig?.runtimeOptions?.configProperties)) {
@@ -38,8 +38,8 @@ export function initializeCoreCLR(): number {
     runtimeConfigProperties.set(HOST_PROPERTY_RUNTIME_CONTRACT, `0x${(hostContractPtr as unknown as number).toString(16)}`);
 
     const buffers: VoidPtr[] = [];
-    const appctx_keys = _ems_._malloc(sizeOfPtr * runtimeConfigProperties.size) as any as CharPtrPtr;
-    const appctx_values = _ems_._malloc(sizeOfPtr * runtimeConfigProperties.size) as any as CharPtrPtr;
+    const appctx_keys = _ems_.browserHostNative.malloc(sizeOfPtr * runtimeConfigProperties.size) as any as CharPtrPtr;
+    const appctx_values = _ems_.browserHostNative.malloc(sizeOfPtr * runtimeConfigProperties.size) as any as CharPtrPtr;
     buffers.push(appctx_keys as any);
     buffers.push(appctx_values as any);
 
@@ -54,9 +54,9 @@ export function initializeCoreCLR(): number {
         buffers.push(valuePtr as any);
     }
 
-    const res = _ems_._BrowserHost_InitializeDotnet(propertyCount, appctx_keys, appctx_values);
+    const res = _ems_.browserHostNative.initializeDotnet(propertyCount, appctx_keys, appctx_values);
     for (const buf of buffers) {
-        _ems_._free(buf as any);
+        _ems_.browserHostNative.free(buf as any);
     }
     return res;
 }
@@ -85,9 +85,9 @@ export async function runMain(mainAssemblyName?: string, args?: string[]): Promi
                 writePointer(pointerToNumber(argsvPtr) + i * sizeOfPtr, ptr);
             }
             writePointer(pointerToNumber(argsvPtr) + args.length * sizeOfPtr, 0);
-            _ems_.EXITSTATUS = _ems_._BrowserHost_ExecuteAssembly(mainAssemblyNamePtr, args.length, argsvPtr);
+            _ems_.EXITSTATUS = _ems_.browserHostNative.executeAssembly(mainAssemblyNamePtr, args.length, argsvPtr);
             for (const ptr of ptrs) {
-                _ems_._free(ptr);
+                _ems_.browserHostNative.free(ptr);
             }
 
             if (_ems_.EXITSTATUS == -1) {

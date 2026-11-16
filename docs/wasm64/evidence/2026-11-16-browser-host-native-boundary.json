@@ -1,0 +1,49 @@
+{
+  "format_version": 1,
+  "date": "2026-11-16",
+  "base_sha": "b803f30270f1fbcbc6b048a0b50b77946cb130d2",
+  "scope": "Shared CoreCLR browser host native call and callback ABI",
+  "artifact_root": "UnrealEngine/CentralParkProjs/.cache/UnrealSharp/Operations/ue-web-support/20261116/Runtime",
+  "toolchain": { "emscripten": "6.0.10", "emscripten_sha": "d6c521a7f05449857c76bd99e396895583cf2083", "node": "24.19.0", "typescript": "5.9.2" },
+  "commands": [
+    "src/native: Configuration=Release ProductVersion=12.0 ContinuousIntegrationBuild=false RuntimeFlavor=CoreCLR WasmPointerSize=8 StaticLibDestination=<artifact_root>/Rollup-boundary-wasm64 npm run rollup:cmake -- ''",
+    "src/native: Configuration=Release ProductVersion=12.0 ContinuousIntegrationBuild=false RuntimeFlavor=CoreCLR WasmPointerSize=4 StaticLibDestination=<artifact_root>/Rollup-boundary-wasm32 npm run rollup:cmake -- ''",
+    "<emsdk>/python/3.13.3_64bit/python.exe <artifact_root>/BrowserHost/run_probe.py before",
+    "<emsdk>/python/3.13.3_64bit/python.exe <artifact_root>/BrowserHost/run_probe.py after",
+    "src/native: node_modules/.bin/eslint --no-color --max-warnings=0 libs/Common/JavaScript/host/host.ts libs/Common/JavaScript/host/assets.ts libs/Common/JavaScript/types/ems-ambient.ts corehost/browserhost/libBrowserHost.footer.js"
+  ],
+  "baseline_bundle_provenance": "Cached bundles from the preceding pointer-slot checkpoint; their six production files and original footer match the base production source. They were generated on the dirty 49331864275 tree before f8d91aa99e4 was committed and embed that earlier Git hash; exact bundle hashes below identify execution inputs.",
+  "bundle_sha256": {
+    "Rollup-wasm32/libBrowserHost.js": "a4631db5afd81210f7ef292f3ca3e8b89ae20eaffa304d0bb497f6c3ff1e5af3",
+    "Rollup-wasm64/libBrowserHost.js": "d58984bf9543c1ea2397e44a35bc81b59142b6348e9124ff685855c3291ac30a",
+    "Rollup-boundary-wasm32/libBrowserHost.js": "01341c3860abaf335ec58a6d1aa5268651543f1819477d8fc512af0fe38dd133",
+    "Rollup-boundary-wasm64/libBrowserHost.js": "3a54e245a2085f6598fb98c82336e0ecfed3eeb00a6b18a5bcb28e5fca9c5fb4"
+  },
+  "results": [
+    { "lane": "wasm32 early attachment", "baseline": "PASS", "candidate": "PASS" },
+    { "lane": "wasm32 deferred WASM_BIGINT=0", "baseline": "FAIL: native import retains dummy function", "candidate": "PASS" },
+    { "lane": "wasm32 deferred default BigInt", "baseline": "FAIL: native import retains dummy function", "candidate": "PASS" },
+    { "lane": "wasm64 native", "baseline": "FAIL: Number passed to i64 native argument", "candidate": "PASS" },
+    { "lane": "wasm64 MEMORY64=2", "baseline": "FAIL: Number passed to i64 native argument", "candidate": "PASS" },
+    { "lane": "wasm64 without ICU symbol", "baseline": "FAIL: Number passed to i64 native argument", "candidate": "PASS" }
+  ],
+  "release_rollup": "PASS: eight outputs each for pointer sizes four and eight",
+  "eslint_changed_files": "PASS",
+  "emitted_runtime_dynamic_code_check": "PASS: all six final JS outputs contain no new Function, eval( or Emscripten macro tokens",
+  "checks": ["native properties and host contract", "Unicode argv and null terminator", "DLL/PDB/ICU registration", "native callback after module binding", "missing-image null outputs", "forced allocation-failure stack restoration", "native invalid-alignment return", "native free on asynchronous malformed-module failure", "optional ICU symbol absent at link"],
+  "pinned_source_review": {
+    "source_only": true,
+    "urls": ["https://raw.githubusercontent.com/emscripten-core/emscripten/6.0.2/src/parseTools.mjs", "https://raw.githubusercontent.com/emscripten-core/emscripten/6.0.2/src/jsifier.mjs"],
+    "parseTools_sha256": "d94d8bb5392392fc19c2147836723de0581da027d194ed4197b944f4253de1ac",
+    "jsifier_sha256": "8dd5ea24f227cd038aba441e51df70daaa03d8d8d3d4ea1ec4e67e98d4e7fa44",
+    "confirmed": ["POINTER_SIZE", "to64", "from64Expr", "toIndexType", "makeGetValue/makeSetValue", "pointer-signature argument conversion"],
+    "binary_executed": false
+  },
+  "raw_evidence": ["BrowserHost/probe.c", "BrowserHost/deps.js", "BrowserHost/pre.js", "BrowserHost/run_probe.py", "BrowserHost/before/results.json", "BrowserHost/after/results.json", "BrowserHost/after/emitted-runtime-check.json", "rollup-boundary-wasm32.log", "rollup-boundary-wasm64.log", "PinnedSource/parseTools-6.0.2.mjs", "PinnedSource/jsifier-6.0.2.mjs"],
+  "native_calls_executed": true,
+  "coreclr_runtime_linked": false,
+  "guest_executed": false,
+  "browser_executed": false,
+  "high_address_observed": null,
+  "limitations": ["Native BrowserHost entry points are C assertion stubs, not the CLR runtime.", "No full loader, managed method, GC, high-address heap or UE packaging acceptance.", "The allocation-failure branch uses an injected allocator error; it is not a real out-of-memory test.", "Pinned 6.0.2 macro availability is source-reviewed only; executed toolchain is 6.0.10.", "Existing broader resource-lifetime and WebCIL protocol work is not claimed complete."]
+}

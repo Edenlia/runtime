@@ -8,15 +8,12 @@
 
 /* eslint-disable no-undef */
 function libBrowserHostFactory() {
-    // this executes the function at link time in order to capture exports
-    // this is what Emscripten does for linking JS libraries
+    // Emscripten executes this factory at link time and serializes library functions.
     // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#javascript-limits-in-library-files
-    // it would execute the code at link time and call .toString() on functions to move it to the final output
-    // this process would loose any closure references, unless they are passed to `__deps` and also explicitly given to the linker
+    // Link-time Function constructors below preserve compiler macro expansion and
+    // signature parsing after Rollup minification. Their functions reach the final
+    // output through .toString(); dependencies must be explicitly given to the linker.
     // JS name mangling and minification also applies, see src\native\rollup.config.defines.js and `reserved` there
-    const exports = {};
-    libBrowserHost(exports);
-
     // libBrowserHostFn is too complex for acorn-optimizer.mjs to find the dependencies
     // NOTE: wasm_load_icu_data is NOT listed here because it's only available when
     // InvariantGlobalization != true. The loadIcuData() JS code is only called when
@@ -32,6 +29,7 @@ function libBrowserHostFactory() {
         "$ENV",
         "$FS",
         "$libBrowserHostFn",
+        "$browserHostNative",
         ...explicitDeps
     ];
     const mergeBrowserHost = {
@@ -43,30 +41,44 @@ function libBrowserHostFactory() {
                     const exports = {};
                     libBrowserHostFn(exports);
                     exports.dotnetInitializeModule(dotnetInternals);
-                    BROWSER_HOST.assignExports(exports, BROWSER_HOST);
+                    BROWSER_HOST.exports = exports;
                 }
             },
         },
         $libBrowserHostFn: libBrowserHost,
         $BROWSER_HOST__postset: "BROWSER_HOST.selfInitialize()",
         $BROWSER_HOST__deps: commonDeps,
+        // Keep this wrapper in place after module initialization so Emscripten's
+        // pointer argument conversions are not replaced with the raw TS function.
+        BrowserHost_ExternalAssemblyProbe__sig: "ippp",
+        BrowserHost_ExternalAssemblyProbe: new Function("pathPtr", "outDataStartPtr", "outSize",
+            "return BROWSER_HOST.exports.BrowserHost_ExternalAssemblyProbe(pathPtr, outDataStartPtr, outSize);"),
     };
 
-    let assignExportsBuilder = "";
     let explicitImportsBuilder = "";
-    for (const exportName of Reflect.ownKeys(exports)) {
-        const name = String(exportName);
-        if (name === "dotnetInitializeModule") continue;
-        mergeBrowserHost[name] = () => "dummy";
-        assignExportsBuilder += `_${String(name)} = exports.${String(name)};\n`;
-    }
     for (const importName of explicitDeps) {
         explicitImportsBuilder += `_${importName}();\n`;
     }
-    mergeBrowserHost.$BROWSER_HOST.assignExports = new Function("exports", assignExportsBuilder);
     mergeBrowserHost.$BROWSER_HOST.explicitImports = new Function(explicitImportsBuilder);
 
     autoAddDeps(mergeBrowserHost, "$BROWSER_HOST");
+    // The TS host uses Number heap offsets. Native pointers and size_t arguments
+    // use i64 in both MEMORY64=1 and MEMORY64=2; let the compiler own that boundary.
+    mergeBrowserHost.$browserHostNative = {
+        // Generate at link time, after the Rollup footer has been minified and
+        // Emscripten has expanded its macros. Runtime functions contain no macros.
+        malloc: new Function("size", "return {{{ from64Expr('_malloc(' + to64('size') + ')') }}};"),
+        free: new Function("ptr", "_free({{{ to64('ptr') }}});"),
+        posix_memalign: new Function("result", "alignment", "size",
+            "return _posix_memalign({{{ to64('result') }}}, {{{ to64('alignment') }}}, {{{ to64('size') }}});"),
+        createHostContract: new Function("return {{{ from64Expr('_BrowserHost_CreateHostContract()') }}};"),
+        initializeDotnet: new Function("count", "keys", "values",
+            "return _BrowserHost_InitializeDotnet(count, {{{ to64('keys') }}}, {{{ to64('values') }}});"),
+        executeAssembly: new Function("name", "count", "args",
+            "return _BrowserHost_ExecuteAssembly({{{ to64('name') }}}, count, {{{ to64('args') }}});"),
+        loadIcuData: new Function("ptr", "return _wasm_load_icu_data({{{ to64('ptr') }}});"),
+    };
+    mergeBrowserHost.$browserHostNative__deps = ["malloc", "free", "posix_memalign", ...explicitDeps];
     addToLibrary(mergeBrowserHost);
 }
 

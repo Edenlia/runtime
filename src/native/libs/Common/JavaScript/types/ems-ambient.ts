@@ -6,7 +6,7 @@ import type {
     EmscriptenModuleInternal, InternalExchange, InternalExchangeSubscriber,
     RuntimeAPI, LoaderExports, BrowserUtilsExports, RuntimeExports,
     VoidPtr, JSMarshalerArguments, CSFnHandle, TypedArray,
-    MemOffset, CharPtrPtr,
+    MemOffset, CharPtrPtr, VoidPtrPtr,
     CharPtr
 } from "../types";
 
@@ -21,6 +21,16 @@ export type EmsAmbientSymbolsType = EmscriptenModuleInternal & {
     dotnetLoaderExports: LoaderExports;
     dotnetRuntimeExports: RuntimeExports;
     dotnetBrowserUtilsExports: BrowserUtilsExports;
+    // Emscripten-generated adapters keep native i64 pointers out of the TS host.
+    browserHostNative: {
+        malloc: (size: number) => VoidPtr;
+        free: (ptr: VoidPtr) => void;
+        posix_memalign: (result: VoidPtrPtr, alignment: number, size: number) => number;
+        createHostContract: () => VoidPtr;
+        initializeDotnet: (count: number, keys: CharPtrPtr, values: CharPtrPtr) => number;
+        executeAssembly: (name: number, count: number, args: number) => number;
+        loadIcuData: (ptr: VoidPtr) => number;
+    };
 
     dotnetUpdateInternals: (internals?: Partial<InternalExchange>, subscriber?: InternalExchangeSubscriber) => void;
     dotnetUpdateInternalsSubscriber: (internals: InternalExchange) => void;

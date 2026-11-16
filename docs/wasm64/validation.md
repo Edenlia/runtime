@@ -59,6 +59,37 @@ payload 仅四个已知字节；不是 CLR image，也没有执行托管方法�
 命令、来源和原始日志见
 [corerun probe 记录](evidence/2026-11-16-corerun-pointer-probe.json)。
 
+## 共享 browser host 的原生调用与 callback
+
+以 `b803f30270f1fbcbc6b048a0b50b77946cb130d2` 为 base，增加一个由
+Emscripten `to64/from64Expr` 生成的 `browserHostNative` adapter，供 TS host
+统一调用 allocator 和 BrowserHost/ICU 原生入口。callback 通过稳定 `ippp`
+wrapper 委托当前 module exports，不再在初始化时覆盖编译器生成的转换。
+这些函数在 Rollup minify 后、Emscripten link 时生成，最终 runtime 函数没有宏或
+额外动态编译；未改变 runtime 的 SDK pin。
+
+普通 Release Rollup 在 pointer size 4/8 下各生成八份输出；实际将 minified
+`libBrowserHost.js` 与 C host stub 链接，并以 Emscripten 6.0.10 / Node 24.19.0 执行：
+
+| Lane | 修复前 | 修复后 |
+| --- | --- | --- |
+| wasm32 early attachment，对照 | PASS | PASS |
+| wasm32 deferred attachment，BigInt on/off | FAIL：仍调用 dummy import | PASS |
+| native wasm64 / `MEMORY64=2` | FAIL：原生入口收到 Number | PASS |
+| native wasm64，无 ICU symbol | 同上 | PASS；未引入 ICU link dependency |
+
+覆盖 property arrays/RID/host contract、Unicode argv/null terminator、DLL/PDB/ICU
+slots、真实 native callback、missing image 清零。另检查 forced allocator failure
+恢复 stack、真实 native invalid-alignment 返回值，以及 malformed module 失败后
+通过 adapter 释放 payload。没有声称解决既有 host 的全部资源生命周期问题。
+
+官方 Emscripten tag 6.0.2 的 `parseTools.mjs/jsifier.mjs` 源码也确认所用
+pointer macros 和 `ippp` 转换存在；这是源码兼容性检查，未执行 6.0.2 二进制。
+完整来源、bundle hashes、六个 lane 与限制见
+[native boundary 记录](evidence/2026-11-16-browser-host-native-boundary.json)。
+这些检查仍是 C stub，没有链接 CoreCLR、执行托管方法、浏览器或高地址 heap；
+完整 loader/WebCIL/JS interop gate 保持 NOT RUN。
+
 ## A/B/C/D 历史构建记录
 
 | Lane | 实际被测提交 | 实际结果 | 当前解释 |
