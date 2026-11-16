@@ -8,6 +8,8 @@
     <Memory64IcuSourceCacheDir Condition="'$(Memory64IcuSourceCacheDir)' == ''">$([MSBuild]::NormalizeDirectory('$(WasmToolCacheDir)', 'icu', 'source'))</Memory64IcuSourceCacheDir>
     <Memory64EmscriptenCacheDir Condition="'$(Memory64EmscriptenCacheDir)' == ''">$([MSBuild]::NormalizeDirectory('$(WasmToolCacheDir)', 'emscripten-memory64', '$(EmscriptenVersion)-$(WasmToolHostRid)'))</Memory64EmscriptenCacheDir>
     <Memory64IcuBuildJobs Condition="'$(Memory64IcuBuildJobs)' == ''">2</Memory64IcuBuildJobs>
-    <PythonExecutable Condition="'$(PythonExecutable)' == ''">python3</PythonExecutable>
+    <Memory64IcuMsys2Root Condition="'$(Memory64IcuMsys2Root)' == ''">$(MSYS2_ROOT)</Memory64IcuMsys2Root>
+    <Memory64IcuMsys2ShortPaths Condition="'$(Memory64IcuMsys2ShortPaths)' == ''">false</Memory64IcuMsys2ShortPaths>
+    <PythonExecutable Condition="'$(PythonExecutable)' == '' and '$(HostOS)' != 'windows'">python3</PythonExecutable>
   </PropertyGroup>
 </Project>

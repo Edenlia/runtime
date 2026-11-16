@@ -10,15 +10,19 @@ and link, and keeps generated system libraries outside the frozen SDK cache.
 """
 
 import argparse
+from contextlib import contextmanager
+import errno
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import shlex
 import shutil
 import subprocess
 import sys
 import tarfile
+import time
 import urllib.request
 import uuid
 import xml.etree.ElementTree as ET
@@ -34,7 +38,36 @@ DATA = ("icudt.dat", "icudt_CJK.dat", "icudt_EFIGS.dat", "icudt_no_CJK.dat")
 # Emscripten's -lmalloc alias selects the libdlmalloc archive for this recipe.
 SYSROOT_TARGETS = ("libstubs", "libc", "libdlmalloc", "libclang_rt.builtins-wasmsjlj",
                    "libc++-wasmexcept", "libc++abi-wasmexcept", "libunwind-wasmexcept")
-RECIPE_VERSION = 1
+RECIPE_VERSION = 8
+WINDOWS_HOST_ICU_FIX = {
+    "upstream_commit": "564c92d666354a8ed0f99cba0f239eba790bd148",
+    "upstream_url": "https://github.com/unicode-org/icu/commit/564c92d666354a8ed0f99cba0f239eba790bd148",
+    "subject": "ICU-22721 Delete obsolete __STRICT_ANSI__ workaround for MinGW.",
+}
+WINDOWS_HOST_ICU_HUNK = """#if U_PLATFORM == U_PF_MINGW && defined __STRICT_ANSI__
+/* tzset isn't defined in strict ANSI on MinGW. */
+#undef __STRICT_ANSI__
+#endif
+
+"""
+WINDOWS_GUEST_ICU_FIX = {
+    "config_sub_upstream_tree": "bf835bad36a09828051dd8cc6f58bb62bac93fde",
+    "config_sub_upstream_url": "https://github.com/unicode-org/icu/blob/bf835bad36a09828051dd8cc6f58bb62bac93fde/icu4c/source/config.sub",
+    "config_sub_upstream_sha256": "11c54f55c3ac99e5d2c3dc2bb0bcccbf69f8223cc68f6b2438daa806cf0d16d8",
+    "emscripten_fragment_source": "https://github.com/microsoft/vcpkg/blob/8f363bdc11359ede4bc51e5eb32a2617538049c8/ports/icu/portfile.cmake",
+    "emscripten_fragment_source_sha256": "24381125afa64a02776bfce2aa2624c9fdc295d8454b0c44b3979623785a88e8",
+    "emscripten_fragment": "mh-linux",
+    "derived_currency_encoding": "UTF-8 with BOM; original resource definitions unchanged",
+}
+WINDOWS_CONFIG_SUB_REPLACEMENTS = (
+    ("| wasm32 \\\n", "| wasm32 | wasm64 \\\n"),
+    ("| wasm32-* \\\n", "| wasm32-* | wasm64-* \\\n"),
+    ("| -aos* | -aros* | -cloudabi* | -sortix* \\\n", "| -aos* | -aros* | -emscripten* | -cloudabi* | -sortix* \\\n"),
+)
+WINDOWS_FRAGMENT_REPLACEMENT = (
+    'case "${host}" in\n*-*-solaris*)',
+    'case "${host}" in\n*-*-emscripten*) icu_cv_host_frag=mh-linux ;;\n*-*-solaris*)',
+)
 
 
 def sha256(path):
@@ -123,29 +156,232 @@ def prepare_recipe(source):
     shutil.copy2(source / "icu-filters/curr-root.txt", source / "icu/icu4c/source/data/curr/root.txt")
 
 
-def sdk_tool(sdk, name):
-    tool = sdk / "bin" / name
-    if not tool.is_file():
-        raise RuntimeError(f"Required Emscripten tool is missing: {tool}")
-    return tool
+def prepare_windows_host_source(source):
+    # ICU-22721 removes a MinGW-only workaround that makes modern libstdc++
+    # headers assume GNU language extensions while compiling in C++11 mode.
+    # Apply the exact accepted upstream deletion in our owned extraction. Its
+    # platform guard is false for the WebAssembly guest; target settings stay
+    # identical to the pinned browser recipe.
+    path = source / "icu/icu4c/source/common/putil.cpp"
+    text = path.read_bytes().decode("utf-8")
+    if text.count(WINDOWS_HOST_ICU_HUNK) != 1:
+        raise RuntimeError("The pinned ICU source no longer matches the ICU-22721 MinGW adaptation.")
+    before = sha256(path)
+    path.write_bytes(text.replace(WINDOWS_HOST_ICU_HUNK, "").encode("utf-8"))
+    return {**WINDOWS_HOST_ICU_FIX, "file": "icu/icu4c/source/common/putil.cpp",
+            "removed_hunk_sha256": hashlib.sha256(WINDOWS_HOST_ICU_HUNK.encode()).hexdigest(),
+            "before_sha256": before, "after_sha256": sha256(path)}
 
 
-def sdk_environment(sdk, cache, jobs):
-    node = sdk / "node/bin/node"
-    if not node.is_file():
-        node = sdk / "bin/node"
-    if not node.is_file():
-        raise RuntimeError(f"The selected Emscripten SDK has no Node executable: {sdk}")
-    if cache.resolve() == (sdk / "emscripten/cache").resolve():
-        raise RuntimeError("Use a separate Memory64 system-library cache; the frozen SDK cache must not be overwritten.")
-    for name in ("EMCC_CFLAGS", "EMMAKEN_CFLAGS", "EM_COMPILER_WRAPPER"):
-        if os.environ.get(name):
-            raise RuntimeError(f"Unset {name}: the Memory64 ICU recipe uses fixed target compiler flags.")
-    environment = os.environ.copy()
-    environment.update({"EMSDK_PATH": str(sdk), "EM_CACHE": str(cache), "EM_FROZEN_CACHE": "",
-                        "EMCC_CORES": str(jobs), "DOTNET_EMSCRIPTEN_LLVM_ROOT": str(sdk / "bin") + "/",
-                        "DOTNET_EMSCRIPTEN_NODE_JS": str(node), "DOTNET_EMSCRIPTEN_BINARYEN_ROOT": str(sdk) + "/"})
-    return environment, node
+def prepare_windows_guest_source(source):
+    adaptations = []
+    # Backport only the accepted machine/OS recognition, rather than replacing
+    # the entire build-aux script or mislabelling the guest as wasm32.
+    root = source / "icu/icu4c/source"
+    config_sub = root / "config.sub"
+    if sha256(config_sub) != "38930c2485d8935ee7f82bfc61cbf60b9e33a7b96b11fbb26be7adffa2a8f874":
+        raise RuntimeError("The pinned ICU config.sub no longer matches the guest tuple adaptation.")
+    changes = [("config.sub", WINDOWS_CONFIG_SUB_REPLACEMENTS),
+               ("configure", (WINDOWS_FRAGMENT_REPLACEMENT,)),
+               ("acinclude.m4", (WINDOWS_FRAGMENT_REPLACEMENT,))]
+    for name, replacements in changes:
+        path = root / name
+        before = sha256(path)
+        text = path.read_bytes().decode("utf-8")
+        for old, new in replacements:
+            if text.count(old) != 1:
+                raise RuntimeError(f"The pinned ICU {name} no longer matches the Emscripten adaptation.")
+            text = text.replace(old, new)
+        path.write_bytes(text.encode("utf-8"))
+        adaptations.append({**WINDOWS_GUEST_ICU_FIX, "file": "icu/icu4c/source/" + name,
+            "patch_sha256": hashlib.sha256(json.dumps(replacements, separators=(",", ":")).encode()).hexdigest(),
+            "before_sha256": before, "after_sha256": sha256(path)})
+    browser = source / "eng/icu.browser.mk"
+    with browser.open("a", encoding="utf-8", newline="\n") as output:
+        output.write("\nCONFIGURE_ARGS += --build=$(ICU_BUILD_TRIPLE) --host=$(ICU_GUEST_TRIPLE)\n")
+    # Native Windows genrb otherwise silently uses the active ANSI code page.
+    # Mark only the owned derived copy; do not transcode or alter the filter.
+    currency_filter = source / "icu-filters/curr-root.txt"
+    currency = root / "data/curr/root.txt"
+    original = currency_filter.read_bytes()
+    original.decode("utf-8")
+    if currency.read_bytes() != original or original.startswith(b"\xef\xbb\xbf"):
+        raise RuntimeError("The derived ICU currency resource no longer matches the pinned UTF-8 filter.")
+    before = sha256(currency)
+    currency.write_bytes(b"\xef\xbb\xbf" + original)
+    adaptations.append({"file": "icu/icu4c/source/data/curr/root.txt", "operation": "prepend UTF-8 BOM to derived copy",
+        "source_filter": "icu-filters/curr-root.txt", "source_filter_sha256": sha256(currency_filter),
+        "before_sha256": before, "after_sha256": sha256(currency)})
+    return adaptations
+
+
+class EmscriptenSdk:
+    """Resolve the selected SDK's own configuration, including supported LLVM overrides."""
+
+    def __init__(self, root, cache, jobs):
+        self.root = root.resolve()
+        self.emscripten = next((path for path in (self.root / "emscripten", self.root / "upstream/emscripten")
+                               if (path / "emcc.py").is_file()), None)
+        if self.emscripten is None:
+            raise RuntimeError(f"No Emscripten Python driver found in SDK: {self.root}")
+        if cache.resolve() == (self.emscripten / "cache").resolve():
+            raise RuntimeError("Use a separate Memory64 system-library cache; the SDK cache must not be overwritten.")
+        for name in ("EMCC_CFLAGS", "EMMAKEN_CFLAGS", "EM_COMPILER_WRAPPER"):
+            if os.environ.get(name):
+                raise RuntimeError(f"Unset {name}: the Memory64 ICU recipe uses fixed target compiler flags.")
+        self.environment = os.environ.copy()
+        self.environment.update({"EMSDK_PATH": str(self.root), "EM_CACHE": str(cache.resolve()),
+                                 "EM_FROZEN_CACHE": "", "EMCC_CORES": str(jobs)})
+        # The Windows em*.exe launchers need this even when the helper itself
+        # was invoked with an absolute Python path outside PATH.
+        self.environment.setdefault("EMSDK_PYTHON", sys.executable)
+        if not self.environment.get("EM_CONFIG"):
+            config = next((path for path in (self.root / ".emscripten", self.emscripten / ".emscripten")
+                           if path.is_file()), None)
+            if config is None:
+                raise RuntimeError(f"The selected SDK has no configuration. Activate it locally first: {self.root}")
+            self.environment["EM_CONFIG"] = str(config)
+        # The runtime-composed SDK uses these variables; the standalone emsdk uses
+        # its normal EM_CONFIG/EM_LLVM_ROOT contract instead. Query the result below.
+        if self.emscripten.parent == self.root:
+            suffix = ".exe" if os.name == "nt" else ""
+            self.environment.setdefault("DOTNET_EMSCRIPTEN_LLVM_ROOT", self.environment.get("EM_LLVM_ROOT", str(self.root / "bin")))
+            self.environment.setdefault("DOTNET_EMSCRIPTEN_NODE_JS", str(self.root / "node/bin" / ("node" + suffix)))
+            self.environment.setdefault("DOTNET_EMSCRIPTEN_BINARYEN_ROOT", str(self.root))
+        query = "import json; from tools import config; print(json.dumps({'llvm':config.LLVM_ROOT,'binaryen':config.BINARYEN_ROOT,'node':config.NODE_JS}))"
+        self.config = json.loads(run([sys.executable, "-c", query], cwd=self.emscripten, env=self.environment))
+        self.llvm = Path(self.config["llvm"]).resolve()
+        self.node = list(self.config["node"]) if isinstance(self.config["node"], list) else [self.config["node"]]
+        node = Path(self.node[0]) if self.node else None
+        # The runtime-composed SDK configures node/bin/node on Windows, where
+        # CreateProcess resolves that spelling to node.exe. Validate the same
+        # executable rather than rejecting its supported extensionless spelling.
+        if os.name == "nt" and node is not None and not node.is_file() and not node.suffix:
+            node = Path(str(node) + ".exe")
+        if node is None or not node.is_file():
+            raise RuntimeError(f"The selected SDK has no configured Node executable: {self.node}")
+        self.node[0] = str(node.resolve())
+        self.config["resolved_node"] = self.node
+        self.config["node_executable_sha256"] = sha256(node)
+        requested_llvm = self.environment.get("EM_LLVM_ROOT")
+        if requested_llvm and Path(requested_llvm).resolve() != self.llvm:
+            raise RuntimeError(f"The selected SDK did not honor EM_LLVM_ROOT: requested {requested_llvm}, resolved {self.llvm}")
+
+    def tool(self, name):
+        tool = self.llvm / (name + (".exe" if os.name == "nt" else ""))
+        if not tool.is_file():
+            raise RuntimeError(f"Required configured Emscripten tool is missing: {tool}")
+        return tool
+
+    def driver(self, name):
+        script = self.emscripten / (name + ".py")
+        if script.is_file():
+            return [sys.executable, str(script)]
+        driver = self.emscripten / name
+        if not driver.is_file():
+            raise RuntimeError(f"Required Emscripten driver is missing: {driver}")
+        return [str(driver)]
+
+
+class BuildHost:
+    def __init__(self, options, environment):
+        self.environment = environment.copy()
+        self.msys = options.msys2_root.resolve() if options.msys2_root else None
+        self.short_paths = options.msys2_short_paths
+        self.path_mappings = {}
+        if self.short_paths and os.name != "nt":
+            raise RuntimeError("--msys2-short-paths applies only to the Windows/MSYS2 build host.")
+        if os.name == "nt":
+            if self.msys is None:
+                raise RuntimeError("Windows source builds require --msys2-root with GNU make and a UCRT64 host compiler.")
+            for relative in ("usr/bin/bash.exe", "usr/bin/cygpath.exe", "usr/bin/make.exe", "ucrt64/bin/gcc.exe", "ucrt64/bin/g++.exe"):
+                if not (self.msys / relative).is_file():
+                    raise RuntimeError(f"Required MSYS2 host tool is missing: {self.msys / relative}")
+            self.environment.update({"MSYSTEM": "UCRT64", "CHERE_INVOKING": "yes", "MSYS2_PATH_TYPE": "minimal"})
+            self.environment["PATH"] = os.pathsep.join((str(self.msys / "ucrt64/bin"), str(self.msys / "usr/bin"), self.environment.get("PATH", "")))
+            self.environment["CC"] = options.host_cc if options.host_cc != "cc" else "/ucrt64/bin/gcc"
+            self.environment["CXX"] = options.host_cxx if options.host_cxx != "c++" else "/ucrt64/bin/g++"
+            # These values are consumed by a POSIX configure/make process, even
+            # though emconfigure itself uses native Python. Keep executable and
+            # script path conversion enabled, and preserve only these options.
+            exclusions = self.environment.get("MSYS2_ARG_CONV_EXCL", "")
+            self.environment["MSYS2_ARG_CONV_EXCL"] = ";".join(filter(None, (exclusions, "--prefix=", "--with-cross-build=")))
+            if self.short_paths:
+                # system_libs batches relative source paths. SDK and cache must
+                # share the same ancestor spelling, otherwise aliases inflate
+                # those paths past Windows's native process argument limit.
+                self.environment["EM_CACHE"] = str(self.native_path(Path(environment["EM_CACHE"])))
+        else:
+            self.environment["CC"] = shutil.which(options.host_cc) or options.host_cc
+            self.environment["CXX"] = shutil.which(options.host_cxx) or options.host_cxx
+
+    def path(self, path):
+        if os.name != "nt":
+            return str(path)
+        return run([self.msys / "usr/bin/cygpath.exe", "-u", self.native_path(path)], env=self.environment).strip()
+
+    def native_path(self, path):
+        canonical = Path(path).resolve()
+        converted = canonical
+        if self.short_paths:
+            # Legacy native ICU tools cannot open deep Win32 paths. Reuse only
+            # existing NTFS aliases; never create a drive mapping or redirect the
+            # output tree. A future directory can use its existing parent's alias.
+            existing = canonical
+            missing = []
+            while not existing.exists():
+                missing.insert(0, existing.name)
+                existing = existing.parent
+            short = run([self.msys / "usr/bin/cygpath.exe", "-d", existing], env=self.environment).strip()
+            if not os.path.samefile(existing, short):
+                raise RuntimeError(f"MSYS2 short path is not the same physical input: {existing} -> {short}")
+            if len(str(existing)) >= 240 and len(short) >= len(str(existing)):
+                raise RuntimeError(f"No useful existing NTFS short alias for {existing}; choose a shorter owned work directory.")
+            converted = Path(short).joinpath(*missing)
+            self.path_mappings[str(canonical)] = {"existing_canonical": str(existing),
+                                                  "existing_short": short, "samefile": True,
+                                                  "invocation_path": str(converted)}
+        return converted
+
+    def make(self, command, cwd, log):
+        if os.name == "nt":
+            command = [self.msys / "usr/bin/bash.exe", "-lc", shlex.join(list(map(str, command)))]
+        return run(command, cwd=cwd, env=self.environment, log=log)
+
+    def configure_wrapper(self, sdk, repo):
+        return shlex.join([*(self.path(Path(arg)) for arg in sdk.driver("emconfigure")),
+                           "/usr/bin/bash", self.path(repo / "eng/wasm/emscripten-msys2-configure.sh")])
+
+
+@contextmanager
+def file_lock(path):
+    with path.open("a+b") as lock:
+        if os.name == "nt":
+            import msvcrt
+            if lock.tell() == 0:
+                lock.write(b"\0")
+                lock.flush()
+            lock.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError as error:
+                    if error.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                        raise
+                    time.sleep(0.1)
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock, fcntl.LOCK_UN)
 
 
 def verify_archives(directory, sdk, names):
@@ -154,8 +390,8 @@ def verify_archives(directory, sdk, names):
         path = directory / name
         if not path.is_file() or path.stat().st_size == 0:
             raise RuntimeError(f"Missing or empty Memory64 dependency archive: {path}")
-        members = run([sdk_tool(sdk, "llvm-ar"), "t", path]).splitlines()
-        headers = run([sdk_tool(sdk, "llvm-readobj"), "--file-header", path])
+        members = run([sdk.tool("llvm-ar"), "t", path], env=sdk.environment).splitlines()
+        headers = run([sdk.tool("llvm-readobj"), "--file-header", path], env=sdk.environment)
         formats = re.findall(r"^Format:\s*(\S+)\s*$", headers, re.MULTILINE)
         architectures = re.findall(r"^Arch:\s*(\S+)\s*$", headers, re.MULTILINE)
         # llvm-readobj silently ignores bitcode and unknown archive members.
@@ -182,22 +418,18 @@ def verify_icu(directory, sdk):
 
 
 def prepare_sysroot(options):
-    sdk = options.emsdk.resolve()
-    environment, _ = sdk_environment(sdk, options.emscripten_cache, options.jobs)
-    builder = sdk / "emscripten/embuilder.py"
-    if not builder.is_file():
-        raise RuntimeError(f"The selected Emscripten SDK has no official system-library builder: {builder}")
-    command = [sys.executable, str(builder), "--wasm64", "build", *SYSROOT_TARGETS]
+    sdk = EmscriptenSdk(options.emsdk, options.emscripten_cache, options.jobs)
+    command = [*sdk.driver("embuilder"), "--wasm64", "build", *SYSROOT_TARGETS]
     print("Running: " + " ".join(command), flush=True)
     # embuilder owns its cache lock and skips completed targets. The explicit
     # -nostdlib link cannot request these missing variants through emcc itself.
-    subprocess.run(command, env=environment, check=True)
+    subprocess.run(command, env=sdk.environment, check=True)
     libraries = verify_archives(options.emscripten_cache / "sysroot/lib/wasm64-emscripten",
                                 sdk, [name + ".a" for name in SYSROOT_TARGETS])
     print(json.dumps({"target": "wasm64-emscripten", "files": libraries}, indent=2), flush=True)
 
 
-def link_probe(directory, sdk, environment, node, work):
+def link_probe(directory, sdk, work):
     source = work / "icu-memory64-probe.cpp"
     source.write_text('''#include <assert.h>
 #include <stdio.h>
@@ -217,11 +449,11 @@ int main() {
 }
 ''')
     output = work / "icu-memory64-probe.js"
-    command = [sdk / "emscripten/em++", source, "-m64", "-O0", "-fno-exceptions", "-DU_DISABLE_RENAMING=1",
+    command = [*sdk.driver("em++"), source, "-m64", "-O0", "-fno-exceptions", "-DU_DISABLE_RENAMING=1",
                "-sWASM_BIGINT=1", "-sASSERTIONS=1", "-sENVIRONMENT=node", "-I" + str(directory / "include"),
                *[directory / "lib" / name for name in ARCHIVES], "-o", output]
-    run(command, env=environment, log=work / "link-probe-build.log")
-    result = run([node, output], env=environment)
+    run(command, env=sdk.environment, log=work / "link-probe-build.log")
+    result = run([*sdk.node, output], env=sdk.environment)
     (work / "link-probe-run.log").write_text(result)
     if "Memory64 archive probe PASS; pointer=8" not in result:
         raise RuntimeError("The ICU Memory64 archive execution probe did not report success.")
@@ -232,13 +464,33 @@ int main() {
 def build_locked(options):
     repo = options.repo_root.resolve()
     check_runtime_pin(repo)
-    sdk = options.emsdk.resolve()
-    environment, node = sdk_environment(sdk, options.emscripten_cache, options.jobs)
+    sdk = EmscriptenSdk(options.emsdk, options.emscripten_cache, options.jobs)
+    host = BuildHost(options, sdk.environment)
+    host_cc = host.environment["CC"]
+    host_cxx = host.environment["CXX"]
+    if os.name == "nt":
+        host_cc = str(host.msys / "ucrt64/bin/gcc.exe") if host_cc == "/ucrt64/bin/gcc" else host_cc
+        host_cxx = str(host.msys / "ucrt64/bin/g++.exe") if host_cxx == "/ucrt64/bin/g++" else host_cxx
+    build_triple = run([host_cc, "-dumpmachine"], env=host.environment).strip() if os.name == "nt" else None
+    guest_triple = run([*sdk.driver("emcc"), "-m64", "-dumpmachine"], env=sdk.environment).strip() if os.name == "nt" else None
+    if os.name == "nt" and guest_triple != "wasm64-unknown-emscripten":
+        raise RuntimeError(f"The selected compiler does not report the expected wasm64 guest tuple: {guest_triple}")
     identity = {"icu_commit": ICU_COMMIT, "icu_version": ICU_VERSION, "source_archive_sha256": ICU_ARCHIVE_SHA256,
                 "recipe_version": RECIPE_VERSION, "pointer_size": 8,
-                "emcc_version": run([sdk / "emscripten/emcc", "--version"], env=environment),
-                "clang_sha256": sha256(sdk_tool(sdk, "clang")),
-                "wasm_ld_sha256": sha256(sdk_tool(sdk, "wasm-ld"))}
+                "emcc_version": run([*sdk.driver("emcc"), "--version"], env=sdk.environment),
+                "clang_sha256": sha256(sdk.tool("clang")),
+                "wasm_ld_sha256": sha256(sdk.tool("wasm-ld")),
+                "sdk_configuration": sdk.config,
+                "host_os": sys.platform,
+                "python_version": sys.version, "python_executable": sys.executable,
+                "build_triple": build_triple, "guest_triple": guest_triple,
+                "windows_guest_icu_adaptations": WINDOWS_GUEST_ICU_FIX if os.name == "nt" else None,
+                "windows_configure_bridge_sha256": sha256(repo / "eng/wasm/emscripten-msys2-configure.sh") if os.name == "nt" else None,
+                "msys2_short_paths": host.short_paths,
+                "windows_host_icu_fix": {**WINDOWS_HOST_ICU_FIX,
+                    "removed_hunk_sha256": hashlib.sha256(WINDOWS_HOST_ICU_HUNK.encode()).hexdigest()} if os.name == "nt" else None,
+                "host_cc_version": run([host_cc, "--version"], env=host.environment),
+                "host_cxx_version": run([host_cxx, "--version"], env=host.environment)}
     fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     output = options.output.resolve()
     marker = output / "icu-memory64.json"
@@ -257,17 +509,31 @@ def build_locked(options):
     work.mkdir(parents=True, exist_ok=True)
     source_parent = work / "source"
     if source_parent.exists():
+        if work.resolve() not in source_parent.resolve().parents:
+            raise RuntimeError(f"Source cleanup escaped its owned work directory: {source_parent}")
         shutil.rmtree(source_parent)
     source = extract_source(archive, source_parent)
     prepare_recipe(source)
-    environment["CC"] = shutil.which(options.host_cc) or options.host_cc
-    environment["CXX"] = shutil.which(options.host_cxx) or options.host_cxx
+    source_adaptations = [prepare_windows_host_source(source), *prepare_windows_guest_source(source)] if os.name == "nt" else []
     stage = work / "browser-wasm64/native"
     command = ["make", "-f", "icu.mk", "all", "TARGET_OS=browser", "TARGET_ARCHITECTURE=wasm64",
                "WASM_ENABLE_THREADS=false", "ICU_TRACING=false",
-               f"HOST_OBJDIR={work / 'host'}", f"TARGET_OBJDIR={work / 'target'}", f"TARGET_BINDIR={stage}",
-               f"ICU_BUILD_JOBS={options.jobs}", f"EMSDK_PATH={sdk}", "SHELL=/bin/bash"]
-    run(command, cwd=source / "eng", env=environment, log=work / "build.log")
+               f"HOST_OBJDIR={host.path(work / 'host')}", f"TARGET_OBJDIR={host.path(work / 'target')}", f"TARGET_BINDIR={host.path(stage)}",
+               f"ICU_BUILD_JOBS={options.jobs}", f"EMSDK_PATH={host.path(sdk.root)}", "SHELL=/bin/bash"]
+    if host.short_paths:
+        # GNU make canonicalizes CURDIR even when launched through an alias.
+        # Override only the pinned recipe's source-root spelling, not its rules.
+        command += [f"TOP={host.path(source)}/"]
+    if os.name == "nt":
+        # The SDK environment is already resolved above. Runtime-composed Windows
+        # SDKs do not ship emsdk_env.sh, and native Python cannot execute configure
+        # directly; use the real MSYS2 shell through the normal emconfigure driver.
+        command += ["ENV_INIT_SCRIPT=", "ENV_CONFIGURE_WRAPPER=" + host.configure_wrapper(sdk, repo),
+                    f"ICU_BUILD_TRIPLE={build_triple}", f"ICU_GUEST_TRIPLE={guest_triple}"]
+    (work / "build-identity.json").write_text(json.dumps({**identity, "fingerprint": fingerprint,
+        "source_adaptations": source_adaptations, "command": list(map(str, command)),
+        "path_mappings": host.path_mappings, "host_em_cache": host.environment["EM_CACHE"]}, indent=2) + "\n")
+    host.make(command, cwd=source / "eng", log=work / "build.log")
     # icu.mk leaves data files at TARGET_BINDIR's root. The transport packaging
     # contract places them in native/lib, and normally uses the pinned prebuilts
     # rather than regenerating the globalization data as a side effect of a
@@ -276,14 +542,17 @@ def build_locked(options):
         shutil.copy2(source / "eng/prebuilts/wasm" / name, stage / "lib" / name)
         (stage / name).unlink(missing_ok=True)
     libraries = verify_icu(stage, sdk)
-    probe = link_probe(stage, sdk, environment, node, work)
+    probe = link_probe(stage, sdk, work)
     manifest = {**identity, "fingerprint": fingerprint, "source_url": ICU_URL, "target": "browser-wasm64",
                 "target_flags": ["-m64", "-Oz", "-fno-exceptions"], "data_filter": "icudt_wasm",
                 "published_data_source": "pinned dotnet/icu eng/prebuilts/wasm; official transport default",
-                "currency_filter": "icu-filters/curr-root.txt", "emsdk_path": str(sdk),
+                "currency_filter": "icu-filters/curr-root.txt", "emsdk_path": str(sdk.root),
                 "emscripten_cache": str(options.emscripten_cache.resolve()), "jobs": options.jobs,
-                "host_cc": environment["CC"], "host_cxx": environment["CXX"],
-                "command": list(map(str, command)), "work_dir": str(work), "files": libraries, "link_probe": probe}
+                "host_cc": host.environment["CC"], "host_cxx": host.environment["CXX"],
+                "command": list(map(str, command)), "work_dir": str(work), "files": libraries, "link_probe": probe,
+                "source_adaptations": source_adaptations}
+    manifest["path_mappings"] = host.path_mappings
+    manifest["host_em_cache"] = host.environment["EM_CACHE"]
     (stage / "icu-memory64.json").write_text(json.dumps(manifest, indent=2) + "\n")
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.parent / (output.name + ".tmp-" + uuid.uuid4().hex)
@@ -292,6 +561,8 @@ def build_locked(options):
         temporary.replace(output)
     finally:
         if temporary.exists():
+            if output.parent.resolve() not in temporary.resolve().parents:
+                raise RuntimeError(f"Temporary cleanup escaped its output parent: {temporary}")
             shutil.rmtree(temporary)
     print(f"Built and verified Memory64 ICU: {output}", flush=True)
 
@@ -299,17 +570,13 @@ def build_locked(options):
 def build(options):
     # Multiple native projects can request the same dependency in one MSBuild
     # graph. Serialize publication and source/build-directory preparation.
-    import fcntl
     output = options.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     work = options.work_dir.resolve()
     work.mkdir(parents=True, exist_ok=True)
     # Different output paths can still share the same fingerprint/work tree.
     # Guard both locations before deleting sources or invoking make.
-    with (output.parent / (output.name + ".build.lock")).open("a+") as lock, \
-            (work / ".build.lock").open("a+") as work_lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
-        fcntl.flock(work_lock, fcntl.LOCK_EX)
+    with file_lock(output.parent / (output.name + ".build.lock")), file_lock(work / ".build.lock"):
         return build_locked(options)
 
 
@@ -325,6 +592,9 @@ def main():
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--host-cc", default="cc")
     parser.add_argument("--host-cxx", default="c++")
+    parser.add_argument("--msys2-root", type=Path, default=Path(os.environ["MSYS2_ROOT"]) if os.environ.get("MSYS2_ROOT") else None)
+    parser.add_argument("--msys2-short-paths", action="store_true",
+                        help="Use verified existing NTFS aliases for legacy ICU host tools in a deep Windows work directory.")
     options = parser.parse_args()
     if options.jobs < 1:
         parser.error("--jobs must be positive")
@@ -341,12 +611,13 @@ def main():
         if options.emsdk is None:
             parser.error("--emsdk or EMSDK_PATH is required")
         if options.operation == "verify":
-            print(json.dumps({"target": "browser-wasm64", "files": verify_icu(options.output.resolve(), options.emsdk.resolve())}, indent=2))
+            sdk = EmscriptenSdk(options.emsdk, options.emscripten_cache, options.jobs)
+            print(json.dumps({"target": "browser-wasm64", "files": verify_icu(options.output.resolve(), sdk)}, indent=2))
         elif options.operation == "prepare-sysroot":
             prepare_sysroot(options)
         else:
-            if not sys.platform.startswith("linux"):
-                raise RuntimeError("The source-build recipe currently supports Linux build hosts.")
+            if not (sys.platform.startswith("linux") or os.name == "nt"):
+                raise RuntimeError("The source-build recipe supports Linux and Windows/MSYS2 build hosts.")
             build(options)
     except (OSError, RuntimeError, subprocess.CalledProcessError, ValueError) as error:
         print(f"Memory64 ICU dependency error: {error}", file=sys.stderr)

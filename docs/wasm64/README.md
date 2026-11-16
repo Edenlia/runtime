@@ -5,6 +5,10 @@
 本分支直接继承 D，因此已包含 type-system 与 A/B/C/D 的全部当前实现。
 当前成果是 target/layout/native build checkpoint，整个 wasm64 port 尚未完成。
 
+独立前置分支 `test/eden-web-build-host` 的 Windows 路由、MSYS2 ICU 与显式工具链环境见
+[Windows build-host prerequisite](windows-build-host.md)。该记录分别标明配置、托管构建、
+依赖与真实 guest 的执行状态，不改变本分支的默认 SDK pin。
+
 后续最小修复已恢复 CoreCLR browser host 的指针宽度传递、property/argv 与普通
 DLL/PDB/ICU 指针槽。它来自历史提交 `32897fcda86e6dce91d2812c0686cd3adc2bfcdd`，
 已重新执行 wasm32/wasm64 JavaScript host 检查与两个宽度的 Release Rollup；
