@@ -288,8 +288,12 @@ function(corerun_kit_export)
     if(CLR_CMAKE_WASM_NATIVE_PTHREADS)
         set(nativePthreads true)
     endif()
+    set(jsEhProperties "")
+    if(CLR_CMAKE_BROWSER_JS_EH)
+        set(jsEhProperties ",\n    \"RuntimeCoreClrBrowserJsEh\": \"true\",\n    \"RuntimeWasmExceptionModel\": \"emscripten\",\n    \"RuntimeWasmAssemblyFormat\": \"raw-pe\",\n    \"RuntimeWasmInterpreterOnly\": \"true\",\n    \"RuntimeWasmReadyToRun\": \"false\",\n    \"RuntimeWasmWebcil\": \"false\"")
+    endif()
     file(GENERATE OUTPUT "${generatedDirectory}/wasm-props.json" CONTENT
-        "{\n  \"Properties\": {\n    \"RuntimeWasmNativePthreads\": \"${nativePthreads}\"\n  }\n}\n")
+        "{\n  \"Properties\": {\n    \"RuntimeWasmNativePthreads\": \"${nativePthreads}\"${jsEhProperties}\n  }\n}\n")
 
     foreach(library IN LISTS kitLibraries)
         install(FILES "$<TARGET_FILE:${library}>" DESTINATION ${kitDestination} COMPONENT ${KIT_COMPONENT})

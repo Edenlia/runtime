@@ -177,6 +177,11 @@ endif()
 
 add_compile_definitions($<${FEATURE_JAVAMARSHAL}:FEATURE_JAVAMARSHAL>)
 
+if(CLR_CMAKE_BROWSER_JS_EH AND NOT CLR_CROSS_COMPONENTS_BUILD)
+  # Interpreter-only/direct PE capability is enforced by the VM admission paths.
+  add_compile_definitions(FEATURE_BROWSER_JS_EH)
+endif()
+
 add_definitions(-DFEATURE_READYTORUN)
 
 set(FEATURE_READYTORUN 1)

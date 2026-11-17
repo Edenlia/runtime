@@ -150,7 +150,11 @@ else()
 
             # Export everything a runtime test needs to re-link corerun with its
             # own native library and generated call tables.
-            set(CORERUN_BROWSER_COMPILE_OPTIONS -fwasm-exceptions -sWASM_LEGACY_EXCEPTIONS=0 -msimd128)
+            if(CLR_CMAKE_BROWSER_JS_EH)
+                set(CORERUN_BROWSER_COMPILE_OPTIONS -fexceptions -msimd128)
+            else()
+                set(CORERUN_BROWSER_COMPILE_OPTIONS -fwasm-exceptions -sWASM_LEGACY_EXCEPTIONS=0 -msimd128)
+            endif()
             if (CLR_CMAKE_WASM_NATIVE_PTHREADS)
                 list(APPEND CORERUN_BROWSER_COMPILE_OPTIONS -pthread)
             endif()

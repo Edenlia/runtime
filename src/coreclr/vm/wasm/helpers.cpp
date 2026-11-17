@@ -209,6 +209,7 @@ void TransitionFrame::UpdateRegDisplay_Impl(const PREGDISPLAY pRD, bool updateFl
 }
 
 
+#ifndef FEATURE_BROWSER_JS_EH
 // File-local WebAssembly exception tag used only by RtlRestoreContext. Carries
 // no payload; the resume IP is communicated via the JIT-managed resumeIP local.
 asm(".globl __coreclr_wasm_rtlrestorecontext_tag\n"
@@ -220,6 +221,7 @@ __attribute__((naked)) void ThrowRtlRestoreContextTag()
     asm("throw __coreclr_wasm_rtlrestorecontext_tag\n"
         "unreachable\n" ::);
 }
+#endif // !FEATURE_BROWSER_JS_EH
 
 // Runtime-owned WebAssembly global carrying the runtime-async continuation return
 // value. Exported so every R2R webcil imports this same global (see libCorerun.js).
@@ -275,6 +277,46 @@ bool ResumeTargetVerifiesGCModeTransitions(PCODE handlerFrameControlPC)
 
 VOID PALAPI RtlRestoreContext(IN PCONTEXT ContextRecord, IN PEXCEPTION_RECORD ExceptionRecord)
 {
+#ifdef FEATURE_BROWSER_JS_EH
+    UNREFERENCED_PARAMETER(ExceptionRecord);
+    // This profile admits interpreted IL only. A native function pointer or an
+    // R2R resume-case index is not an interpreter instruction pointer. Validate
+    // both the code manager and the live owning frame before using the
+    // interpreter's existing C++ resumption protocol.
+    Thread* thread = GetThreadNULLOk();
+    if (ContextRecord != NULL && thread != NULL)
+    {
+        TADDR resumeIP = GetIP(ContextRecord);
+        TADDR resumeSP = GetSP(ContextRecord);
+        EECodeInfo codeInfo(resumeIP);
+        if (codeInfo.IsInterpretedCode())
+        {
+            for (Frame* frame = thread->GetFrame(); frame != FRAME_TOP; frame = frame->PtrNextFrame())
+            {
+                if (frame->GetFrameIdentifier() != FrameIdentifier::InterpreterFrame)
+                    continue;
+
+                InterpreterFrame* interpreterFrame = static_cast<InterpreterFrame*>(frame);
+                for (InterpMethodContextFrame* context = interpreterFrame->GetTopInterpMethodContextFrame();
+                     context != NULL; context = context->pParent)
+                {
+                    if ((TADDR)context == resumeSP && context->ip != NULL &&
+                        context->startIp != NULL && context->startIp->Method != NULL &&
+                        context->startIp->Method->methodHnd == codeInfo.GetMethodDesc())
+                    {
+                        ThrowResumeAfterCatchException(resumeSP, resumeIP);
+                    }
+                }
+            }
+        }
+    }
+
+    // Use the ordinary native VM exception mechanism: it does not recursively
+    // dispatch a managed exception while a native context is being unwound, and
+    // it can report an unsupported request even without an attached Thread.
+    ThrowHR(COR_E_PLATFORMNOTSUPPORTED,
+        SString(W("Browser JS-EH supports restoring only a live interpreter context.")));
+#else // !FEATURE_BROWSER_JS_EH
     UNREFERENCED_PARAMETER(ContextRecord);
     UNREFERENCED_PARAMETER(ExceptionRecord);
 
@@ -284,6 +326,7 @@ VOID PALAPI RtlRestoreContext(IN PCONTEXT ContextRecord, IN PEXCEPTION_RECORD Ex
     ThrowRtlRestoreContextTag();
 
     __builtin_unreachable();
+#endif // FEATURE_BROWSER_JS_EH
 }
 
 // These CallFunclet functions are used to call funclets from the VM.

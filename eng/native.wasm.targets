@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <!-- An explicit in-tree CoreCLR profile for direct PE interpreter hosts. This
+         does not enable the browser SDK's general JS EH/relink path. -->
+    <CoreClrBrowserJsEh Condition="'$(CoreClrBrowserJsEh)' == ''">false</CoreClrBrowserJsEh>
     <_RuntimeVariant />
     <_RuntimeVariant Condition="'$(WasmEnableThreads)' == 'true'">-threads</_RuntimeVariant>
     <FeatureMultithreading Condition="('$(TargetsBrowser)' != 'true' and '$(TargetsWasi)' != 'true') or '$(WasmEnableThreads)' == 'true'">true</FeatureMultithreading>
@@ -35,6 +38,8 @@
       <NativeCMakeArg Condition="'$(_TzdDir)' != ''" Include="-cmakeargs &quot;-DCMAKE_TZD_DIR=$(_TzdDir)&quot;" />
       <NativeCMakeArg Condition="'$(RuntimeFlavor)' == 'Mono'" Include="-cmakeargs &quot;-DCLR_CMAKE_RUNTIME_MONO=1&quot;" />
       <NativeCMakeArg Condition="'$(RuntimeFlavor)' == 'CoreCLR'" Include="-cmakeargs &quot;-DCLR_CMAKE_RUNTIME_CORECLR=1&quot;" />
+      <NativeCMakeArg Condition="'$(CoreClrBrowserJsEh)' == 'true'" Include="-cmakeargs &quot;-DCLR_CMAKE_BROWSER_JS_EH=1&quot;" />
+      <NativeCMakeArg Condition="'$(CoreClrBrowserJsEh)' != 'true'" Include="-cmakeargs &quot;-DCLR_CMAKE_BROWSER_JS_EH=0&quot;" />
       <NativeCMakeArg Condition="'$(TargetsWasm64)' == 'true' and '$(WasmNativePthreads)' != 'true'" Include="-cmakeargs &quot;-DCLR_CMAKE_WASM_NATIVE_PTHREADS=0&quot;" />
       <NativeCMakeArg Condition="'$(TargetsWasm64)' == 'true' and '$(WasmNativePthreads)' == 'true'" Include="-cmakeargs &quot;-DCLR_CMAKE_WASM_NATIVE_PTHREADS=1&quot;" />
       <NativeCMakeArg Include="-cmakeargs &quot;-DCMAKE_PRODUCT_VERSION=$(ProductVersion)&quot;" />
@@ -61,15 +66,17 @@
   <Target Name="PrepareMemory64EmscriptenLibraries"
           DependsOnTargets="AcquireEmscriptenSdk"
           Condition="'$(TargetsWasm64)' == 'true' and '$(IsBrowserWasmProject)' != 'true' and '$(RepositoryEngineeringDir)' != ''">
-    <!-- The -nostdlib CoreCLR link cannot trigger emcc's normal on-demand
-         system-library creation. Prepare only its seven explicit dependencies;
-         -wasmexcept is Emscripten's non-legacy native Wasm exception variant. -->
+    <!-- Prepare the selected SDK exception profile before the native graph.
+         The default CoreCLR link uses explicit native Wasm EH dependencies;
+         the opt-in JS EH profile uses the SDK's normal system libraries. -->
     <PropertyGroup>
       <!-- Resolve after SDK acquisition; a fresh Windows runtime SDK carries its own Python. -->
       <PythonExecutable Condition="'$(PythonExecutable)' == '' and '$(EMSDK_PYTHON)' != ''">$(EMSDK_PYTHON)</PythonExecutable>
       <PythonExecutable Condition="'$(PythonExecutable)' == '' and Exists('$(EMSDK_PATH)/python/python.exe')">$(EMSDK_PATH)/python/python.exe</PythonExecutable>
       <PythonExecutable Condition="'$(PythonExecutable)' == ''">python</PythonExecutable>
-      <_PrepareMemory64EmscriptenCommand>&quot;$(PythonExecutable)&quot; &quot;$(RepositoryEngineeringDir)wasm/build-memory64-icu.py&quot; prepare-sysroot --emsdk &quot;$(EMSDK_PATH)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;$(_Memory64NativePthreadsArg)</_PrepareMemory64EmscriptenCommand>
+      <_Memory64JsExceptionsArg />
+      <_Memory64JsExceptionsArg Condition="'$(CoreClrBrowserJsEh)' == 'true'"> --js-exceptions</_Memory64JsExceptionsArg>
+      <_PrepareMemory64EmscriptenCommand>&quot;$(PythonExecutable)&quot; &quot;$(RepositoryEngineeringDir)wasm/build-memory64-icu.py&quot; prepare-sysroot --emsdk &quot;$(EMSDK_PATH)&quot; --emscripten-cache &quot;$(Memory64EmscriptenCacheDir)&quot; --jobs &quot;$(Memory64IcuBuildJobs)&quot;$(_Memory64NativePthreadsArg)$(_Memory64JsExceptionsArg)</_PrepareMemory64EmscriptenCommand>
       <_PrepareMemory64EmscriptenCommand Condition="'$(HostOS)' == 'windows'">$(_PrepareMemory64EmscriptenCommand.Replace('\', '/'))</_PrepareMemory64EmscriptenCommand>
     </PropertyGroup>
     <Exec Command="$(_PrepareMemory64EmscriptenCommand)" />
@@ -193,7 +200,7 @@
       <EmccExportedFunction Include="stackRestore" />
       <EmccExportedFunction Include="stackSave" />
       <EmccExportedFunction Include="___stack_pointer" />
-      <EmccExportedFunction Include="___coreclr_wasm_rtlrestorecontext_tag" />
+      <EmccExportedFunction Include="___coreclr_wasm_rtlrestorecontext_tag" Condition="'$(CoreClrBrowserJsEh)' != 'true'" />
       <EmccExportedFunction Include="___async_continuation" />
     </ItemGroup>
 

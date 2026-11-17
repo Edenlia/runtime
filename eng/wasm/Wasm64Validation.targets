@@ -1,6 +1,12 @@
 <Project InitialTargets="ValidateWasm64Target">
   <!-- Host tools retain their host RID and ReadyToRun publish setting during a target build. -->
   <Target Name="ValidateWasm64Target">
+    <Error Condition="'$(CoreClrBrowserJsEh)' != '' and '$(CoreClrBrowserJsEh)' != 'true' and '$(CoreClrBrowserJsEh)' != 'false'"
+           Text="CoreClrBrowserJsEh must be true or false." />
+    <Error Condition="'$(CoreClrBrowserJsEh)' == 'true' and '$(IsInBuildToolProject)' != 'true' and ('$(TargetsWasm64)' != 'true' or '$(TargetOS)' != 'browser' or '$(RuntimeFlavor)' != 'CoreCLR' or '$(WasmNativePthreads)' != 'true')"
+           Text="CoreClrBrowserJsEh requires browser/CoreCLR/wasm64 with WasmNativePthreads=true; only direct PE interpreter hosting is supported." />
+    <Error Condition="'$(CoreClrBrowserJsEh)' == 'true' and '$(IsInBuildToolProject)' != 'true' and ('$(FeatureInterpreter)' == 'false' or '$(WasmEnableThreads)' == 'true' or '$(FeatureMultithreading)' == 'true')"
+           Text="CoreClrBrowserJsEh requires the interpreter and one managed runtime thread." />
     <Error Condition="'$(WasmNativePthreads)' != '' and '$(WasmNativePthreads)' != 'true' and '$(WasmNativePthreads)' != 'false'"
            Text="WasmNativePthreads must be true or false." />
     <Error Condition="'$(WasmNativePthreads)' == 'true' and '$(IsInBuildToolProject)' != 'true' and ('$(TargetsWasm64)' != 'true' or '$(TargetOS)' != 'browser' or '$(RuntimeFlavor)' != 'CoreCLR')"

@@ -21,7 +21,7 @@ extern "C"
 
 static bool AllowR2RForImage(PEImage* pOwner)
 {
-#if defined(TARGET_IOS) || defined(TARGET_TVOS) || defined(TARGET_MACCATALYST)
+#if defined(FEATURE_BROWSER_JS_EH) || defined(TARGET_IOS) || defined(TARGET_TVOS) || defined(TARGET_MACCATALYST)
     return false;
 #else
     // Allow R2R for files
@@ -111,6 +111,14 @@ PEImageLayout* PEImageLayout::LoadConverted(PEImage* pOwner, bool disableMapping
     if (pFlat == NULL || !pFlat->CheckILOnlyFormat())
         EEFileLoadException::Throw(pOwner->GetPathForErrorMessages(), COR_E_BADIMAGEFORMAT);
 
+#ifdef FEATURE_BROWSER_JS_EH
+    // Reject compiled images before conversion, relocation or native code
+    // registration. Interpreting an R2R file's retained IL is deliberately not
+    // an admission path for this product.
+    if (pFlat->HasReadyToRunHeader())
+        EEFileLoadException::Throw(pOwner->GetPathForErrorMessages(), COR_E_PLATFORMNOTSUPPORTED);
+#endif
+
     // If the image is R2R with native code (that is, not a component assembly of composite R2R) or has writeable sections,
     // we need to actually load/map it into virtual addresses
     if ((pFlat->HasReadyToRunHeader() && !pFlat->IsComponentAssembly() && AllowR2RForImage(pOwner))
@@ -154,6 +162,10 @@ PEImageLayout* PEImageLayout::LoadFlat(PEImage* pOwner)
 PEImageLayout *PEImageLayout::LoadNative(LPCWSTR fullPath)
 {
     STANDARD_VM_CONTRACT;
+#ifdef FEATURE_BROWSER_JS_EH
+    // This entry is for native images, not the admitted interpreted IL path.
+    EEFileLoadException::Throw(fullPath, COR_E_PLATFORMNOTSUPPORTED);
+#endif
 #ifdef TARGET_WINDOWS
     return new NativeImageLayout(fullPath);
 #else

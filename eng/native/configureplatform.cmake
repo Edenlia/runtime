@@ -528,6 +528,21 @@ if (NOT (CLR_CMAKE_TARGET_OS STREQUAL CLR_CMAKE_HOST_OS) AND NOT CLR_CMAKE_TARGE
     endif()
 endif()
 
+option(CLR_CMAKE_BROWSER_JS_EH "CoreCLR browser wasm64 direct PE interpreter hosting with JS exceptions" OFF)
+if(CLR_CMAKE_BROWSER_JS_EH AND NOT CLR_CROSS_COMPONENTS_BUILD)
+    if(NOT CLR_CMAKE_TARGET_BROWSER OR NOT CLR_CMAKE_HOST_ARCH_WASM64 OR
+       NOT CLR_CMAKE_RUNTIME_CORECLR OR NOT CLR_CMAKE_WASM_NATIVE_PTHREADS)
+        message(FATAL_ERROR "CLR_CMAKE_BROWSER_JS_EH requires browser CoreCLR wasm64 with native pthread compatibility")
+    endif()
+    if((DEFINED FEATURE_INTERPRETER AND NOT FEATURE_INTERPRETER) OR FEATURE_MULTITHREADING)
+        message(FATAL_ERROR "CLR_CMAKE_BROWSER_JS_EH requires the interpreter and one managed runtime thread")
+    endif()
+    # All runtime-owned C and C++ frames must agree on JS exception handling.
+    # A default -fignore-exceptions C frame can swallow a propagated C++ exception.
+    add_compile_options(-fexceptions)
+    add_link_options(-fexceptions -sDISABLE_EXCEPTION_CATCHING=0 -sSUPPORT_LONGJMP=emscripten)
+endif()
+
 if(NOT CLR_CMAKE_TARGET_BROWSER AND NOT CLR_CMAKE_TARGET_WASI)
     # The default linker on Solaris also does not support PIE.
     if(NOT CLR_CMAKE_TARGET_ANDROID AND NOT CLR_CMAKE_TARGET_SUNOS AND NOT CLR_CMAKE_TARGET_APPLE AND NOT MSVC)
@@ -563,33 +578,35 @@ else()
             add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fassume-nothrow-exception-dtor>)
         endif()
         if(CLR_CMAKE_TARGET_BROWSER AND NOT CLR_CROSS_COMPONENTS_BUILD)
-            add_link_options(-fwasm-exceptions)
-            add_link_options(-sWASM_LEGACY_EXCEPTIONS=0)
-            add_link_options(-Wno-unused-command-line-argument)
-            add_link_options(-Wl,--error-limit=0)
+            if(NOT CLR_CMAKE_BROWSER_JS_EH)
+                add_link_options(-fwasm-exceptions)
+                add_link_options(-sWASM_LEGACY_EXCEPTIONS=0)
+                add_link_options(-Wno-unused-command-line-argument)
+                add_link_options(-Wl,--error-limit=0)
 
-            add_link_options(-nostdlib)
-            add_link_options(-lstubs)
-            add_link_options(-lc)
-            add_link_options(-lmalloc)
-            add_link_options(-lclang_rt.builtins)
-            if(CLR_CMAKE_WASM_NATIVE_PTHREADS)
-                # -nostdlib omits the native pthread TLS startup object. Keep
-                # its SDK lookup portable for exported corerun-kit consumers.
-                add_link_options(-l:crtbegin-mt.o)
-                # Qualified EH variants are not ordinary driver aliases, so
-                # select their native-MT archives explicitly.
-                add_link_options(-lc++-mt-wasmexcept)
-                add_link_options(-lc++abi-mt-wasmexcept)
-                add_link_options(-lunwind-mt-wasmexcept)
-            else()
-                add_link_options(-lc++-wasmexcept)
-                add_link_options(-lc++abi-wasmexcept)
-                add_link_options(-lunwind-wasmexcept)
+                add_link_options(-nostdlib)
+                add_link_options(-lstubs)
+                add_link_options(-lc)
+                add_link_options(-lmalloc)
+                add_link_options(-lclang_rt.builtins)
+                if(CLR_CMAKE_WASM_NATIVE_PTHREADS)
+                    # -nostdlib omits the native pthread TLS startup object. Keep
+                    # its SDK lookup portable for exported corerun-kit consumers.
+                    add_link_options(-l:crtbegin-mt.o)
+                    # Qualified EH variants are not ordinary driver aliases, so
+                    # select their native-MT archives explicitly.
+                    add_link_options(-lc++-mt-wasmexcept)
+                    add_link_options(-lc++abi-mt-wasmexcept)
+                    add_link_options(-lunwind-mt-wasmexcept)
+                else()
+                    add_link_options(-lc++-wasmexcept)
+                    add_link_options(-lc++abi-wasmexcept)
+                    add_link_options(-lunwind-wasmexcept)
+                endif()
+
+                add_compile_options(-fwasm-exceptions)
+                add_compile_options(-sWASM_LEGACY_EXCEPTIONS=0)
             endif()
-
-            add_compile_options(-fwasm-exceptions)
-            add_compile_options(-sWASM_LEGACY_EXCEPTIONS=0)
             add_compile_options(-mbulk-memory)
             add_compile_options(-msimd128)
         endif()

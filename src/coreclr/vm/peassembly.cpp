@@ -82,6 +82,13 @@ void PEAssembly::EnsureLoaded()
         EEFileLoadException::Throw(this, COR_E_BADIMAGEFORMAT, NULL);
     }
 
+#ifdef FEATURE_BROWSER_JS_EH
+    // Flat/external host-provided layouts can bypass LoadConverted. Keep the
+    // same interpreter-only admission check before Module initialization.
+    if (pLayout->HasReadyToRunHeader())
+        EEFileLoadException::Throw(this, COR_E_PLATFORMNOTSUPPORTED, NULL);
+#endif
+
     // Catch attempts to load x64 assemblies on x86, etc.
     ValidatePEFileMachineType(this);
 

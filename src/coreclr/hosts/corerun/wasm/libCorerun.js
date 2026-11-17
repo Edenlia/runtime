@@ -217,6 +217,11 @@ function libCoreRunFactory() {
             } catch (e) {
                 return false;
             }
+#if !WASM_EXCEPTIONS
+            // The JS EH CoreCLR profile accepts only loose PE assemblies. Never
+            // reinterpret an unsupported Webcil image as an interpreter fallback.
+            throw new Error("The CoreCLR JS EH profile does not support Webcil images; use loose PE assemblies");
+#endif
             let wasmModule;
             try {
                 wasmModule = new WebAssembly.Module(wasmBytes);

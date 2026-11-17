@@ -466,6 +466,11 @@ HRESULT EEConfig::sync()
 #endif // FEATURE_DYNAMIC_CODE_COMPILED
 #endif // FEATURE_INTERPRETER
 
+#ifdef FEATURE_BROWSER_JS_EH
+    // An explicit interpreter-only capability, not an environment preference.
+    enableInterpreter = true;
+#endif
+
     enableHWIntrinsic = (CLRConfig::GetConfigValue(CLRConfig::EXTERNAL_EnableHWIntrinsic) != 0);
 #ifdef FEATURE_INTERPRETER
     if (CLRConfig::GetConfigValue(CLRConfig::EXTERNAL_InterpMode) == 3)
@@ -485,6 +490,11 @@ HRESULT EEConfig::sync()
         fReadyToRun = false;
     }
 #endif // defined(FEATURE_INTERPRETER)
+
+#ifdef FEATURE_BROWSER_JS_EH
+    // A ReadyToRun setting cannot opt this product into compiled Wasm frames.
+    fReadyToRun = false;
+#endif
 
     if (fReadyToRun)
     {

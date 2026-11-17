@@ -41,6 +41,13 @@ SYSROOT_TARGETS = ("libstubs", "libc", "libdlmalloc", "libclang_rt.builtins-wasm
 PTHREAD_SYSROOT_TARGETS = ("libstubs", "libc-mt", "libdlmalloc-mt", "libclang_rt.builtins-wasmsjlj-mt",
                            "libc++-mt-wasmexcept", "libc++abi-mt-wasmexcept", "libunwind-mt-wasmexcept")
 PTHREAD_SYSROOT_OBJECTS = ("crtbegin-mt",)
+# JS EH uses the ordinary driver-owned startup/stdlib path, not -nostdlib's
+# native-EH variants. Include the driver's default native libraries and the
+# WasmFS/proxy-main inputs used by a normal shared-memory browser host.
+JS_EH_PTHREAD_SYSROOT_TARGETS = ("libstubs", "libc-mt", "libdlmalloc-mt", "libclang_rt.builtins-mt",
+                               "libc++-mt", "libc++abi-mt", "libGL-mt-getprocaddr", "libal", "libhtml5",
+                               "libsockets-mt", "libwasmfs-mt")
+JS_EH_PTHREAD_SYSROOT_OBJECTS = ("crtbegin-mt", "crt1_proxy_main")
 RECIPE_VERSION = 9
 WINDOWS_HOST_ICU_FIX = {
     "upstream_commit": "564c92d666354a8ed0f99cba0f239eba790bd148",
@@ -454,18 +461,26 @@ def verify_icu_profile(directory, native_pthreads):
 
 def prepare_sysroot(options):
     sdk = EmscriptenSdk(options.emsdk, options.emscripten_cache, options.jobs)
-    targets = PTHREAD_SYSROOT_TARGETS if options.native_pthreads else SYSROOT_TARGETS
-    objects = PTHREAD_SYSROOT_OBJECTS if options.native_pthreads else ()
+    js_exceptions = getattr(options, "js_exceptions", False)
+    if js_exceptions:
+        targets = JS_EH_PTHREAD_SYSROOT_TARGETS
+        objects = JS_EH_PTHREAD_SYSROOT_OBJECTS
+    else:
+        targets = PTHREAD_SYSROOT_TARGETS if options.native_pthreads else SYSROOT_TARGETS
+        objects = PTHREAD_SYSROOT_OBJECTS if options.native_pthreads else ()
     command = [*sdk.driver("embuilder"), "--wasm64", "build", *targets, *objects]
     print("Running: " + " ".join(command), flush=True)
     # embuilder owns its cache lock and skips completed targets. The explicit
-    # -nostdlib link cannot request these missing variants through emcc itself.
+    # -nostdlib link needs its named inputs; normal JS-EH driver consumers need
+    # their own variants prepared before a potentially deep Windows link.
     subprocess.run(command, env=sdk.environment, check=True)
     library_dir = options.emscripten_cache / "sysroot/lib/wasm64-emscripten"
     libraries = verify_archives(library_dir, sdk, [name + ".a" for name in targets])
     libraries.update(verify_objects(library_dir, sdk, [name + ".o" for name in objects]))
-    print(json.dumps({"target": "wasm64-emscripten", "native_pthreads": options.native_pthreads,
-                      "files": libraries}, indent=2), flush=True)
+    result = {"target": "wasm64-emscripten", "native_pthreads": options.native_pthreads, "files": libraries}
+    if js_exceptions:
+        result["exception_model"] = "emscripten"
+    print(json.dumps(result, indent=2), flush=True)
 
 
 def link_probe(directory, sdk, work, native_pthreads):
@@ -634,6 +649,8 @@ def main():
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--native-pthreads", action="store_true",
                         help="Build native pthread-compatible objects; this does not enable CLR managed multithreading.")
+    parser.add_argument("--js-exceptions", action="store_true",
+                        help="Prepare JS EH/JS SjLj system libraries for a native-pthread host; prepare-sysroot only.")
     parser.add_argument("--host-cc", default="cc")
     parser.add_argument("--host-cxx", default="c++")
     parser.add_argument("--msys2-root", type=Path, default=Path(os.environ["MSYS2_ROOT"]) if os.environ.get("MSYS2_ROOT") else None)
@@ -642,10 +659,14 @@ def main():
     options = parser.parse_args()
     if options.jobs < 1:
         parser.error("--jobs must be positive")
+    if options.js_exceptions and (options.operation != "prepare-sysroot" or not options.native_pthreads):
+        parser.error("--js-exceptions requires prepare-sysroot --native-pthreads; it does not change the ICU recipe.")
     repo = options.repo_root.resolve()
     options.source_cache = options.source_cache or repo / ".dotnet/wasm-tools/icu/source"
     variant = "browser-wasm64-native-pthreads" if options.native_pthreads else "browser-wasm64"
     cache_variant = "emscripten-memory64-native-pthreads" if options.native_pthreads else "emscripten-memory64"
+    if options.js_exceptions:
+        cache_variant += "-js-eh"
     options.output = options.output or repo / "artifacts/bin/icu" / variant / "Release/native"
     options.work_dir = options.work_dir or repo / "artifacts/obj/icu" / variant
     options.emscripten_cache = options.emscripten_cache or Path(os.environ.get("EM_CACHE", str(repo / ".dotnet/wasm-tools" / cache_variant)))
