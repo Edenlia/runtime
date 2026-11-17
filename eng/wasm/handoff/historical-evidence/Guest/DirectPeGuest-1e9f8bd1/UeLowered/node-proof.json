@@ -1,0 +1,25 @@
+{
+  "lane": "UeLowered",
+  "command": [
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\node\\24.19.0_64bit\\node.exe",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.js"
+  ],
+  "working_directory": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered",
+  "node_sha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237",
+  "start_utc": "2026-11-17T01:48:42.019079+00:00",
+  "files_before": {
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.js": "d5b842853e4d09cf439369f16345ce680ecdcf03fe45f9cfb36c05cc1ab2b07f",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.wasm": "ad91211b3c07540bb23ee1e3aa5a4be1286b77dab1fe885096af7b2766d86f43",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.data": "557f0541d8f112a121a3696c938c2c1d9b2f542a595842c76733cae9e2041170"
+  },
+  "pid": 55876,
+  "exit_code": 0,
+  "end_utc": "2026-11-17T01:48:42.609855+00:00",
+  "files_after": {
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.js": "d5b842853e4d09cf439369f16345ce680ecdcf03fe45f9cfb36c05cc1ab2b07f",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.wasm": "ad91211b3c07540bb23ee1e3aa5a4be1286b77dab1fe885096af7b2766d86f43",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\direct_pe_guest.data": "557f0541d8f112a121a3696c938c2c1d9b2f542a595842c76733cae9e2041170"
+  },
+  "stdout": "DIRECT_PE_LOOSE_FILE /managed/DirectPeGuestProbe.dll\nDIRECT_PE_LOOSE_FILE /managed/System.Private.CoreLib.dll\nDIRECT_PE_LOOSE_FILE /managed/System.Private.Uri.dll\nDIRECT_PE_LOOSE_FILE /managed/System.Runtime.dll\nDIRECT_PE_LOOSE_FILE /managed/System.Runtime.InteropServices.dll\nDIRECT_PE_INITIALIZE hr=0x00000000 handle=0x500290 domain=1\nDIRECT_PE_CREATE_DELEGATE hr=0x00000000 address=0x2aa\nDIRECT_PE_ROUNDTRIP positive=45 negative=-33 nativeCalls=2\nDIRECT_PE_EXCEPTION_DELEGATE hr=0x00000000 address=0x2ab\nDIRECT_PE_MANAGED_EH flagsPositive=31 flagsNegative=31 expected=31\nDIRECT_PE_MANAGED_EH_PASS typed=1 newThrowFromCatch=1 rethrow=1 finally=3 filter=1\nDIRECT_PE_SHUTDOWN hr=0x00000000 latched=0\nDIRECT_PE_GUEST_PASS pointer=8\n",
+  "passed": true
+}

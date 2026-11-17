@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net12.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RuntimeRoot>C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/eden-web-js-eh</RuntimeRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ILCompiler.ReadyToRun"><HintPath>$(RuntimeRoot)/artifacts/bin/ILCompiler.ReadyToRun/wasm64/Release/ILCompiler.ReadyToRun.dll</HintPath></Reference>
+    <Reference Include="ILCompiler.TypeSystem"><HintPath>$(RuntimeRoot)/artifacts/bin/ILCompiler.TypeSystem/wasm64/Release/ILCompiler.TypeSystem.dll</HintPath></Reference>
+    <Reference Include="ILCompiler.DependencyAnalysisFramework"><HintPath>$(RuntimeRoot)/artifacts/bin/ILCompiler.DependencyAnalysisFramework/wasm64/Release/ILCompiler.DependencyAnalysisFramework.dll</HintPath></Reference>
+    <Reference Include="ILCompiler.Diagnostics"><HintPath>$(RuntimeRoot)/artifacts/bin/ILCompiler.Diagnostics/wasm64/Release/ILCompiler.Diagnostics.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

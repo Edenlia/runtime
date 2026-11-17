@@ -1,0 +1,486 @@
+{
+  "scope": "Actual CoreCLR direct loose-PE guest with real hosting contract, generated PInvoke/UCO helpers and production System.Native.Browser/Utils. Independent fixture; not packaged UE/UnrealSharp gameplay acceptance.",
+  "runtime_exception_model": "emscripten",
+  "runtime_interpreter_only": true,
+  "runtime_ready_to_run": false,
+  "runtime_source_revision": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791",
+  "source_clean": true,
+  "normal_graph_receipts": {
+    "full-native-profile-r3": {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\full-native-profile-r3-result.json",
+      "sha256": "046827b83e9990aae76a32fbe74585475e96671420cfa28fd9c3f2767571f647",
+      "exit_code": 0,
+      "source_commit": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791"
+    },
+    "matching-framework-r3": {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\matching-framework-r3-result.json",
+      "sha256": "c4d4ba6e885f1dc8f5fbd8b66619ece5d824e13fb1990fd6e153d34fe56548a6",
+      "exit_code": 0,
+      "source_commit": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791"
+    },
+    "matching-generator-r3": {
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\matching-generator-r3-result.json",
+      "sha256": "a19d87a71369169c5765c32a1f00e445a747ed05f380f56df3cc2730d1fcdf1f",
+      "exit_code": 0,
+      "source_commit": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791"
+    }
+  },
+  "actual_matching_corelib_sha256": "c776057cf6c7407340cadbd59584107c1740901b11c325c2c61a5adab493b6db",
+  "assembly_ref_closure": [
+    {
+      "name": "DirectPeGuestProbe",
+      "path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\Probe\\bin\\Release\\net12.0\\DirectPeGuestProbe.dll",
+      "sha256": "cd878e5ea80d12817b27b33e16b2e92ed0f8b9ecf117cfabfba25501c01f4280",
+      "mvid": "e7d317b0-a470-4c91-81e6-06df3c967c30",
+      "references": [
+        "System.Runtime",
+        "System.Runtime.InteropServices"
+      ],
+      "ilOnly": true,
+      "managedNativeHeaderBytes": 0
+    },
+    {
+      "name": "System.Private.CoreLib",
+      "path": "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/eden-web-js-eh/artifacts/bin/coreclr/browser.wasm64.Release/native-pthreads/IL/System.Private.CoreLib.dll",
+      "sha256": "c776057cf6c7407340cadbd59584107c1740901b11c325c2c61a5adab493b6db",
+      "mvid": "c99d9612-504e-4ecf-a289-80e8474dbade",
+      "references": [],
+      "ilOnly": true,
+      "managedNativeHeaderBytes": 0
+    },
+    {
+      "name": "System.Private.Uri",
+      "path": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Private.Uri.dll",
+      "sha256": "3b36556e3fcb22ed9b06584a226e87f84ea3f664db01568cab90c10a3f67e211",
+      "mvid": "63e6af9c-26a9-40fd-852f-a7df53f8146f",
+      "references": [
+        "System.Private.CoreLib"
+      ],
+      "ilOnly": true,
+      "managedNativeHeaderBytes": 0
+    },
+    {
+      "name": "System.Runtime",
+      "path": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.dll",
+      "sha256": "ee443c2d070f2300bc3f8106ecb4849c57644b99e68796fb1cf70aebe87c0642",
+      "mvid": "a4020dac-4a1c-4016-9fc1-7ea3c8c14ce1",
+      "references": [
+        "System.Private.CoreLib",
+        "System.Private.Uri"
+      ],
+      "ilOnly": true,
+      "managedNativeHeaderBytes": 0
+    },
+    {
+      "name": "System.Runtime.InteropServices",
+      "path": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.InteropServices.dll",
+      "sha256": "b2a03db36a64cbc560cf54a907e715c8025b5a4c8fcf7e79fc1306b0b788ce5a",
+      "mvid": "ec1d061c-8665-42db-9d10-ffd44ed3bf88",
+      "references": [
+        "System.Private.CoreLib"
+      ],
+      "ilOnly": true,
+      "managedNativeHeaderBytes": 0
+    }
+  ],
+  "framework_candidate_hashes": {
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\Probe\\bin\\Release\\net12.0\\DirectPeGuestProbe.dll": "cd878e5ea80d12817b27b33e16b2e92ed0f8b9ecf117cfabfba25501c01f4280",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.CSharp.dll": "0f2f078c1344a46a4f031978e061a2f9cc707a3076e0eeb7230171f5ebe83750",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Caching.Abstractions.dll": "812d1a924912c5ea2e73c904d2124aad3aae4b36e62e8bcf223fa0dfcffda63f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Configuration.Abstractions.dll": "1ea9f669fe66369b3fbef37aed8786fa73abeefe9f7e32a44d05def2b5abd1e5",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.DependencyInjection.Abstractions.dll": "f61f9e77aefd671919ce5bf638d2b72fd43797ae02c793853d33992178d1e05c",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Diagnostics.Abstractions.dll": "fe6fb22bd9f1293393ad31f7f7173727576052e718ff3819f76ddd61cbd27d1b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.FileProviders.Abstractions.dll": "dfc288b95d3b0a97ddc2ef57084824304e8ef32066fd755a84a093ae6c220ace",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Hosting.Abstractions.dll": "e7eb98d313aa10749102d923c1aa0f73f97f32dab1e889df76024516afcbfdd5",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Logging.Abstractions.dll": "d4f25e6a07b177e42e75bdb364f08de5a38a3139f4c0889f13351e5077a8e444",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Options.dll": "6b45fbc1af523e94c82729414c30b1863e9fa0e91587c9734cc3b167e24ca78f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Extensions.Primitives.dll": "235290af20d70f6f26337568036bc9212db161417f464c69f34e0175ced726bb",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.VisualBasic.dll": "be6f7cf6d3b00aa02257adb5fdb70bdbb8b97a1d96159a332d9d7eaa2286f22e",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.VisualBasic.Core.dll": "eb8571820e0ceb99f3b7e13a75c7631d45a8b9ffc4b9cb0ce5b2e7246280d169",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Win32.Primitives.dll": "98ec81b87fa960f6f9a5029db9f8b8b9a3fe61ef6352cbcf0b35466847cb5842",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\Microsoft.Win32.Registry.dll": "8ef485de9f21aeb8ee5b87cb57c1905962d0cac59e48355a365813285f558b8e",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\mscorlib.dll": "f2b481a6ac1cb9fbf6fa08b01fe74de3309ea79b9970fc035bbb1da5fa653ea1",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\netstandard.dll": "a8a4ac70bd03814bae533a3df341c2d35364e650933a34c47e83c7da12ba4c5c",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.dll": "6eabb8861cfb29e272dc68fe2b4e84ff9c082163445da7ee9926b47fd4457940",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.AppContext.dll": "a6433bd921128523c50449d5946018c98f9c4a073a37a0e4cf8a04f1363c29ec",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Buffers.dll": "19ac87919e6a5ed76256817ca20fcc3610776af53c6e26ce9f4f9c0a85921a46",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Collections.dll": "79b309bc68e2589f4b9bf613eed0f92cf3bdf0acf47780d239b2d1f11ed9c500",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Collections.Concurrent.dll": "fe19c56f99bf0a74a1fe27df29d755893f29bd8eac098543b2f2a321f5846c68",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Collections.Immutable.dll": "1e1eb7bf91024e8faa5459cf95c89a9b7d41f286c4882e170fb618c2743c9e2d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Collections.NonGeneric.dll": "a246e374194d94ca473cdf0a6c9dd882e3297f77b49baaf2d020d134bb8bab81",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Collections.Specialized.dll": "56ab57b7768400d429461caa33ec2ecd7e296ce98b3a7be9aa53d58ac068d5cd",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ComponentModel.dll": "a3b742d6d9468fb2e0c0a99729e85ff2c9d3c4eed6345c806278dc2792b853b4",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ComponentModel.Annotations.dll": "dbe965d264a938c091dcc96fce3e00add0a1e8ce391abc793a89cdfb4651b0bd",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ComponentModel.DataAnnotations.dll": "9f452536b97516bd6432ffdafcf9eb9515c0c65db7eb80c2b2812bacbf9ca8ca",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ComponentModel.EventBasedAsync.dll": "9bacb39fa06d296894dd0ea0c6c5914f697ab9a90436ccdcfa5d616713eaccab",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ComponentModel.Primitives.dll": "cd6ad4d35ebc2bf888c7e0103f3626c74edc0e43cb0383c6df07479619fa48e0",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ComponentModel.TypeConverter.dll": "faafe7882a9cddd42260d57c0e47f5894f3d07519e8f910a3b1f87a91e0434c7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Configuration.dll": "cd5ea6f4f499c19ce3379e4b6f8083acb01e9c9b07af0a40d87674673a604e20",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Console.dll": "58468d3eaa61e12adf0bf89c66823d27a88971d5165453e1d4ea8d53c20965d7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Core.dll": "4fbe5925cc78376bc0062b830e6c17daaa42b13492f664a629cd3b02f83ededb",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Data.dll": "12a4c19848b57575b1671ba52c1c9d02680c301ae16fff4c4efff4a5446d5158",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Data.Common.dll": "3b5d9589cbe6b2f623833f5a2a3859ed28eccb0c87fb97d4a377cafb44171e68",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Data.DataSetExtensions.dll": "fcd70de47da3736946d6cb638eb81a1fdd67d91d2b73bc033099d1de23eb303f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.Contracts.dll": "5358bb824db7672685bcb66e91864faf63ea0e64963d70976d92cd8b7434810b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.Debug.dll": "581b2a74ca94600c8124a22730263a0f4e48fa4f1b44fe026f47755fdc7bbe1b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.DiagnosticSource.dll": "a911141f116f845ebd711593ef500508e1e692b3c69cc5356d54c7e5b6772592",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.FileVersionInfo.dll": "07e5866257221a133b0bdc8caa14c0463e5c6c5c5bce627f4078ad5f4b67490e",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.Process.dll": "ce732236e3c636fada38a916227667d65e48b83d569041a50e105738c4726596",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.StackTrace.dll": "3f42295fcbdb456d5f6b1d648f7c358b9a8b4860d8f795bc9c7adb7bb86708c5",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.TextWriterTraceListener.dll": "785e795a2d107836eee7b6159e00cddc7368a382c9a3ad21ddfcd08f53d2b54b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.Tools.dll": "393c9bbf8a621f5af7dc218cf09d767ed22b33dc18e2d9129fec85d74b9906e7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.TraceSource.dll": "dffec7d533affe233992c51e607336785dd25c3cb6739e9e45d2c2423e93258a",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Diagnostics.Tracing.dll": "b90b70e1824ca2f7d89a109a4b99fa094dd94184ee74a93bcffee62f7fe6a344",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Drawing.dll": "14d1683575d9ff126f88d3107eb9888ce029c32314ca6ddf62f33e80c05efc37",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Drawing.Primitives.dll": "059455f48d63b2ff07bd3c8aec3c46f2d4e1eccdbf27b99e99d3fe3b462ef814",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Dynamic.Runtime.dll": "93fd7c1d5dbe23d832da8922401ae2eaa5ca5cc673911aab17c159d41b12a627",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Formats.Asn1.dll": "ba1b9d24c4a8fc9a947b1ff601536ab80123129102ca5a2ce50b19221174adb2",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Formats.Tar.dll": "831fd95d4db8e8a9d3c85d14e8b26d61ed2624e1c01bff94a08c887ae3559e71",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Globalization.dll": "d3027516bc5ea803b8f6131feb1cd8187fdc96c90551651fe59d6750a4a2b9fc",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Globalization.Calendars.dll": "5518c41242ddadf7fb6401addc300a4f581fb9b7e56b8e7fb48ac03e2771be05",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Globalization.Extensions.dll": "093f352f27bc0dce884b6010e3157558b09cae9abb1085712642816e87dd16bb",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.dll": "0057e7d364246115a1f3a4d4876d4b32e51770b370667a347046d9bead265923",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Compression.dll": "a9ca32df19f25631a53abb2fc31621130c417749184f0bb6e4f4babc59d14300",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Compression.Brotli.dll": "f025d7672986f745a11ba18929ca341c97c9fd240a280f48d5e503ef3903f407",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Compression.FileSystem.dll": "9ae6b3d9d4832ebed46469eb8e9f4a992d37f400145e75114c3208e8e372dd5d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Compression.ZipFile.dll": "bb241be1838c4f89f7670bfb249ae596a4ec0b12ac50651d4857bfe546cf6758",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.FileSystem.dll": "95cd3bf75f1a5ff7b61ab01844e5350925dd99cc03c04c5ee400c62b99d66c30",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.FileSystem.AccessControl.dll": "0939a6876d9408a9c82e8c3ef1e6328d1ffe6cb8ee9411eb4369649123820770",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.FileSystem.DriveInfo.dll": "e015d0174b16443744a04b852b373ae1b432222d64438af30def5728360cf5e9",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.FileSystem.Primitives.dll": "ffacdd3244ac8e479ce94fd95807bfecb6639c0b438b9ec2757a2aa1e7ceb4cd",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.FileSystem.Watcher.dll": "d599e47b00f9c50a79babb7db605f7c39a57ecae1b9da471380fc82c8c6a51b9",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.IsolatedStorage.dll": "e21bdfda13b2d50e5f332ec52f4e6fc2c3a33be32c48c5f1e7d74c3a4fab36ed",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.MemoryMappedFiles.dll": "a303afef8d7a8d521b80a1c65e0587a0371f792a3910ce92aecc24aeb7a34731",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Pipelines.dll": "576472c8c263e063619fd46c6ee22233fd0438aae1e31f3352d240501c468a85",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Pipes.dll": "3ea0449b4bf80bc2f2eb66778061897071505d893aad1d8dab36647970082f06",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.Pipes.AccessControl.dll": "0e3f47097a89ba911498babd64ac9c265d24db7c2b71cd9650462b32ed96c34b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.IO.UnmanagedMemoryStream.dll": "29776885a9fe54c32e5530072b3bd027c8e3a0e126296c0994156fbb5865a284",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Linq.dll": "562b6e671877c8f37f1871bc67f421dbd67527ac0c332e25a0111aacfee2be3f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Linq.AsyncEnumerable.dll": "048df419198b410ae7bb18fc3680a120e72a138ee8e7a9285e3c4dec30aba78d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Linq.Expressions.dll": "d414fe7e0abe4b700acc7d57a78b7449af8426b87177a268e380285d0c685833",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Linq.Parallel.dll": "52212f9accc8cc35ec1c4587543325449c29d0b645aef6ea20dda99f8085e40d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Linq.Queryable.dll": "de446355cb9410dde42697809e556f0c43822c04bd0e0db1513ba196b2833671",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Memory.dll": "f1b8b8755615c1a9e48f0060dc9aaf3ca4605d5c77143be177e9eadb659bc4fe",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.dll": "95b769046a3eb41752627a6624bc0a6096062156d493ac92bfc75ac8aec5b54a",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Http.dll": "5b12167cccdca550ba6be3cc355901d4d98c1986987f9c8a72fd0d55d3b237ee",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Http.Json.dll": "83a21d42f046170bd1b6f87b14c63cd82cec54a5b670901d9f62b309b98f7bfe",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.HttpListener.dll": "83f8136f9cd88b16d88452c81e3b5571e1da6ecbc5f1e3e7ad60f2a7e0448969",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Mail.dll": "992c1ea2c5a71854348ce223d0f901bdf08cff583a07f4c3b65c9de24fefe691",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.NameResolution.dll": "a364a19aed30a8923501938a40fa7054bebb5ca70b23fe58d36a22e7ba578935",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.NetworkInformation.dll": "18bf9d8e341967f6757224e09a2cdf7fd931c3262d56a2d0b49d5ebe61795856",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Ping.dll": "af937fe856a849521dc97c0a3a36824343c1e5261bcd8d497e572ce8812c7e6a",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Primitives.dll": "c33d6587325422627d97d7b4946cf293c381f7ccede1e1f74f5846b2315e19e3",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Quic.dll": "cbc4ca1cac35ee5fd3a04569ca8ca9aadce28a489337c45e428d260b585bf5a0",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Requests.dll": "ce91b27e1381522c73f1b4ecebbf16987a50b9416eee79cab5974e2171e70d82",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Security.dll": "89be0b1985a15820b548c25276a20b2dabb255adfea2bf38746ec69523afebbc",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.ServerSentEvents.dll": "57e8a6b61bad4553bb8667e25311305d3a081db696bb033d40ff8e0c5e65f99b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.ServicePoint.dll": "ad3a3009f262a81f28178d99625215c3458c318a213fef5ae88011639c351237",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.Sockets.dll": "2808dbaada54c73dd72d70b0813253e710f848dc8b85baf6b115faf66e9c7a10",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.WebClient.dll": "4dbf07e8e7cde04c1dc943401cf0ef035afe85dadb67663b3762ccb403db078b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.WebHeaderCollection.dll": "db8076f8ff280c411acf3271ab6e68f1b54f24674488894b237bde2607f0f46f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.WebProxy.dll": "8049215ed9e296bf310d6c6fe2d8b9184db3e5c288dc4911452716ef2bd1dbe7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.WebSockets.dll": "d96b067cd3b6a8f6bdfb74ae40cc055a83b8874e0a3882e73ba596822ac68b4f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Net.WebSockets.Client.dll": "387b03287a95afdb0cdfcfe11f71c7f876ec3ec3f6d20e3f8afc2be65c4f4711",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Numerics.dll": "2e274ad2579a591c5dcadfa3840dc8deec9e9c5ce23fa84b653cc404d1e3a876",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Numerics.Vectors.dll": "fd4411fc3a6569f6916e3dec33277a9bd07065ecd74976d618583ed2f9467542",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ObjectModel.dll": "6af06b8e23712f5f1f05cdd3898171bd5edc2b498a36a4667fecd76e63e3a9c7",
+    "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/eden-web-js-eh/artifacts/bin/coreclr/browser.wasm64.Release/native-pthreads/IL/System.Private.CoreLib.dll": "c776057cf6c7407340cadbd59584107c1740901b11c325c2c61a5adab493b6db",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Private.DataContractSerialization.dll": "4bd4c31f0c2da2fde34f903b645947bb67fd60af2b2c583610addf36d0effc58",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Private.Uri.dll": "3b36556e3fcb22ed9b06584a226e87f84ea3f664db01568cab90c10a3f67e211",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Private.Xml.dll": "b9700a2c0c83eca61907a49d55fc351988877af0f0d5951779718f38d07a4a36",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Private.Xml.Linq.dll": "c2faf1907f06263789d089a6d681feb9a667dac926ee6fb2d713ef636c98758e",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.dll": "3f2bb24ce2a835d61495ed10ce9afcfff03b071ec485416d0b7b23881cbbf8f6",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.DispatchProxy.dll": "c34cf21a475af526a8e76cc4c269096238e210a1f552cf35866a7fe1c3b14f3d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.Emit.dll": "5e15258cbc6f89b0bf05adf738df8c1ccd6dd6f9b3393c7176be457004e3c3e8",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.Emit.ILGeneration.dll": "3007b9807d0156d4a34874abb0103ce56507b45508ffd6fe3bd5f7a5256d1719",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.Emit.Lightweight.dll": "49a6934a200938b3fe64d1be3593a7dcbf6f3db047052bef03ed8bad77973411",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.Extensions.dll": "a329414245d3e57be5a6e4e2522e0eacf2e879231a9fdd8ad7e73f5a0761e1e4",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.Metadata.dll": "c2ba967a253a6105022c028942d5c14dc385191166229d50fcd4a57c5443c3cf",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.Primitives.dll": "9baa665cc85c1392e725f01f025bfb9164b93aae13768d3e8322db4e9e253fc7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Reflection.TypeExtensions.dll": "aa251fde747ad42d818cee93cdd5ac7d59787374ba110eb4363be94530d821c3",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Resources.Reader.dll": "35ae9e1e44359290f61fab713772d257e759a99e3e2b7d9be1d338f0bd4058a5",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Resources.ResourceManager.dll": "3728bb41bf0d0541c3ef7ddf536bccae90cdc1b62a4d4477a55683afbb8ff724",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Resources.Writer.dll": "96cd52a1ee732847aeb605c62955ec39dbce354b00d3f32c19b64c6d2576da0d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.dll": "ee443c2d070f2300bc3f8106ecb4849c57644b99e68796fb1cf70aebe87c0642",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.CompilerServices.Unsafe.dll": "145436a974908982704e2a406b93a796029c633919d5c61638f2fb2cfc81d3d8",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.CompilerServices.VisualC.dll": "09fa8fa6a74c7bfd7ad92155e2f7d6220afa8a23cd56aa098781056080c5578f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Extensions.dll": "1144cde45785979cd97a6447a978f78aaf8449ebf2923eae1a800c7936f30a36",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Handles.dll": "f649568bdfa83163b973e640b2967d7ca9e19abc2d208b36b5d65bf04be6de05",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.InteropServices.dll": "b2a03db36a64cbc560cf54a907e715c8025b5a4c8fcf7e79fc1306b0b788ce5a",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.InteropServices.JavaScript.dll": "1d21bd7d40b5a2a6c42482a3f5214d8a783fd79bad5df13e809ce273928cdb36",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.InteropServices.RuntimeInformation.dll": "542d5e5c9c1b493c8a30f8072f53fdabd1839f0d43fb8bcf1f35b7da7c344eee",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Intrinsics.dll": "3f4b902b98e60169ed446598df1381c5714561ee7e389d7319728188ae147e3c",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Loader.dll": "bd5befb87dbb2208dfe41ef0776b249d6eaeda63ba3c62687fda39f8b2bce856",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Numerics.dll": "0b2cbb9ab2e11f1d83e508eb3692ff028b34d509c3bfeb68b22f9786f7a2ac85",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Serialization.dll": "fe5c13810830f390633a7bf0960f752f75c94612674972f29fce89d4a30ee53f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Serialization.Formatters.dll": "d2e59d9c6ffcc07becf5308f5aa75eef03286690bf97cd66dd0d493b0b2a819e",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Serialization.Json.dll": "e860b9a84e5b37065ec70083dee3486973a7f223a7c06b8f496aa52c82d08ce4",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Serialization.Primitives.dll": "599dd5a40067d9e17b2b1d06eafbf3101c29196448585aee78681db785a7e78a",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Runtime.Serialization.Xml.dll": "d12b7133d6f28ef8742dab4dab6acce3ab316d17e242c38819f28113743a8ad5",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.dll": "6f964aeb625a8d6ec171e7986e2b8c816d85b1308684285c4b658ff4d6dd8069",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.AccessControl.dll": "f1ed41f3227665fb0f569f4e14f7695b59f5bc55d46ce5a051fe0da0aca81030",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Claims.dll": "51c9e9acf622b5bc6c332e287336539f0f1b715db53095b2641ed2bb0968a2ba",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.dll": "da33a00f2c761ceef80f33810f6bf8cb27a99ea0bc797246e44314fa7c8daeda",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.Algorithms.dll": "f39a68880de6de124826a8ba790f8dba76af9da049deb760de5bd303676fdc89",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.Cng.dll": "60ec67ea7be2708dc9e53f4983ece3ccef9c7b3caedb2f2a6078488a6d16dca8",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.Csp.dll": "05e7cd2a3698331adb861f10bf86b4773b6cd17eaacd0cd492db6ffd8f62df86",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.Encoding.dll": "7bc945c2fcc9d313f5956e23327b4e8256b79ecc708b7c3eb4b6a097e4d3ac05",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.OpenSsl.dll": "daae071a4482dfede04641c81d772b29b910efa1b9256b70461c3e3e25b2b114",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.Primitives.dll": "547497bf667afc772ede47a4508202a48f3086143079247acd4538a9e4d8739d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Cryptography.X509Certificates.dll": "038a755094e8e76c38423b9240f889bdf9aab2deee218e785cbf0b591b380c2b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Principal.dll": "36d4f6b65a8a25ec42897cda3a37e85ced936c3785a394be47851d3256dcdcb3",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.Principal.Windows.dll": "30218a8e6290d15e943aa9e6220cde32353e869e7b2743f18c6f1ade551246d8",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Security.SecureString.dll": "f3c9000b216657a5f3a8607e899c17a7ba0d05dcbcb7d657377fdffbf12f0fbc",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ServiceModel.Web.dll": "e2a8ef48e621cd74934032f6fdffe5eeaad446080f5ef6f91c74f0e2b40db47f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ServiceProcess.dll": "1b06e47b705ac2c747d89ef3b8f2af1b3b85c0ca2a73f38b9eb651ad70871248",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Text.Encoding.dll": "58a329b98f0cde91a6c9373f845b20551a5c038d11d5d4988a2c25c0c37839ba",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Text.Encoding.CodePages.dll": "9f76c74f013742d46bd4b53fa701b18cde75bedf137395d7ba7800d003f81871",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Text.Encoding.Extensions.dll": "89e58f87ca419b99d59cb3b95b8c6ff2d8212626c61c87fc7870c5fe67fabcc6",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Text.Encodings.Web.dll": "6fea18a696c90a2e4365b020d449306e2d0559d15cf585847d4979762a00db22",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Text.Json.dll": "c570c693ac00c61254ae95d7281760bf028929c477b13107797204eb5f880e4a",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Text.RegularExpressions.dll": "8cb610bb332212a75c5abcce8ebe539b64eda1a4ecce88c087bd36d3fbdc383b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.dll": "9ff30d3e06c2813f9040c86c4c28dd87b54d3d55cc6de76359aaec381d6dde03",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.AccessControl.dll": "952579511f9ec4632bfc49fe894fc6986c1c625faa0d6d2ff4706562dfc96433",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Channels.dll": "54b9cf4fabec4667d1551904d65128c4ef263a455f4a0279b77359949073cf3d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Overlapped.dll": "b14ddf9460d0bdabd993e85295163a6545549dace3b553a6f255f208dd625112",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Tasks.dll": "035bb3fbe9f2ae74cc5a90cee45648c70bdc464a6a34e1bcb215b23cbdee41a9",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Tasks.Dataflow.dll": "dcf4c629021fe944065bdc502b6d2f39a3e2eee0b8d5c6f2447faa10bfc66d4f",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Tasks.Extensions.dll": "1c4ed739111ffad80d7caeb0956b9ec575c0557667983c1266dce6e6c4f82255",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Tasks.Parallel.dll": "3de9ee8e59b491bbe6792bfb35a1f4a32129b6eb133e81fb7df158a3a81f551b",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Thread.dll": "2968c8d4c3cea798621aa299e9d8c9956b2559f4fb2a5868f8e48dd2dbbe1822",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.ThreadPool.dll": "9e26bb79fc49912cf2ef9256a6f969395b1d578de4e35a226945b9391842dd42",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Threading.Timer.dll": "27da67a599b8d81ac9e7f29fba457d011cb84441a669513e0da7e6a6eacd3353",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Transactions.dll": "0eb57697ea1b614d69cbf9522d0417bb4f47ab38aadc1f18aaf9553e7941bef7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Transactions.Local.dll": "a8709d5f77758ad991b2456898962c89b3276da9b1cac7fb3f592d6b554fb280",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.ValueTuple.dll": "e92289c7b3d36710a763a105110c104ee48062e16f574c3f59050da04604c288",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Web.dll": "70c7151237196e14816c90198d984f2aa1ece57d7932bda399bac2359477452d",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Web.HttpUtility.dll": "d6dd405648b56fade93b95d39a2d4ff24a0eb632da9a1830aa755f5533b55c17",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Windows.dll": "4ea02bf525380c0ed443406145255b11c4f2052ec6f95cebb3e58a9d9eb7abd0",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.dll": "a58ee302e36c8fb225519274957985be3faf76c86b20cdd61f4a7517e841f549",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.Linq.dll": "a76a387d5cc7f925a02c0361511e94d571bacda88a2d10dc2c1679d12637dac7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.ReaderWriter.dll": "bace019a91ff4e51a0109fad3ead2d444c9e89a31c8986cde5a0d8d4c395aab9",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.Serialization.dll": "f76dbbbc753c3bd68b2c2a35ef24682bfb1f082fe78c5dc4315e2654b6b94362",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.XDocument.dll": "725ec2a0a65cb3748c0c325816257fc1dbe50b9fdfafeb633df38bd41bcefca9",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.XmlDocument.dll": "f8299f46638c8aae23b5daa9ab16332b554a3068018c5bf784937cf73e87c7e7",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.XmlSerializer.dll": "6c74bf34fd66e63dd2fce28ca46b3a027daa59995339348ada9936dd2fdb57c5",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.XPath.dll": "02c5f60831c6d26235a36dce5f0ee4597d411488d84697b971a9aeb525dc4659",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\System.Xml.XPath.XDocument.dll": "987ec19e587d95c28558dcb69e5ecbe1763f159d9dda7c607c19346912054b83",
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\runtime\\net12.0-browser-Release-wasm64\\WindowsBase.dll": "b8f9a26631b4b053923cd7c40970ac9d4fc7d803ac1ecebafff6011c2e042979"
+  },
+  "selected_inputs_all_il_only": true,
+  "helper_context": {
+    "target": "Wasm64",
+    "pointer_size": 8,
+    "explicit_input_count": 5,
+    "reference_count": 177,
+    "generator_sha256": "43200d70b8c1c13d0c46211f11fdf54d84948531e21e7e8da6b968a0ecea86f4",
+    "full_provenance": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Preparation\\Helpers\\provenance.json"
+  },
+  "helper_sources": {
+    "callhelpers-interp-to-managed.cpp": "dc6ecb1870292614c1880d9e330ab441077fcde49afa2a8889ece18537e10b40",
+    "callhelpers-pinvoke.cpp": "5398e4eb893dfc2388559046c7082e3cc71e991213e0d46719948ff74e2ae88a",
+    "callhelpers-reverse.cpp": "0b13bd71b1c1b600275d8c25c7afb25bfe225731697e9c2f507f9bbacc4ddc90"
+  },
+  "bootstrap_provenance": {
+    "native_source_revision": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791",
+    "scope": "Source bootstrap bound to actual emitted production JS identities, not a guessed C++ source stamp",
+    "libraries": [
+      {
+        "path": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\coreclr\\browser.wasm64.Release\\native-pthreads\\corerun-link\\libSystem.Native.Browser.js",
+        "sha256": "4c4191e48e9877c1b5f14a8bc568a8533d7c53866c4093d4dd0f05ced328afdc",
+        "emitted_git_hash": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791"
+      },
+      {
+        "path": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts\\bin\\coreclr\\browser.wasm64.Release\\native-pthreads\\corerun-link\\libSystem.Native.Browser.Utils.js",
+        "sha256": "4326741d03072b749f0bcab2799a8328019abdb91fc03f3130c21001eaf256c2",
+        "emitted_git_hash": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791"
+      }
+    ],
+    "bootstrap_path": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\bootstrap.js",
+    "bootstrap_before_sha256": "87185fac0b26dbc946ead6d8edb7f1a7c93428e681611c6b25eddc2ad1981f3a",
+    "bootstrap_sha256": "708e84416c7d3bda2be6263c689f0593c217a5995848f91de5b0d1897acb8a87",
+    "two_slot_runtime_internals_only": true
+  },
+  "native_profile_provenance": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\NativeProfile\\native64-profile-provenance.json",
+  "ue_host_policy_provenance": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\NativeProfile\\native64-profile-provenance.json",
+  "installed_ue_defaults_provenance": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\NativeProfile\\ue-lowered-profile-provenance.json",
+  "sdk_and_tools": {
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\python\\3.13.3_64bit\\python.exe": {
+      "bytes": 105832,
+      "sha256": "d87063e5597f257004c731b66c59c56c91038861c6877b1a3dca6b8c4e919125"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\node\\24.19.0_64bit\\node.exe": {
+      "bytes": 92825416,
+      "sha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\.emscripten": {
+      "bytes": 221,
+      "sha256": "142a4c27839e91a0671807fd9428e67700a4025cacb0a4ed2d865be4f26ec063"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\upstream\\emscripten\\emcc.py": {
+      "bytes": 23798,
+      "sha256": "5ccd3b66c9433389b0338706182197340bfdf241777cc8985821e7d150818e46"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\upstream\\emscripten\\em++.py": {
+      "bytes": 454,
+      "sha256": "cc8a07455816f0091661051e74164718aa62eec98645af7dfae358af0e289921"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\upstream\\emscripten\\tools\\system_libs.py": {
+      "bytes": 91510,
+      "sha256": "a44aa9d2bfd971484b560a2c27cb5b032b23d2b75b11d871b3d91b593f4bb913"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\upstream\\emscripten\\src\\settings.js": {
+      "bytes": 103994,
+      "sha256": "cd1a727b21412d7d8cd5a3f37ae85127fbcd65135dc4020a0f86787815b8f7b3"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\fixed-llvm\\bin\\clang.exe": {
+      "bytes": 96110080,
+      "sha256": "6c5ce14d830a38be10991a4d639a881b32d6399e3d59717cf8f9d3ce732590a4"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\fixed-llvm\\bin\\wasm-ld.exe": {
+      "bytes": 56535552,
+      "sha256": "699e6640f23282f6d6bec6c7a64d3049317b7bc4229c3bf42b2e7226f0445fe2"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\upstream\\bin\\wasm-opt.exe": {
+      "bytes": 12532224,
+      "sha256": "a67233f1f395557aadd7c89ed9e2b3802414ea03eff07df415e813a0273eceab"
+    },
+    "C:\\Program Files\\CMake\\bin\\cmake.exe": {
+      "bytes": 12030416,
+      "sha256": "e915c2fd46e4cf8b89a16fa4fd92003bc6f581eb021a16869a41339ca0298be9"
+    },
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe": {
+      "bytes": 4191896,
+      "sha256": "969c36b4e5a38c56bf78d94ec95f69992e9d397e7f92ec666911514364f1f2a9"
+    },
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\wasm64-eden-main\\.dotnet\\dotnet.exe": {
+      "bytes": 146728,
+      "sha256": "e7a8b31264af6f112132138efd5a5aed405ff81741640f77ae718082f6817b20"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\HelperHost\\bin\\Release\\net12.0\\ILCompiler.DependencyAnalysisFramework.dll": {
+      "bytes": 39424,
+      "sha256": "c56d09c11d4bff7108a625dda6db4baa6e26b1960791b6cf6c65f79761950aeb"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\HelperHost\\bin\\Release\\net12.0\\ILCompiler.Diagnostics.dll": {
+      "bytes": 29184,
+      "sha256": "40d0eb447c81f5f6ed29dda7d47d42c5eaeb50acbf20b972d99fd34f1783ae06"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\HelperHost\\bin\\Release\\net12.0\\ILCompiler.ReadyToRun.dll": {
+      "bytes": 1394176,
+      "sha256": "43200d70b8c1c13d0c46211f11fdf54d84948531e21e7e8da6b968a0ecea86f4"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\HelperHost\\bin\\Release\\net12.0\\ILCompiler.TypeSystem.dll": {
+      "bytes": 311808,
+      "sha256": "bf14e6bb55fb4f800e7655f9327ca9ad0616ccebe488911ddbcce58c3c75346a"
+    },
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Source\\HelperHost\\bin\\Release\\net12.0\\PortableHelperHost.dll": {
+      "bytes": 16384,
+      "sha256": "817b9cd6fd39c87f295d48b42793f4713158859576b8155e4a00359f75454018"
+    }
+  },
+  "native_product_hashes_unchanged_after_all_guest_lanes": true,
+  "matrix": {
+    "Native64": {
+      "normal_cmake_exit": 0,
+      "node_exit": 0,
+      "node_receipt": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Native64\\node-proof.json",
+      "node_receipt_sha256": "da9dd65e33467caca15ceaf0c2673a72b8ddfca5a5520067817a7a9f5fe402e2",
+      "chrome_exit": 0,
+      "chrome_version": "157.0.8103.52",
+      "chrome_workers": null,
+      "chrome_receipt": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\Native64\\chrome-result.json",
+      "chrome_receipt_sha256": "96380c9b00dcc23faa22263297f1c6722456df208cdaf63b4433a471c67a077e",
+      "wasm_limits": {
+        "tables": [
+          {
+            "flags": 4,
+            "index_bits": 64,
+            "minimum": 8101,
+            "import": null
+          }
+        ],
+        "memories": [
+          {
+            "flags": 7,
+            "index_bits": 64,
+            "minimum": 2048,
+            "import": "a.a",
+            "maximum": 131072,
+            "shared": true
+          }
+        ]
+      },
+      "files": {
+        "direct_pe_guest.js": "1534990df185aa60de42757a118569eacaf755993ce50b66c32380ab6927246a",
+        "direct_pe_guest.wasm": "522f6e0d272050d247daa01a7af03da9b8a8befda3e1f5aa6d10a30a9a2df43d",
+        "direct_pe_guest.data": "557f0541d8f112a121a3696c938c2c1d9b2f542a595842c76733cae9e2041170",
+        "index.html": "7e2ab917b017463142bcd25df22e9ba685d7f9f606167b07a227fb7d79b8ea34"
+      },
+      "passed": true
+    },
+    "UeLowered": {
+      "normal_cmake_exit": 0,
+      "node_exit": 0,
+      "node_receipt": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\node-proof.json",
+      "node_receipt_sha256": "a2c953f0bdd61e238162fa5ee04b6305f0d9ddca846cc3b2bfbbf630e0df10e9",
+      "chrome_exit": 0,
+      "chrome_version": "157.0.8103.52",
+      "chrome_workers": 39,
+      "chrome_receipt": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Guest\\DirectPeGuest-1e9f8bd1\\UeLowered\\chrome-result.json",
+      "chrome_receipt_sha256": "da44d834f2b1ff992be5c09fed4082d7b273db216418b4784cb50523f134c120",
+      "wasm_limits": {
+        "tables": [
+          {
+            "flags": 0,
+            "index_bits": 32,
+            "minimum": 8239,
+            "import": null
+          }
+        ],
+        "memories": [
+          {
+            "flags": 3,
+            "index_bits": 32,
+            "minimum": 8192,
+            "import": "a.a",
+            "maximum": 65536,
+            "shared": true
+          }
+        ]
+      },
+      "files": {
+        "direct_pe_guest.js": "d5b842853e4d09cf439369f16345ce680ecdcf03fe45f9cfb36c05cc1ab2b07f",
+        "direct_pe_guest.wasm": "ad91211b3c07540bb23ee1e3aa5a4be1286b77dab1fe885096af7b2766d86f43",
+        "direct_pe_guest.data": "557f0541d8f112a121a3696c938c2c1d9b2f542a595842c76733cae9e2041170",
+        "index.html": "7e2ab917b017463142bcd25df22e9ba685d7f9f606167b07a227fb7d79b8ea34"
+      },
+      "passed": true
+    }
+  },
+  "retained_failures": [
+    "UeLowered/Attempt1-MissingEmmalloc: frozen-cache ordinary link needed UE baseline libemmalloc-mt; official SDK embuilder prepared it and unchanged ordinary target retried successfully."
+  ],
+  "managed_exception_proof": {
+    "two_inputs": [
+      9,
+      -17
+    ],
+    "flags": [
+      31,
+      31
+    ],
+    "typed_catch": true,
+    "throw_new_from_catch": true,
+    "rethrow_identity": true,
+    "finally_count": 3,
+    "filter_count": 1,
+    "genuine_second_delegate": true
+  },
+  "not_claimed": [
+    "UE Game/AActor execution",
+    "forced GC/finalizer draining",
+    "negative shutdown/failure injection",
+    "native high-address allocation beyond4GiB"
+  ],
+  "passed": true
+}

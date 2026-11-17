@@ -1,0 +1,38 @@
+{
+  "source_commit": "1e9f8bd1e904fb5daaa5aabe3544f7d7eb472791",
+  "source_clean": true,
+  "pid": 70960,
+  "start_utc": "2026-11-17T01:13:00.365740+00:00",
+  "command": [
+    "powershell.exe",
+    "-NoProfile",
+    "-ExecutionPolicy",
+    "Bypass",
+    "-File",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\run-normal-native-r3.ps1"
+  ],
+  "driver_sha256": "4dc704048a2b3e703e3951c2d86ca87d53ea610d19b86deb03604dc39ac88467",
+  "normal_entry": "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\eng\\build.ps1",
+  "environment": {
+    "DOTNET_INSTALL_DIR": "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/.dotnet",
+    "DOTNET_ROOT": "C:/Users/edenlia/Workspace/CodeProjects/runtime-worktrees/wasm64-eden-main/.dotnet",
+    "EMSDK_PATH": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk",
+    "EM_CONFIG": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\.emscripten",
+    "EMSDK_PYTHON": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\emsdk\\python\\3.13.3_64bit\\python.exe",
+    "EM_LLVM_ROOT": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\Toolchain\\fixed-llvm\\bin",
+    "EM_CACHE": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\EmscriptenCache\\6.0.10-fixed-6c5ce14d-js-eh-pthreads",
+    "EMCC_CORES": "2",
+    "CMAKE_BUILD_PARALLEL_LEVEL": "2"
+  },
+  "clang_sha256": "6c5ce14d830a38be10991a4d639a881b32d6399e3d59717cf8f9d3ce732590a4",
+  "graph_audit": "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\GraphAudit\\r3\\acceptance.json",
+  "write_set": [
+    "C:\\Users\\edenlia\\Workspace\\CodeProjects\\runtime-worktrees\\eden-web-js-eh\\artifacts",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\ICU\\work",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\EmscriptenCache\\6.0.10-fixed-6c5ce14d-js-eh-pthreads",
+    "C:\\Users\\edenlia\\Workspace\\UnrealEngine\\CentralParkProjs\\.cache\\UnrealSharp\\Operations\\ue-web-support\\20261116\\RuntimeHost\\JsEh\\Logs"
+  ],
+  "note": "Normal tools may also populate their existing NuGet/SDK caches. No old runtime/UE native product is in the compilation write set.",
+  "end_utc": "2026-11-17T01:22:29.761950+00:00",
+  "exit_code": 0
+}

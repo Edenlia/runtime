@@ -1,0 +1,235 @@
+{
+  "purpose": "Historical source/evidence snapshot for machine handoff; original paths and receipts are not new-machine evidence.",
+  "files": [
+    {
+      "file": "guest-source/bootstrap.js",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/bootstrap.js",
+      "sha256": "708e84416c7d3bda2be6263c689f0593c217a5995848f91de5b0d1897acb8a87"
+    },
+    {
+      "file": "guest-source/CMakeLists.txt",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/CMakeLists.txt",
+      "sha256": "ba9b4cf515e5a34345f26440f034def97e34172bb00b1bddbf40d5fcdb60bd10"
+    },
+    {
+      "file": "guest-source/host.cpp",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/host.cpp",
+      "sha256": "b23dc768f73d9c1c0a3bd98921f34201a8c19c2b6d43279a639cae13b6a80805"
+    },
+    {
+      "file": "guest-source/shutdown-library.js",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/shutdown-library.js",
+      "sha256": "6081a8dd8351b50f029351c4b5808dddf6e3770eb958b12f99def4daeed6a3a6"
+    },
+    {
+      "file": "guest-source/verify-stage.cmake",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/verify-stage.cmake",
+      "sha256": "956d4053d19f28e0e5ce9d5bd3abda6a1f3df8a4788d966aff48bdcbdb88ec00"
+    },
+    {
+      "file": "guest-source/HelperHost/PortableHelperHost.csproj",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/HelperHost/PortableHelperHost.csproj",
+      "sha256": "c1e7e9723a322ede2be48636213231c4dd3ce1d90ea03367462841bdd80ce80c"
+    },
+    {
+      "file": "guest-source/HelperHost/Program.cs",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/HelperHost/Program.cs",
+      "sha256": "7ae5e63296a2137fd22de05d2e86eaa30ae6f32bf26e97a521dfb57a216e4df5"
+    },
+    {
+      "file": "guest-source/Probe/DirectPeGuestProbe.csproj",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/Probe/DirectPeGuestProbe.csproj",
+      "sha256": "329889a9cc0ce4ba95bf9ebd4386354e92473c0093264e835cc31d7f1365795a"
+    },
+    {
+      "file": "guest-source/Probe/EntryPoints.cs",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Source/Probe/EntryPoints.cs",
+      "sha256": "c109bffd0f679b02ce06ce6c938f95cc503ae7764dcfd8fc749517af908f02c0"
+    },
+    {
+      "file": "reference-drivers/run-normal-native-r3.ps1",
+      "original": "RuntimeHost/JsEh/run-normal-native-r3.ps1",
+      "sha256": "4dc704048a2b3e703e3951c2d86ca87d53ea610d19b86deb03604dc39ac88467"
+    },
+    {
+      "file": "reference-drivers/run-normal-native-r3.py",
+      "original": "RuntimeHost/JsEh/run-normal-native-r3.py",
+      "sha256": "b19c6b286664fce856e04f8bc36d80aadd8631c0eb6af8e66d4856693bf5243f"
+    },
+    {
+      "file": "reference-drivers/run-matching-framework-r3.ps1",
+      "original": "RuntimeHost/JsEh/run-matching-framework-r3.ps1",
+      "sha256": "48562f097412465b40df4590f51dff8f30e9a7659d83fb8639fd7116f6d4c39b"
+    },
+    {
+      "file": "reference-drivers/run-matching-generator-r3.ps1",
+      "original": "RuntimeHost/JsEh/run-matching-generator-r3.ps1",
+      "sha256": "4b635291a074be66c9a381b7f3cf233a75d701d0b49a1326ff8d33eb8f1ad7d5"
+    },
+    {
+      "file": "reference-drivers/build-guest-managed.py",
+      "original": "RuntimeHost/JsEh/build-guest-managed.py",
+      "sha256": "04f0c74acc2dd4afab3c1b47118beeb70e8a88727ef0703e81a3367d19a76e2b"
+    },
+    {
+      "file": "reference-drivers/generate-guest-helpers.py",
+      "original": "RuntimeHost/JsEh/generate-guest-helpers.py",
+      "sha256": "f5962656f8fedc4d5a12189f86e37d018bd8d150ead83e7bde285a2dd2b861d4"
+    },
+    {
+      "file": "reference-drivers/build-direct-guest-native64.py",
+      "original": "RuntimeHost/JsEh/build-direct-guest-native64.py",
+      "sha256": "ae165d1c6a90cf3bf48a846117311766b0663a41f7f0de8fc86a1d541aea7227"
+    },
+    {
+      "file": "reference-drivers/build-direct-guest-ue-lowered.py",
+      "original": "RuntimeHost/JsEh/build-direct-guest-ue-lowered.py",
+      "sha256": "0b7833a4f77a6789ee54598ad1ba81bf23dc814ed3fe413fc02a830f87f507be"
+    },
+    {
+      "file": "reference-drivers/export-direct-guest-profile.py",
+      "original": "RuntimeHost/JsEh/export-direct-guest-profile.py",
+      "sha256": "ef362a2ac0bcfc2e0d1fec1bdb3338e3caf2c2722ce6cc052afae8d60d9ca482"
+    },
+    {
+      "file": "reference-drivers/export-ue-lowered-guest-profile.py",
+      "original": "RuntimeHost/JsEh/export-ue-lowered-guest-profile.py",
+      "sha256": "bd70df6dd08191a35c9aa955a1cae9ce480155ff4a5fbab355a5be4b3d7858fd"
+    },
+    {
+      "file": "reference-drivers/record-direct-guest-node.py",
+      "original": "RuntimeHost/JsEh/record-direct-guest-node.py",
+      "sha256": "0d0d00f4f483e39ca4e6e732791a53cd9b8e925f1fa115f14933c5ab5769fe18"
+    },
+    {
+      "file": "reference-drivers/run-direct-guest-chrome.py",
+      "original": "RuntimeHost/JsEh/run-direct-guest-chrome.py",
+      "sha256": "e4f1efac01404b7eb7063b06223c6e76ab58e2b98c5b4cbb73fda18078876c2e"
+    },
+    {
+      "file": "reference-drivers/run-direct-guest-chrome-ue-lowered.py",
+      "original": "RuntimeHost/JsEh/run-direct-guest-chrome-ue-lowered.py",
+      "sha256": "23db15f7a3dae176bf0c86fa6d2611dbb5ca29439d3f9e9656a4b779dfffbd03"
+    },
+    {
+      "file": "reference-drivers/record-direct-guest-results.py",
+      "original": "RuntimeHost/JsEh/record-direct-guest-results.py",
+      "sha256": "54dc8698429cf0e509efe1329eb7959de93790635e1262eb7ae86c5b0bc27e6e"
+    },
+    {
+      "file": "reference-drivers/prepare-guest-bootstrap.py",
+      "original": "RuntimeHost/JsEh/prepare-guest-bootstrap.py",
+      "sha256": "23fad3e115408c26bddadf0b153892c4666e6bb07844fb5d594a7363c26c0606"
+    },
+    {
+      "file": "historical-evidence/full-native-profile-r3-result.json",
+      "original": "RuntimeHost/JsEh/full-native-profile-r3-result.json",
+      "sha256": "046827b83e9990aae76a32fbe74585475e96671420cfa28fd9c3f2767571f647"
+    },
+    {
+      "file": "historical-evidence/matching-framework-r3-result.json",
+      "original": "RuntimeHost/JsEh/matching-framework-r3-result.json",
+      "sha256": "c4d4ba6e885f1dc8f5fbd8b66619ece5d824e13fb1990fd6e153d34fe56548a6"
+    },
+    {
+      "file": "historical-evidence/matching-generator-r3-result.json",
+      "original": "RuntimeHost/JsEh/matching-generator-r3-result.json",
+      "sha256": "a19d87a71369169c5765c32a1f00e445a747ed05f380f56df3cc2730d1fcdf1f"
+    },
+    {
+      "file": "historical-evidence/README.md",
+      "original": "RuntimeHost/JsEh/README.md",
+      "sha256": "c847ebd6d08203e42f274f8d7d6b795ebf016bc3c7e5fbf272520874807e1f24"
+    },
+    {
+      "file": "historical-evidence/Guest/DirectPeGuest-1e9f8bd1/results.json",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/results.json",
+      "sha256": "a0cee1c5c6bb1489b255a074b28ac4f6bb73c48ec4e2fd09552846f8606c66eb"
+    },
+    {
+      "file": "historical-evidence/Guest/DirectPeGuest-1e9f8bd1/Native64/node-proof.json",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Native64/node-proof.json",
+      "sha256": "da9dd65e33467caca15ceaf0c2673a72b8ddfca5a5520067817a7a9f5fe402e2"
+    },
+    {
+      "file": "historical-evidence/Guest/DirectPeGuest-1e9f8bd1/Native64/chrome-result.json",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/Native64/chrome-result.json",
+      "sha256": "96380c9b00dcc23faa22263297f1c6722456df208cdaf63b4433a471c67a077e"
+    },
+    {
+      "file": "historical-evidence/Guest/DirectPeGuest-1e9f8bd1/UeLowered/node-proof.json",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/UeLowered/node-proof.json",
+      "sha256": "a2c953f0bdd61e238162fa5ee04b6305f0d9ddca846cc3b2bfbbf630e0df10e9"
+    },
+    {
+      "file": "historical-evidence/Guest/DirectPeGuest-1e9f8bd1/UeLowered/chrome-result.json",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/UeLowered/chrome-result.json",
+      "sha256": "da44d834f2b1ff992be5c09fed4082d7b273db216418b4784cb50523f134c120"
+    },
+    {
+      "file": "reference-drivers/query-native-cmake-profile.py",
+      "original": "RuntimeHost/JsEh/query-native-cmake-profile.py",
+      "sha256": "ef1cb9121f5cec82cc5510203439b3f4f5494fc619d19570453b6860e69396ec"
+    },
+    {
+      "file": "reference-drivers/prepare-final-metadata.ps1",
+      "original": "RuntimeHost/JsEh/prepare-final-metadata.ps1",
+      "sha256": "208d9e6fd9f3a43d40f1603b4cf04798d6b6961e4a1860f702e7847e791739d8"
+    },
+    {
+      "file": "reference-drivers/run-matching-framework-r3.py",
+      "original": "RuntimeHost/JsEh/run-matching-framework-r3.py",
+      "sha256": "611f07c0b580ebbb1dae1ed581dbcf32ce5141bab36c6ceedb3c23097ba6469a"
+    },
+    {
+      "file": "reference-drivers/run-matching-generator-r3.py",
+      "original": "RuntimeHost/JsEh/run-matching-generator-r3.py",
+      "sha256": "89da98ec250fad1f3f0e8229835b4871776176b078d0d84d2aa593a467a90501"
+    },
+    {
+      "file": "reference-drivers/verify-final-graph-r3.py",
+      "original": "RuntimeHost/JsEh/verify-final-graph-r3.py",
+      "sha256": "79bc9c0c84f2544d3f0fd86f4b194e1a39f00eaf6ee8a9c25d11c81652572a02"
+    },
+    {
+      "file": "reference-drivers/prepare-guest-sources-1e9f.py",
+      "original": "RuntimeHost/JsEh/prepare-guest-sources-1e9f.py",
+      "sha256": "906f4bd9f2fc663e62127b44fe9bc4575fead8b6728e5bf39aad21532fdba157"
+    },
+    {
+      "file": "guest-global.json",
+      "original": "RuntimeHost/JsEh/Guest/DirectPeGuest-1e9f8bd1/global.json",
+      "sha256": "56fcce7ef65bc6dc5af6652ae71f44181472d95d77357df2dda712c27ae9b2ef"
+    },
+    {
+      "file": "toolchain-reference/README-fixed-clang.md",
+      "original": "Toolchain/README-fixed-clang.md",
+      "sha256": "a20cc45d45734081068134c6fc7d19a767323005f9d22f55f756970df2caa4c4"
+    },
+    {
+      "file": "toolchain-reference/build-fixed-clang.cmd",
+      "original": "Toolchain/build-fixed-clang.cmd",
+      "sha256": "792e0dcfe2445d9e8b25ffe0aab0c59118730d5a5abea414dfd6d46d606d1a73"
+    },
+    {
+      "file": "toolchain-reference/prepare_fixed_overlay.py",
+      "original": "Toolchain/prepare_fixed_overlay.py",
+      "sha256": "c92a94da30f4d68c219592f0af975449c38382a2d634a503d14f5f141b0319a6"
+    },
+    {
+      "file": "toolchain-reference/finalize_fixed_verification.py",
+      "original": "Toolchain/finalize_fixed_verification.py",
+      "sha256": "242a7e8724376734d159d85231a986677d0104440a39394bc054c6a15e234ab9"
+    },
+    {
+      "file": "toolchain-reference/8620eb7.patch",
+      "original": "UE/Analysis/8620eb7.patch",
+      "sha256": "2318fba38d1b4ecb1fe4af370b3e9283d164a70bddb8a8da9a05c92e681e5fb1"
+    },
+    {
+      "file": "toolchain-reference/provenance.json",
+      "original": "Toolchain/fixed-llvm/provenance.json",
+      "sha256": "0273eaf5542f5df904ddcaa23f221d888ec9a9e10efe8d61db93ad418c181513"
+    }
+  ]
+}
