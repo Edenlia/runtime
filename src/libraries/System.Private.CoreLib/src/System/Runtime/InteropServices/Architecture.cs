@@ -57,5 +57,9 @@ namespace System.Runtime.InteropServices
         /// This value indicates RV64GC set of extensions.
         /// </remarks>
         RiscV64,
+        /// <summary>
+        /// The 64-bit WebAssembly platform.
+        /// </summary>
+        Wasm64,
     }
 }
