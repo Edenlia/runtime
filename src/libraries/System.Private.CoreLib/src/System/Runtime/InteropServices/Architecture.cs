@@ -28,7 +28,7 @@ namespace System.Runtime.InteropServices
         /// </summary>
         Arm64,
         /// <summary>
-        /// The WebAssembly platform.
+        /// The 32-bit WebAssembly platform.
         /// </summary>
         Wasm,
         /// <summary>
