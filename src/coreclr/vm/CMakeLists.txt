@@ -981,6 +981,9 @@ elseif(CLR_CMAKE_TARGET_ARCH_WASM)
     else()
         set(WASM_THUNK_SUBDIR browser)
     endif()
+    if(CLR_CMAKE_TARGET_ARCH_WASM64)
+        string(APPEND WASM_THUNK_SUBDIR "/wasm64")
+    endif()
     set(VM_SOURCES_WKS_GEN
         ${ARCH_SOURCES_DIR}/${WASM_THUNK_SUBDIR}/callhelpers-interp-to-managed.cpp
         ${ARCH_SOURCES_DIR}/${WASM_THUNK_SUBDIR}/callhelpers-reverse.cpp

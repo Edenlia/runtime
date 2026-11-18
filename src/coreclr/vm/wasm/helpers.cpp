@@ -912,12 +912,13 @@ namespace
             case ELEMENT_TYPE_I2: case ELEMENT_TYPE_U2:
             case ELEMENT_TYPE_I1: case ELEMENT_TYPE_U1:
             case ELEMENT_TYPE_BOOLEAN: case ELEMENT_TYPE_CHAR:
+                return { ConvertType::ToI32, 0 };
             case ELEMENT_TYPE_I: case ELEMENT_TYPE_U:
             case ELEMENT_TYPE_PTR: case ELEMENT_TYPE_BYREF:
             case ELEMENT_TYPE_FNPTR:
             case ELEMENT_TYPE_CLASS: case ELEMENT_TYPE_STRING:
             case ELEMENT_TYPE_ARRAY: case ELEMENT_TYPE_SZARRAY:
-                return { ConvertType::ToI32, 0 };
+                return { TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, 0 };
             case ELEMENT_TYPE_I8: case ELEMENT_TYPE_U8:
                 return { ConvertType::ToI64, 0 };
             case ELEMENT_TYPE_R4:
@@ -999,6 +1000,7 @@ namespace
             case ELEMENT_TYPE_U2:
             case ELEMENT_TYPE_I4:
             case ELEMENT_TYPE_U4:
+                return { ConvertType::ToI32, 0 };
             case ELEMENT_TYPE_STRING:
             case ELEMENT_TYPE_PTR:
             case ELEMENT_TYPE_BYREF:
@@ -1008,7 +1010,7 @@ namespace
             case ELEMENT_TYPE_U:
             case ELEMENT_TYPE_FNPTR:
             case ELEMENT_TYPE_SZARRAY:
-                return { ConvertType::ToI32, 0 };
+                return { TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, 0 };
             case ELEMENT_TYPE_I8:
             case ELEMENT_TYPE_U8:
                 return { ConvertType::ToI64, 0 };
@@ -1108,6 +1110,23 @@ namespace
         return 1;
     }
 
+    // Mirror WasmLowering.GetStringCtorActualSignature for managed thunk lookup.
+    // A String constructor uses its declared arguments but returns String as a static factory.
+    class WasmManagedCallSig final : public MetaSig
+    {
+    public:
+        explicit WasmManagedCallSig(MethodDesc* pMD) : MetaSig(pMD)
+        {
+            if (pMD->IsStringCtor())
+            {
+                _ASSERTE(HasThis() && IsReturnTypeVoid());
+                static const COR_SIGNATURE stringType[] = { ELEMENT_TYPE_STRING };
+                m_pRetType = SigPointer(stringType, sizeof(stringType));
+                ClearHasThis();
+            }
+        }
+    };
+
     // Computes the signature key string for a MetaSig.
     // The format is documented in docs/design/coreclr/botr/readytorun-format.md
     // (section "Wasm Signature String Encoding").
@@ -1196,13 +1215,13 @@ namespace
         }
 
         if (wasmCallingConventionOnly)
-            pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+            pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
 
         if (sig.HasThis())
         {
             if (wasmCallingConventionOnly)
             {
-                pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+                pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
             }
             else
             {
@@ -1213,18 +1232,18 @@ namespace
         }
 
         if (hasReturnBuffer)
-            pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+            pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
 
         if (sig.HasGenericContextArg() && !suppressGenericContext)
         {
-            pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+            pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
         }
 
         if (sig.HasAsyncContinuation())
         {
             if (wasmCallingConventionOnly)
             {
-                pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+                pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
             }
             else
             {
@@ -1248,7 +1267,7 @@ namespace
                     case ConvertType::ToEmpty:
                         break;
                     case ConvertType::ToStruct:
-                        pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+                        pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
                         break;
                     case ConvertType::ToSlotsI64:
                     case ConvertType::ToSlotsV128:
@@ -1278,7 +1297,7 @@ namespace
         {
             if (wasmCallingConventionOnly)
             {
-                pos += AppendWasmTypeCode(ConvertType::ToI32, keyBuffer, pos, maxSize);
+                pos += AppendWasmTypeCode(TARGET_POINTER_SIZE == 8 ? ConvertType::ToI64 : ConvertType::ToI32, keyBuffer, pos, maxSize);
             }
             else
             {
@@ -1341,7 +1360,8 @@ namespace
     static InterpreterCalliCookie ComputeCalliSigThunk(MetaSig& sig)
     {
         STANDARD_VM_CONTRACT;
-        _ASSERTE(sizeof(int32_t) == sizeof(void*));
+        static_assert(TARGET_POINTER_SIZE == 4 || TARGET_POINTER_SIZE == 8);
+        static_assert(sizeof(uintptr_t) == sizeof(void*) && sizeof(void*) == TARGET_POINTER_SIZE);
 
         BYTE callConv = sig.GetCallingConvention();
         switch (callConv)
@@ -1396,7 +1416,8 @@ namespace
         }
         CONTRACTL_END;
 
-        _ASSERTE(sizeof(int32_t) == sizeof(void*));
+        static_assert(TARGET_POINTER_SIZE == 4 || TARGET_POINTER_SIZE == 8);
+        static_assert(sizeof(uintptr_t) == sizeof(void*) && sizeof(void*) == TARGET_POINTER_SIZE);
 
         BYTE callConv = sig.GetCallingConvention();
         switch (callConv)
@@ -1538,62 +1559,12 @@ void InitializeWasmThunkCaches()
     }
 }
 
-// Computes the interpreter->R2R thunk for calling a managed method. String constructors need special
-// handling: they are compiled (both the R2R body and the caller-side thunks in crossgen2, see
-// WasmLowering.GetStringCtorActualSignature) as static factory methods that allocate and return the
-// string, i.e. "String Ctor(args)" rather than the declared "void .ctor(this, args)", so the thunk must
-// match that factory shape. This mirrors the R2R->interpreter direction in
-// GetPortableEntryPointToInterpreterThunk (which uses the 'I'-prefixed keys).
 InterpreterCalliCookie GetCookieForManagedMethod(MethodDesc *pMD)
 {
     STANDARD_VM_CONTRACT;
     _ASSERTE(pMD != NULL);
 
-    MetaSig metaSig(pMD);
-
-    if (pMD->IsStringCtor())
-    {
-        const char *thunkKey = nullptr;
-
-        if (metaSig.NumFixedArgs() == 1)
-        {
-            MetaSig ctorSig = metaSig;
-            if (ctorSig.NextArg() == ELEMENT_TYPE_VALUETYPE)
-            {
-                thunkKey = "MiS8p"; // String constructor with a single argument of type System.ReadOnlySpan<char>
-            }
-        }
-
-        if (thunkKey == nullptr)
-        {
-            switch (metaSig.NumFixedArgs())
-            {
-                case 1:
-                    thunkKey = "Miip";
-                    break;
-                case 2:
-                    thunkKey = "Miiip";
-                    break;
-                case 3:
-                    thunkKey = "Miiiip";
-                    break;
-                case 4:
-                    thunkKey = "Miiiiip";
-                    break;
-                default:
-                    _ASSERT(!"GetCookieForManagedMethod: unknown thunk for string constructor");
-                    return nullptr;
-            }
-        }
-
-        InterpreterCalliCookie stringCtorThunk = LookupManagedThunk(thunkKey);
-        if (stringCtorThunk == NULL)
-        {
-            _ASSERT(!"GetCookieForManagedMethod: unknown thunk signature");
-        }
-        return stringCtorThunk;
-    }
-
+    WasmManagedCallSig metaSig(pMD);
     InterpreterCalliCookie thunk = ComputeCalliSigThunk(metaSig);
     if (thunk == NULL)
     {
@@ -1658,48 +1629,8 @@ void* GetPortableEntryPointToInterpreterThunk(MethodDesc *pMD)
         }
     }
 
-    MetaSig sig(pMD);
-    void* thunk;
-
-    if (pMD->IsStringCtor())
-    {
-        const char *thunkKey = nullptr;
-
-        // String constructors are special-cased in the interpreter and have special thunks that don't match the normal signature.
-        if (sig.NumFixedArgs() == 1 && sig.NextArg() == ELEMENT_TYPE_VALUETYPE)
-        {
-            thunkKey = "IiS8p"; // String constructor with a single argument of type System.ReadOnlySpan<char>
-        }
-        else
-        {
-            switch (sig.NumFixedArgs())
-            {
-                case 1:
-                    thunkKey = "Iiip";
-                    break;
-                case 2:
-                    thunkKey = "Iiiip";
-                    break;
-                case 3:
-                    thunkKey = "Iiiiip";
-                    break;
-                case 4:
-                    thunkKey = "Iiiiiip";
-                    break;
-                default:
-                    _ASSERT(!"GetPortableEntryPointToInterpreterThunk: unknown signature of a string constructor");
-                    return nullptr;
-            }
-        }
-
-        thunk = LookupPortableEntryPointThunk(thunkKey);
-    }
-    else
-    {
-        thunk = ComputePortableEntryPointThunk(sig, "I");
-    }
-
-    return thunk;
+    WasmManagedCallSig sig(pMD);
+    return ComputePortableEntryPointThunk(sig, "I");
 }
 
 void* GetVirtualDispatchThunk(MethodDesc *pMD)

@@ -113,7 +113,7 @@
     </PropertyGroup>
 
     <Error Condition="!Exists('$(_Crossgen2Path)')"
-           Text="crossgen2 was not found at $(_Crossgen2Path). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -c $(Configuration)" />
+           Text="crossgen2 was not found at $(_Crossgen2Path). Build the runtime first: $(_BuildScript) clr+libs -os $(_TargetOS) -arch wasm -c $(Configuration)" />
     <Error Condition="!Exists('$(_ScanPath)') and '$(CallHelperTargetArchitecture)' == 'wasm64'"
            Text="The wasm64 framework scan path does not exist: $(_ScanPath). Build the matching $(_TargetOS)-wasm64 CoreLib and libs; wasm32 framework inputs will not be substituted." />
     <Error Condition="!Exists('$(_ScanPath)')"
