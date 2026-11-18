@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
+    <!-- Capture an external dependency before applying the source-build default.
+         External paths are verified, never populated or overwritten by this recipe. -->
+    <_Memory64IcuWasOverridden Condition="'$(Memory64IcuDir)' != ''">true</_Memory64IcuWasOverridden>
     <Memory64IcuDir Condition="'$(Memory64IcuDir)' == ''">$([MSBuild]::NormalizeDirectory('$(ArtifactsBinDir)', 'icu', 'browser-wasm64', 'Release', 'native'))</Memory64IcuDir>
     <Memory64IcuWorkDir Condition="'$(Memory64IcuWorkDir)' == ''">$([MSBuild]::NormalizeDirectory('$(ArtifactsObjDir)', 'icu', 'browser-wasm64'))</Memory64IcuWorkDir>
     <Memory64IcuSourceCacheDir Condition="'$(Memory64IcuSourceCacheDir)' == ''">$([MSBuild]::NormalizeDirectory('$(WasmToolCacheDir)', 'icu', 'source'))</Memory64IcuSourceCacheDir>

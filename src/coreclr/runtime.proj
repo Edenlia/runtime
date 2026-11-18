@@ -26,6 +26,15 @@
 
   <Import Project="$(RepositoryEngineeringDir)native.wasm.targets" Condition="'$(TargetsBrowser)' == 'true' or '$(TargetsWasi)' == 'true'" />
   <Import Project="$(RepositoryEngineeringDir)nativepgo.targets" />
+
+  <Target Name="_PrepareCoreClrNativeEnvironment" BeforeTargets="BuildRuntime">
+    <PropertyGroup>
+      <_CoreClrBuildEnvironmentVariables>EMSDK_PATH=$(EMSDK_PATH)</_CoreClrBuildEnvironmentVariables>
+      <!-- Use the SDK resolved by AcquireWasiSdk rather than a preinstalled $(WASI_SDK_PATH) of a different version. -->
+      <_CoreClrBuildEnvironmentVariables Condition="'$(TargetsWasi)' == 'true'">$(_CoreClrBuildEnvironmentVariables);WASI_SDK_PATH=$(RuntimeBuildWasiSdkPath)</_CoreClrBuildEnvironmentVariables>
+      <_CoreClrBuildEnvironmentVariables Condition="'$(TargetsWasm64)' == 'true'">$(_CoreClrBuildEnvironmentVariables);EM_CACHE=$(Memory64EmscriptenCacheDir);EM_FROZEN_CACHE=</_CoreClrBuildEnvironmentVariables>
+    </PropertyGroup>
+  </Target>
   
   <Target Name="BuildRuntime"
           DependsOnTargets="$(BuildRuntimeDependsOnTargets)"
@@ -33,6 +42,7 @@
     <ItemGroup>
       <!-- build-runtime prepends each -cmakeargs, so this comes first to end up after, and take precedence over, the user's CMakeArgs. -->
       <_CoreClrBuildArg Condition="'$(ClrCrossComponentsBuild)' == 'true'" Include="-cmakeargs &quot;-DCLR_CROSS_COMPONENTS_BUILD=1&quot;" />
+      <_CoreClrBuildArg Include="@(_Memory64IcuCMakeArg)" />
       <_CMakeArgs Include="$(CMakeArgs)" />
       <_CoreClrBuildArg Include="@(_CMakeArgs->'-cmakeargs &quot;%(Identity)&quot;')" />
       <_CoreClrBuildArg Condition="'$(TargetArchitecture)' != ''" Include="-$(TargetArchitecture)" />
@@ -128,9 +138,6 @@
       <_CoreClrBuildScript Condition="$([MSBuild]::IsOsPlatform(Windows))">build-runtime.cmd</_CoreClrBuildScript>
       <_CoreClrBuildScript Condition="!$([MSBuild]::IsOsPlatform(Windows))">build-runtime.sh</_CoreClrBuildScript>
       <_CoreClrBuildCommand>&quot;$(MSBuildThisFileDirectory)$(_CoreClrBuildScript)&quot; @(_CoreClrBuildArg, ' ') @(NativeCMakeArg, ' ')</_CoreClrBuildCommand>
-      <_CoreClrBuildEnvironmentVariables>EMSDK_PATH=$(EMSDK_PATH)</_CoreClrBuildEnvironmentVariables>
-      <!-- Use the SDK resolved by AcquireWasiSdk rather than a preinstalled $(WASI_SDK_PATH) of a different version. -->
-      <_CoreClrBuildEnvironmentVariables Condition="'$(TargetsWasi)' == 'true'">$(_CoreClrBuildEnvironmentVariables);WASI_SDK_PATH=$(RuntimeBuildWasiSdkPath)</_CoreClrBuildEnvironmentVariables>
     </PropertyGroup>
 
     <!-- Use IgnoreStandardErrorWarningFormat because Arcade sets WarnAsError and we want to avoid upgrading compiler warnings to errors in release branches -->

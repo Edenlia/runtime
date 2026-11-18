@@ -17,7 +17,8 @@
     <_CMakeArgs Condition="'$(CMakeArgs)' != ''"> -cmakeargs "$(CMakeArgs)"</_CMakeArgs>
     <_CMakeArgs Condition="'$(WasmEnableThreads)' == 'true'">$(_CMakeArgs) -cmakeargs "-DCLR_CMAKE_WASM_ENABLE_THREADS=1"</_CMakeArgs>
 
-    <_BuildNativeArgs>$(_BuildNativeArgs)$(_CMakeArgs) @(NativeCMakeArg, ' ')</_BuildNativeArgs>
+    <_BuildNativeArgs>$(_BuildNativeArgs)$(_CMakeArgs)</_BuildNativeArgs>
+    <_BuildNativeArgs Condition="'$(TargetsWasm64)' != 'true'">$(_BuildNativeArgs) @(NativeCMakeArg, ' ')</_BuildNativeArgs>
     <BuildNativeCommonDependsOnTargets>GenerateNativeVersionFile</BuildNativeCommonDependsOnTargets>
     <BuildNativeCommonDependsOnTargets Condition="'$(TargetsWasi)' == 'true'">AcquireWasiSdk;$(BuildNativeCommonDependsOnTargets)</BuildNativeCommonDependsOnTargets>
     <BuildNativeCommonDependsOnTargets Condition="'$(TargetsBrowser)' == 'true'">AcquireEmscriptenSdk;$(BuildNativeCommonDependsOnTargets);GenerateEmccExports</BuildNativeCommonDependsOnTargets>
@@ -29,6 +30,10 @@
 
   <Target Name="BuildNativeCommon"
           DependsOnTargets="$(BuildNativeCommonDependsOnTargets)">
+    <PropertyGroup>
+      <_BuildNativeArgs Condition="'$(TargetsWasm64)' == 'true'">$(_BuildNativeArgs) @(NativeCMakeArg, ' ')</_BuildNativeArgs>
+      <_BuildNativeEnvironmentVariables Condition="'$(TargetsWasm64)' == 'true'">EMSDK_PATH=$(EMSDK_PATH);EM_CACHE=$(Memory64EmscriptenCacheDir);EM_FROZEN_CACHE=</_BuildNativeEnvironmentVariables>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(TargetsWasi)' == 'true'">
       <_BuildNativeEnvironmentVariables>WASI_SDK_PATH=$(RuntimeBuildWasiSdkPath)</_BuildNativeEnvironmentVariables>
     </PropertyGroup>
@@ -55,7 +60,8 @@
         used to force a specific compiler toolset.
       -->
       <_BuildNativeCompilerArg Condition="'$(BuildNativeCompiler)' != ''"> $(BuildNativeCompiler)</_BuildNativeCompilerArg>
-      <_BuildNativeUnixArgs>$(_BuildNativeArgs)$(_ProcessorCountArg)$(_PortableBuildArg)$(_CrossBuildArg)$(_BuildNativeCompilerArg)$(_KeepNativeSymbolsBuildArg) $(CppCompilerAndLinker)</_BuildNativeUnixArgs>
+      <!-- The Unix script prepends -cmakeargs, so the prepared ICU directory goes before user arguments. -->
+      <_BuildNativeUnixArgs>@(_Memory64IcuCMakeArg, ' ') $(_BuildNativeArgs)$(_ProcessorCountArg)$(_PortableBuildArg)$(_CrossBuildArg)$(_BuildNativeCompilerArg)$(_KeepNativeSymbolsBuildArg) $(CppCompilerAndLinker)</_BuildNativeUnixArgs>
       <_BuildNativeBuildCommand>&quot;$(MSBuildThisFileDirectory)build-native.sh&quot; $(_BuildNativeUnixArgs)</_BuildNativeBuildCommand>
     </PropertyGroup>
 
@@ -86,7 +92,7 @@
           Condition="$([MSBuild]::IsOsPlatform(Windows))">
     <PropertyGroup>
         <_BuildNativeArgs Condition="'$(Ninja)' == 'false'">$(_BuildNativeArgs) msbuild</_BuildNativeArgs>
-        <_BuildNativeBuildCommand>&quot;$(MSBuildThisFileDirectory)build-native.cmd&quot; $(_BuildNativeArgs)</_BuildNativeBuildCommand>
+        <_BuildNativeBuildCommand>&quot;$(MSBuildThisFileDirectory)build-native.cmd&quot; $(_BuildNativeArgs) @(_Memory64IcuCMakeArg, ' ')</_BuildNativeBuildCommand>
     </PropertyGroup>
     <!-- Run script that uses CMake to generate and build the native files. -->
     <!-- Use IgnoreStandardErrorWarningFormat because Arcade sets WarnAsError and we want to avoid upgrading compiler warnings to errors in release branches -->
