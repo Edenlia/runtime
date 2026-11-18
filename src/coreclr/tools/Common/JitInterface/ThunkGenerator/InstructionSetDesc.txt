@@ -21,6 +21,9 @@
 ; Copy instruction sets defined for other architecture at this point in the file.
 ; copyinstructionsets,<architecture>,<copytoarchitecture>
 
+; Reuse an existing architecture's managed instruction-set tables.
+; aliasinstructionsets,<architecture>,<source architecture>
+
 ; UPDATE JIT/EE INTERFACE GUID WHEN CHANGING THESE DEFINITIONS. The instruction set definitions are part of JIT/EE interface contract.
 
 ; DO NOT CHANGE R2R NUMERIC VALUES OF THE EXISTING SETS. Changing R2R numeric values definitions would be R2R format breaking change.
@@ -332,3 +335,5 @@ vectorinstructionset ,Wasm32      ,Vector128
 implication          ,Wasm32      ,Vector128   ,PackedSimd
 implication          ,Wasm32      ,RelaxedSimd ,PackedSimd
 implication          ,Wasm32      ,PackedSimd  ,WasmBase
+
+aliasinstructionsets  ,Wasm64      ,Wasm32

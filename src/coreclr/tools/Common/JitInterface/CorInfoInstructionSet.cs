@@ -353,6 +353,13 @@ namespace Internal.JitInterface
 
         public InstructionSetFlags() { }
 
+        // Resolve aliases only for the generated managed instruction-set tables.
+        internal static TargetArchitecture ResolveManagedTableArchitecture(TargetArchitecture architecture) => architecture switch
+        {
+            TargetArchitecture.Wasm64 => TargetArchitecture.Wasm32,
+            _ => architecture,
+        };
+
         private static uint GetFlagsFieldIndex(InstructionSet instructionSet)
         {
             uint bitIndex = (uint)instructionSet;
@@ -456,7 +463,7 @@ namespace Internal.JitInterface
 
         public static InstructionSet ConvertToImpliedInstructionSetForVectorInstructionSets(TargetArchitecture architecture, InstructionSet input)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
                 case TargetArchitecture.ARM64:
                     switch (input)
@@ -499,7 +506,7 @@ namespace Internal.JitInterface
             do
             {
                 oldflags = resultflags;
-                switch (architecture)
+                switch (ResolveManagedTableArchitecture(architecture))
                 {
                     case TargetArchitecture.ARM64:
                         if (resultflags.HasInstructionSet(InstructionSet.ARM64_ArmBase))
@@ -850,7 +857,7 @@ namespace Internal.JitInterface
             do
             {
                 oldflags = resultflags;
-                switch (architecture)
+                switch (ResolveManagedTableArchitecture(architecture))
                 {
 
                     case TargetArchitecture.ARM64:
@@ -1152,7 +1159,7 @@ namespace Internal.JitInterface
             AllInstructionSetGroups.Keys.Select(key => key.Item1).Distinct();
 
         public static IEnumerable<string> CpuNameToInstructionSets(string cpu, TargetArchitecture arch) =>
-            AllInstructionSetGroups.TryGetValue((cpu, arch), out string value) ? value.Split(' ') : null;
+            AllInstructionSetGroups.TryGetValue((cpu, ResolveManagedTableArchitecture(arch)), out string value) ? value.Split(' ') : null;
 
         public struct InstructionSetInfo
         {
@@ -1172,7 +1179,7 @@ namespace Internal.JitInterface
 
         public static IEnumerable<InstructionSetInfo> ArchitectureToValidInstructionSets(TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 
                 case TargetArchitecture.ARM64:
@@ -1371,7 +1378,7 @@ namespace Internal.JitInterface
 
         public void Set64BitInstructionSetVariants(TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 
                 case TargetArchitecture.ARM64:
@@ -1459,7 +1466,7 @@ namespace Internal.JitInterface
 
         public void Set64BitInstructionSetVariantsUnconditionally(TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 
                 case TargetArchitecture.ARM64:
@@ -1550,7 +1557,7 @@ namespace Internal.JitInterface
 
             string platformIntrinsicNamespace;
 
-            switch (targetArch)
+            switch (InstructionSetFlags.ResolveManagedTableArchitecture(targetArch))
             {
                 case TargetArchitecture.ARM64:
                     platformIntrinsicNamespace = "System.Runtime.Intrinsics.Arm";
@@ -1575,7 +1582,7 @@ namespace Internal.JitInterface
             if (namespaceName != platformIntrinsicNamespace)
                 return InstructionSet.ILLEGAL;
 
-            switch (targetArch)
+            switch (InstructionSetFlags.ResolveManagedTableArchitecture(targetArch))
             {
 
                 case TargetArchitecture.ARM64:
@@ -2097,7 +2104,7 @@ namespace Internal.JitInterface
 
         public static IEnumerable<MetadataType> LookupPlatformIntrinsicTypes(TypeSystemContext context, InstructionSet instructionSet)
         {
-            switch ((instructionSet, context.Target.Architecture))
+            switch ((instructionSet, InstructionSetFlags.ResolveManagedTableArchitecture(context.Target.Architecture)))
             {
                 case (InstructionSet.ARM64_ArmBase, TargetArchitecture.ARM64):
                 case (InstructionSet.ARM64_ArmBase_Arm64, TargetArchitecture.ARM64):

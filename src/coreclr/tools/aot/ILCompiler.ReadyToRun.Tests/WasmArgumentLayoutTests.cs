@@ -57,6 +57,24 @@ public class WasmArgumentLayoutTests
         _output = output;
     }
 
+    [Fact]
+    public void Wasm64UsesWasmInstructionSetDescriptions()
+    {
+        var wasm32 = InstructionSetFlags.ArchitectureToValidInstructionSets(TargetArchitecture.Wasm32);
+        var wasm64 = InstructionSetFlags.ArchitectureToValidInstructionSets(TargetArchitecture.Wasm64);
+        Assert.Equal(wasm32.Select(isa => (isa.Name, isa.InstructionSet)), wasm64.Select(isa => (isa.Name, isa.InstructionSet)));
+
+        var flags = new InstructionSetFlags();
+        flags.AddInstructionSet(InstructionSet.Wasm32_PackedSimd);
+        flags.ExpandInstructionSetByImplication(TargetArchitecture.Wasm64);
+        Assert.True(flags.HasInstructionSet(InstructionSet.Wasm32_WasmBase));
+
+        flags = new InstructionSetFlags();
+        flags.AddInstructionSet(InstructionSet.Wasm32_PackedSimd);
+        flags.ExpandInstructionSetByReverseImplication(TargetArchitecture.Wasm64);
+        Assert.True(flags.HasInstructionSet(InstructionSet.Wasm32_RelaxedSimd));
+    }
+
     [Theory]
     [InlineData(0, -1, 1)]
     [InlineData(1, -3, 1)]

@@ -88,6 +88,7 @@ namespace Thunkerator
         private SortedDictionary<string, int> _r2rNamesByName = new SortedDictionary<string, int>();
         private SortedDictionary<int, string> _r2rNamesByNumber = new SortedDictionary<int, string>();
         private SortedSet<string> _architectures = new SortedSet<string>();
+        private readonly SortedDictionary<string, string> _managedArchitectureAliases = new(StringComparer.Ordinal);
         private Dictionary<string, string> _architectureManagedNamespace = new Dictionary<string, string>();
         private Dictionary<string, HashSet<string>> _architectureJitNames = new Dictionary<string, HashSet<string>>();
         private Dictionary<string, HashSet<string>> _architectureVectorInstructionSetJitNames = new Dictionary<string, HashSet<string>>();
@@ -100,6 +101,8 @@ namespace Thunkerator
 
         private void ArchitectureEncountered(string arch)
         {
+            if (_managedArchitectureAliases.ContainsKey(arch))
+                throw new Exception($"Architecture '{arch}' is already an instruction-set alias");
             if (!_64bitVariants.ContainsKey(arch))
                 _64bitVariants.Add(arch, new HashSet<string>());
             _architectures.Add(arch);
@@ -210,6 +213,13 @@ namespace Thunkerator
                             if (command.Length != 4)
                                 throw new Exception("Incorrect number of args for instructionsetgroup");
                             _instructionSetsGroups.Add(new InstructionSetGroup(command[1], command[2], command[3]));
+                            break;
+                        case "aliasinstructionsets":
+                            if (command.Length != 3)
+                                throw new Exception("Incorrect number of args for aliasinstructionsets");
+                            ValidateArchitectureEncountered(command[2]);
+                            if (_architectures.Contains(command[1]) || !_managedArchitectureAliases.TryAdd(command[1], command[2]))
+                                throw new Exception($"Architecture '{command[1]}' already has instruction-set tables");
                             break;
                         case "copyinstructionsets":
                             if (command.Length != 3)
@@ -330,7 +340,7 @@ namespace Internal.ReadyToRunConstants
     {
         public static ReadyToRunInstructionSet? R2RInstructionSet(this InstructionSet instructionSet, TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (InstructionSetFlags.ResolveManagedTableArchitecture(architecture))
             {");
             foreach (string architecture in _architectures)
             {
@@ -453,6 +463,15 @@ namespace Internal.JitInterface
 
             tr.Write(@"        public InstructionSetFlags() { }
 
+");
+            tr.WriteLine("        // Resolve aliases only for the generated managed instruction-set tables.");
+            tr.WriteLine("        internal static TargetArchitecture ResolveManagedTableArchitecture(TargetArchitecture architecture) => architecture switch");
+            tr.WriteLine("        {");
+            foreach (var (alias, source) in _managedArchitectureAliases)
+                tr.WriteLine($"            TargetArchitecture.{alias} => TargetArchitecture.{source},");
+            tr.WriteLine("            _ => architecture,");
+            tr.WriteLine("        };");
+            tr.Write(@"
         private static uint GetFlagsFieldIndex(InstructionSet instructionSet)
         {
             uint bitIndex = (uint)instructionSet;
@@ -556,7 +575,7 @@ namespace Internal.JitInterface
 
         public static InstructionSet ConvertToImpliedInstructionSetForVectorInstructionSets(TargetArchitecture architecture, InstructionSet input)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 ");
             foreach (string architecture in _architectures)
@@ -603,7 +622,7 @@ namespace Internal.JitInterface
             do
             {
                 oldflags = resultflags;
-                switch (architecture)
+                switch (ResolveManagedTableArchitecture(architecture))
                 {");
             foreach (string architecture in _architectures)
             {
@@ -649,7 +668,7 @@ namespace Internal.JitInterface
             do
             {
                 oldflags = resultflags;
-                switch (architecture)
+                switch (ResolveManagedTableArchitecture(architecture))
                 {
 ");
             foreach (string architecture in _architectures)
@@ -702,7 +721,7 @@ namespace Internal.JitInterface
             AllInstructionSetGroups.Keys.Select(key => key.Item1).Distinct();
 
         public static IEnumerable<string> CpuNameToInstructionSets(string cpu, TargetArchitecture arch) =>
-            AllInstructionSetGroups.TryGetValue((cpu, arch), out string value) ? value.Split(' ') : null;
+            AllInstructionSetGroups.TryGetValue((cpu, ResolveManagedTableArchitecture(arch)), out string value) ? value.Split(' ') : null;
 
         public struct InstructionSetInfo
         {
@@ -722,7 +741,7 @@ namespace Internal.JitInterface
 
         public static IEnumerable<InstructionSetInfo> ArchitectureToValidInstructionSets(TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 ");
             foreach (string architecture in _architectures)
@@ -748,7 +767,7 @@ namespace Internal.JitInterface
 
         public void Set64BitInstructionSetVariants(TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 ");
             foreach (string architecture in _architectures)
@@ -776,7 +795,7 @@ namespace Internal.JitInterface
 
         public void Set64BitInstructionSetVariantsUnconditionally(TargetArchitecture architecture)
         {
-            switch (architecture)
+            switch (ResolveManagedTableArchitecture(architecture))
             {
 ");
             foreach (string architecture in _architectures)
@@ -823,7 +842,7 @@ namespace Internal.JitInterface
 
             string platformIntrinsicNamespace;
 
-            switch (targetArch)
+            switch (InstructionSetFlags.ResolveManagedTableArchitecture(targetArch))
             {");
 
             foreach (string architecture in _architectures)
@@ -848,7 +867,7 @@ namespace Internal.JitInterface
             if (namespaceName != platformIntrinsicNamespace)
                 return InstructionSet.ILLEGAL;
 
-            switch (targetArch)
+            switch (InstructionSetFlags.ResolveManagedTableArchitecture(targetArch))
             {
 ");
             foreach (string architecture in _architectures)
@@ -923,7 +942,7 @@ namespace Internal.JitInterface
 
         public static IEnumerable<MetadataType> LookupPlatformIntrinsicTypes(TypeSystemContext context, InstructionSet instructionSet)
         {
-            switch ((instructionSet, context.Target.Architecture))
+            switch ((instructionSet, InstructionSetFlags.ResolveManagedTableArchitecture(context.Target.Architecture)))
             {");
 
             foreach (string architecture in _architectures.Where(_architectureManagedNamespace.ContainsKey))
